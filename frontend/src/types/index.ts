@@ -38,6 +38,10 @@ export interface SkitMeta {
 export interface SkitCommand {
   id: number;
   type: string;
+  isGroup?: boolean;
+  groupName?: string;
+  parentId?: number | null;
+  isCollapsed?: boolean;
   [key: string]: any; // Additional properties based on command type
 }
 
