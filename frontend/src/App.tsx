@@ -8,6 +8,11 @@ import { useSkitStore } from './store/skitStore';
 import { loadCommandsYaml as loadCommandsYamlFile, loadSkits as loadSkitsFiles } from './utils/fileSystem';
 import { Toaster } from 'sonner';
 import { DndProvider } from './components/dnd/DndProvider';
+import {
+  ResizablePanelGroup,
+  ResizablePanel,
+  ResizableHandle,
+} from "./components/ui/resizable"
 import './App.css';
 
 function App() {
@@ -109,20 +114,27 @@ commands:
       <MainLayout>
         <div className="w-full flex flex-col overflow-hidden h-full">
           <Toolbar />
-          <div className="flex-1 flex overflow-hidden">
-            <div className="w-[400px] overflow-y-auto h-full">
-              <CommandList />
-            </div>
-            <div className="border-l border-gray-300 w-[1px] h-full"></div>
-            <div className="flex-1 flex flex-col overflow-hidden">
-              <div className="flex-1 overflow-y-auto p-4">
-                <CommandEditor />
+          <ResizablePanelGroup
+            direction="horizontal"
+            className="flex-1 flex overflow-hidden"
+          >
+            <ResizablePanel defaultSize={30} minSize={20}>
+              <div className="overflow-y-auto h-full">
+                <CommandList />
               </div>
-              <div>
-                <ValidationLog />
+            </ResizablePanel>
+            <ResizableHandle withHandle />
+            <ResizablePanel defaultSize={70} minSize={30}>
+              <div className="flex-1 flex flex-col overflow-hidden h-full">
+                <div className="flex-1 overflow-y-auto p-4">
+                  <CommandEditor />
+                </div>
+                <div>
+                  <ValidationLog />
+                </div>
               </div>
-            </div>
-          </div>
+            </ResizablePanel>
+          </ResizablePanelGroup>
         </div>
         <Toaster position="top-right" />
       </MainLayout>
