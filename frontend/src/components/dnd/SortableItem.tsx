@@ -1,6 +1,7 @@
 import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { GripVertical } from 'lucide-react'; // lucide-reactからGripVerticalをインポート
 
 interface SortableItemProps {
   id: string | number;
@@ -38,21 +39,7 @@ export function SortableItem({ id, children }: SortableItemProps) {
         aria-label="ドラッグハンドル"
         data-testid="drag-handle"
       >
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 14 14"
-          fill="currentColor"
-          xmlns="http://www.w3.org/2000/svg"
-          className="text-gray-400 hover:text-gray-600"
-        >
-          <circle cx="2.5" cy="4.5" r="1.5" />
-          <circle cx="7" cy="4.5" r="1.5" />
-          <circle cx="11.5" cy="4.5" r="1.5" />
-          <circle cx="2.5" cy="9.5" r="1.5" />
-          <circle cx="7" cy="9.5" r="1.5" />
-          <circle cx="11.5" cy="9.5" r="1.5" />
-        </svg>
+        <GripVertical className="text-gray-400 hover:text-gray-600" size={16} />
       </div>
 
       {/* アイテムのコンテンツ - 左側にパディングを追加してハンドル用のスペースを確保 */}
