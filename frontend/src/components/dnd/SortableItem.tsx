@@ -28,9 +28,11 @@ export function SortableItem({ id, children }: SortableItemProps) {
       ref={setNodeRef}
       style={style}
       {...attributes}
-      {...listeners}
     >
-      {children}
+      <div {...listeners} className="absolute top-0 right-0 w-6 h-6 cursor-grab" />
+      <div className="contents">
+        {children}
+      </div>
     </div>
   );
 }

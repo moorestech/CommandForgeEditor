@@ -18,6 +18,8 @@ export function CommandEditor() {
   } = useSkitStore();
   
   const [commandDefinitions, setCommandDefinitions] = useState<CommandDefinition[]>([]);
+  const currentSkit = currentSkitId ? skits[currentSkitId] : null;
+  const selectedCommand = currentSkit?.commands.find(cmd => cmd.id === selectedCommandId);
   
   useEffect(() => {
     if (commandsYaml) {
@@ -31,9 +33,8 @@ export function CommandEditor() {
       }
     }
   }, [commandsYaml]);
+  
 
-  const currentSkit = currentSkitId ? skits[currentSkitId] : null;
-  const selectedCommand = currentSkit?.commands.find(cmd => cmd.id === selectedCommandId);
   
   if (!selectedCommand) {
     return (
