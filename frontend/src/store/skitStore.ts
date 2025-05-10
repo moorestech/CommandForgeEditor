@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
+import { persist } from 'zustand/middleware';
 import { Skit, SkitCommand } from '../types';
 
 interface SkitState {
@@ -7,6 +8,7 @@ interface SkitState {
   currentSkitId: string | null;
   selectedCommandId: number | null;
   commandsYaml: string | null;
+  projectPath: string | null;  // Add project path state
   validationErrors: string[];
   history: {
     past: Skit[];
@@ -26,14 +28,17 @@ interface SkitState {
   redo: () => void;
   setValidationErrors: (errors: string[]) => void;
   loadCommandsYaml: (yaml: string) => void;
+  setProjectPath: (path: string | null) => void;  // Add project path setter
 }
 
 export const useSkitStore = create<SkitState>()(
-  immer((set) => ({
+  persist(
+    immer((set) => ({
     skits: {},
     currentSkitId: null,
     selectedCommandId: null,
     commandsYaml: null,
+    projectPath: null,  // Initialize project path
     validationErrors: [],
     history: {
       past: [],
@@ -278,5 +283,17 @@ export const useSkitStore = create<SkitState>()(
         state.commandsYaml = yaml;
       });
     },
-  }))
-);
+    
+    setProjectPath: (path) => {
+      set((state) => {
+        state.projectPath = path;
+      });
+    },
+  })),
+  {
+    name: 'skit-editor-storage',
+    partialize: (state) => ({ 
+      projectPath: state.projectPath 
+    }),
+  }
+));

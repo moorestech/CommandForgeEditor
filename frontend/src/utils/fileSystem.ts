@@ -1,15 +1,49 @@
-import { readTextFile, writeTextFile, createDir, readDir } from '@tauri-apps/api/fs';
+import { readTextFile, writeTextFile, createDir, readDir, exists } from '@tauri-apps/api/fs';
 import { join, resolveResource } from '@tauri-apps/api/path';
+import { open } from '@tauri-apps/api/dialog';
 import { Skit } from '../types';
 import { validateSkitData, validateCommandsYaml } from './validation';
 
 /**
- * Loads commands.yaml file
+ * Opens a folder selection dialog
+ * @returns Promise with the selected path or null if cancelled
+ */
+export async function selectProjectFolder(): Promise<string | null> {
+  try {
+    const selected = await open({
+      directory: true,
+      multiple: false,
+      title: 'プロジェクトフォルダを選択'
+    });
+    
+    if (selected === null) {
+      return null;
+    }
+    
+    return selected as string;
+  } catch (error) {
+    console.error('Failed to select project folder:', error);
+    return null;
+  }
+}
+
+/**
+ * Loads commands.yaml file from either project path or resources
+ * @param projectPath Optional project path
  * @returns Promise with the commands.yaml content
  */
-export async function loadCommandsYaml(): Promise<string> {
+export async function loadCommandsYaml(projectPath: string | null = null): Promise<string> {
   try {
-    const commandsYamlPath = await resolveResource('commands.yaml');
+    let commandsYamlPath;
+    
+    if (projectPath) {
+      commandsYamlPath = await join(projectPath, 'commands.yaml');
+      if (await exists(commandsYamlPath)) {
+        return await readTextFile(commandsYamlPath);
+      }
+    }
+    
+    commandsYamlPath = await resolveResource('commands.yaml');
     return await readTextFile(commandsYamlPath);
   } catch (error) {
     console.error('Failed to load commands.yaml:', error);
@@ -19,13 +53,37 @@ export async function loadCommandsYaml(): Promise<string> {
 
 /**
  * Loads all skits from the skits directory
+ * @param projectPath Optional project path
  * @returns Promise with a record of skits
  */
-export async function loadSkits(): Promise<Record<string, Skit>> {
+export async function loadSkits(projectPath: string | null = null): Promise<Record<string, Skit>> {
   try {
-    const skitsPath = await resolveResource('skits');
-    const skitFiles = await readDir(skitsPath);
+    let skitsPath;
     
+    if (projectPath) {
+      skitsPath = await join(projectPath, 'skits');
+      // Check if the skits directory exists in project path
+      if (await exists(skitsPath)) {
+        return await loadSkitsFromPath(skitsPath);
+      }
+    }
+    
+    skitsPath = await resolveResource('skits');
+    return await loadSkitsFromPath(skitsPath);
+  } catch (error) {
+    console.error('Failed to load skits:', error);
+    throw error;
+  }
+}
+
+/**
+ * Helper function to load skits from a specific path
+ * @param skitsPath Path to the skits directory
+ * @returns Promise with a record of skits
+ */
+async function loadSkitsFromPath(skitsPath: string): Promise<Record<string, Skit>> {
+  try {
+    const skitFiles = await readDir(skitsPath);
     const skits: Record<string, Skit> = {};
     
     for (const file of skitFiles) {
@@ -38,8 +96,8 @@ export async function loadSkits(): Promise<Record<string, Skit>> {
     
     return skits;
   } catch (error) {
-    console.error('Failed to load skits:', error);
-    throw error;
+    console.error(`Failed to load skits from ${skitsPath}:`, error);
+    return {};
   }
 }
 
@@ -48,12 +106,14 @@ export async function loadSkits(): Promise<Record<string, Skit>> {
  * @param skitId The ID of the skit
  * @param skit The skit data
  * @param commandsYaml The commands.yaml content for validation
+ * @param projectPath Optional project path
  * @returns Promise with validation errors, empty if valid
  */
 export async function saveSkit(
   skitId: string, 
   skit: Skit, 
-  commandsYaml: string
+  commandsYaml: string,
+  projectPath: string | null = null
 ): Promise<string[]> {
   try {
     const errors = validateSkitData(skit);
@@ -78,7 +138,14 @@ export async function saveSkit(
       }
     };
     
-    const skitsPath = await resolveResource('skits');
+    let skitsPath;
+    
+    if (projectPath) {
+      skitsPath = await join(projectPath, 'skits');
+    } else {
+      skitsPath = await resolveResource('skits');
+    }
+    
     await createDir(skitsPath, { recursive: true });
     
     const skitPath = await join(skitsPath, `${skitId}.json`);
@@ -94,9 +161,13 @@ export async function saveSkit(
 /**
  * Creates a new skit
  * @param title The title of the new skit
+ * @param projectPath Optional project path
  * @returns Promise with the new skit ID and any errors
  */
-export async function createNewSkit(title: string): Promise<{ id: string; errors: string[] }> {
+export async function createNewSkit(
+  title: string,
+  projectPath: string | null = null
+): Promise<{ id: string; errors: string[] }> {
   const newSkit: Skit = {
     meta: {
       title,
@@ -108,7 +179,7 @@ export async function createNewSkit(title: string): Promise<{ id: string; errors
   };
   
   const skitId = title.toLowerCase().replace(/\s+/g, '_');
-  const errors = await saveSkit(skitId, newSkit, '');
+  const errors = await saveSkit(skitId, newSkit, '', projectPath);
   
   return { id: skitId, errors };
 }
