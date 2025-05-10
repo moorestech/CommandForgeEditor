@@ -119,38 +119,27 @@ export function CommandListMenu({ children, commandId, index }: CommandListMenuP
   };
 
   const CommandList = ({ position }: { position: 'above' | 'below' }) => {
-    const style = {
-      position: 'fixed' as const,
-      left: `${menuPosition.x}px`,
-      top: `${menuPosition.y}px`,
-      zIndex: 1000,
-      backgroundColor: 'white',
-      border: '1px solid #e2e8f0',
-      borderRadius: '0.375rem',
-      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-      padding: '0.5rem',
-      maxHeight: '300px',
-      overflowY: 'auto' as const,
-    };
-
     return (
       <div 
         ref={position === 'above' ? aboveMenuRef : belowMenuRef}
-        style={style}
-        className="command-list-popup"
+        className="fixed z-50 bg-white border border-zinc-200 rounded-md shadow-md p-2 w-64 max-h-[300px] overflow-y-auto"
+        style={{
+          left: `${menuPosition.x}px`,
+          top: `${menuPosition.y}px`,
+        }}
         onClick={(e) => e.stopPropagation()} // Prevent clicks from closing the context menu
       >
         {commandDefinitions.map((command: any) => (
           <div 
             key={command.id}
-            className="flex items-center w-full p-2 hover:bg-gray-100 cursor-pointer rounded-sm"
+            className="flex items-center w-full p-2 hover:bg-zinc-100 cursor-pointer rounded-sm text-sm"
             onClick={(e) => {
               e.stopPropagation(); // Prevent event bubbling
               handleAddCommand(command.id, position);
             }}
           >
             <DraggableCommand id={command.id}>
-              <div className="flex items-center w-full">
+              <div className="flex items-center w-full whitespace-nowrap overflow-hidden text-ellipsis">
                 {command.label}
               </div>
             </DraggableCommand>
