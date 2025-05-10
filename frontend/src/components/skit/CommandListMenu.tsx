@@ -63,55 +63,63 @@ export function CommandListMenu({ children, commandId, index }: CommandListMenuP
     };
   }, [showAddAbove, showAddBelow]);
 
-  const handleAddCommand = (commandType: string, position: 'above' | 'below') => {
-    const commandDef = commandDefinitions.find((def: any) => def.id === commandType) as CommandDefinition;
-    if (!commandDef) return;
-
-    const newCommand: any = { type: commandType };
-    
-    Object.entries(commandDef.properties).forEach(([propName, propDefAny]) => {
-      const propDef = propDefAny as any;
-      if (propDef.default !== undefined) {
-        newCommand[propName] = propDef.default;
-      } else if (propDef.required) {
-        switch (propDef.type) {
-          case 'string':
-            newCommand[propName] = '';
-            break;
-          case 'number':
-            newCommand[propName] = 0;
-            break;
-          case 'boolean':
-            newCommand[propName] = false;
-            break;
-          case 'enum':
-            newCommand[propName] = propDef.options?.[0] || '';
-            break;
-          case 'asset':
-            newCommand[propName] = '';
-            break;
-        }
-      }
-    });
-
-    addCommand(newCommand);
-
-    const { skits, currentSkitId } = useSkitStore.getState();
-    if (!currentSkitId) return;
-    
-    const currentSkit = skits[currentSkitId];
-    if (!currentSkit) return;
-    
-    const commandsLength = currentSkit.commands.length;
-    
-    if (position === 'above') {
-      moveCommand(commandsLength - 1, index);
-    } else {
-      moveCommand(commandsLength - 1, index + 1);
-    }
-
+  const skits = useSkitStore(state => state.skits);
+  useEffect(() => {
     setShowAddAbove(false);
     setShowAddBelow(false);
+  }, [skits]);
+
+  const handleAddCommand = (commandType: string, position: 'above' | 'below') => {
+    setShowAddAbove(false);
+    setShowAddBelow(false);
+    
+    setTimeout(() => {
+      const commandDef = commandDefinitions.find((def: any) => def.id === commandType) as CommandDefinition;
+      if (!commandDef) return;
+
+      const newCommand: any = { type: commandType };
+      
+      Object.entries(commandDef.properties).forEach(([propName, propDefAny]) => {
+        const propDef = propDefAny as any;
+        if (propDef.default !== undefined) {
+          newCommand[propName] = propDef.default;
+        } else if (propDef.required) {
+          switch (propDef.type) {
+            case 'string':
+              newCommand[propName] = '';
+              break;
+            case 'number':
+              newCommand[propName] = 0;
+              break;
+            case 'boolean':
+              newCommand[propName] = false;
+              break;
+            case 'enum':
+              newCommand[propName] = propDef.options?.[0] || '';
+              break;
+            case 'asset':
+              newCommand[propName] = '';
+              break;
+          }
+        }
+      });
+
+      addCommand(newCommand);
+
+      const { skits, currentSkitId } = useSkitStore.getState();
+      if (!currentSkitId) return;
+      
+      const currentSkit = skits[currentSkitId];
+      if (!currentSkit) return;
+      
+      const commandsLength = currentSkit.commands.length;
+      
+      if (position === 'above') {
+        moveCommand(commandsLength - 1, index);
+      } else {
+        moveCommand(commandsLength - 1, index + 1);
+      }
+    }, 10);
   };
 
   const handleContextMenu = (e: React.MouseEvent) => {
@@ -133,8 +141,9 @@ export function CommandListMenu({ children, commandId, index }: CommandListMenuP
           <div 
             key={command.id}
             className="flex items-center w-full p-2 hover:bg-zinc-100 cursor-pointer rounded-sm text-sm"
-            onClick={(e) => {
+            onMouseDown={(e) => {
               e.stopPropagation(); // Prevent event bubbling
+              e.preventDefault(); // Prevent default behavior
               handleAddCommand(command.id, position);
             }}
           >
@@ -152,9 +161,11 @@ export function CommandListMenu({ children, commandId, index }: CommandListMenuP
   return (
     <div onContextMenu={handleContextMenu}>
       <ContextMenu onOpenChange={(open) => {
-        if (!open && !showAddAbove && !showAddBelow) {
-          setShowAddAbove(false);
-          setShowAddBelow(false);
+        if (!open) {
+          setTimeout(() => {
+            setShowAddAbove(false);
+            setShowAddBelow(false);
+          }, 50);
         }
       }}>
         <ContextMenuTrigger asChild>
@@ -162,21 +173,25 @@ export function CommandListMenu({ children, commandId, index }: CommandListMenuP
         </ContextMenuTrigger>
         <ContextMenuContent>
           {commandId !== null && (
-            <ContextMenuItem onClick={() => removeCommand(commandId)}>
+            <ContextMenuItem onSelect={() => removeCommand(commandId)}>
               削除
             </ContextMenuItem>
           )}
-          <ContextMenuItem onClick={(e) => {
-            e.stopPropagation(); // Prevent event bubbling
+          <ContextMenuItem onSelect={() => {
             setShowAddBelow(false); // Close the other menu
-            setShowAddAbove(true);
+            
+            setTimeout(() => {
+              setShowAddAbove(true);
+            }, 10);
           }}>
             上にコマンドを追加
           </ContextMenuItem>
-          <ContextMenuItem onClick={(e) => {
-            e.stopPropagation(); // Prevent event bubbling
+          <ContextMenuItem onSelect={() => {
             setShowAddAbove(false); // Close the other menu
-            setShowAddBelow(true);
+            
+            setTimeout(() => {
+              setShowAddBelow(true);
+            }, 10);
           }}>
             下にコマンドを追加
           </ContextMenuItem>
