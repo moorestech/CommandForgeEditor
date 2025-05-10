@@ -27,7 +27,8 @@ export function CommandListMenu({ children, commandId, index }: CommandListMenuP
   const [showAddAbove, setShowAddAbove] = React.useState(false);
   const [showAddBelow, setShowAddBelow] = React.useState(false);
   const [menuPosition, setMenuPosition] = React.useState({ x: 0, y: 0 });
-  const commandListRef = useRef<HTMLDivElement>(null);
+  const aboveMenuRef = useRef<HTMLDivElement>(null);
+  const belowMenuRef = useRef<HTMLDivElement>(null);
 
   const commandDefinitions = React.useMemo(() => {
     if (!commandsYaml) return [];
@@ -42,26 +43,25 @@ export function CommandListMenu({ children, commandId, index }: CommandListMenuP
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        commandListRef.current && 
-        !commandListRef.current.contains(event.target as Node) &&
-        (showAddAbove || showAddBelow)
-      ) {
+      if (!showAddAbove && !showAddBelow) return;
+
+      const isOutsideAboveMenu = !aboveMenuRef.current || !aboveMenuRef.current.contains(event.target as Node);
+      const isOutsideBelowMenu = !belowMenuRef.current || !belowMenuRef.current.contains(event.target as Node);
+      
+      if (isOutsideAboveMenu && isOutsideBelowMenu) {
         setShowAddAbove(false);
         setShowAddBelow(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    if (showAddAbove || showAddBelow) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [showAddAbove, showAddBelow]);
-
-  const closeAllMenus = () => {
-    setShowAddAbove(false);
-    setShowAddBelow(false);
-  };
 
   const handleAddCommand = (commandType: string, position: 'above' | 'below') => {
     const commandDef = commandDefinitions.find((def: any) => def.id === commandType) as CommandDefinition;
@@ -110,7 +110,8 @@ export function CommandListMenu({ children, commandId, index }: CommandListMenuP
       moveCommand(commandsLength - 1, index + 1);
     }
 
-    closeAllMenus();
+    setShowAddAbove(false);
+    setShowAddBelow(false);
   };
 
   const handleContextMenu = (e: React.MouseEvent) => {
@@ -134,9 +135,10 @@ export function CommandListMenu({ children, commandId, index }: CommandListMenuP
 
     return (
       <div 
-        ref={commandListRef}
+        ref={position === 'above' ? aboveMenuRef : belowMenuRef}
         style={style}
         className="command-list-popup"
+        onClick={(e) => e.stopPropagation()} // Prevent clicks from closing the context menu
       >
         {commandDefinitions.map((command: any) => (
           <div 
@@ -161,8 +163,9 @@ export function CommandListMenu({ children, commandId, index }: CommandListMenuP
   return (
     <div onContextMenu={handleContextMenu}>
       <ContextMenu onOpenChange={(open) => {
-        if (!open) {
-          closeAllMenus();
+        if (!open && !showAddAbove && !showAddBelow) {
+          setShowAddAbove(false);
+          setShowAddBelow(false);
         }
       }}>
         <ContextMenuTrigger asChild>
@@ -174,14 +177,16 @@ export function CommandListMenu({ children, commandId, index }: CommandListMenuP
               削除
             </ContextMenuItem>
           )}
-          <ContextMenuItem onClick={() => {
-            closeAllMenus(); // Close any existing menus first
+          <ContextMenuItem onClick={(e) => {
+            e.stopPropagation(); // Prevent event bubbling
+            setShowAddBelow(false); // Close the other menu
             setShowAddAbove(true);
           }}>
             上にコマンドを追加
           </ContextMenuItem>
-          <ContextMenuItem onClick={() => {
-            closeAllMenus(); // Close any existing menus first
+          <ContextMenuItem onClick={(e) => {
+            e.stopPropagation(); // Prevent event bubbling
+            setShowAddAbove(false); // Close the other menu
             setShowAddBelow(true);
           }}>
             下にコマンドを追加
