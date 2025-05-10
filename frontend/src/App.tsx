@@ -12,15 +12,15 @@ import { SidebarProvider } from './components/ui/sidebar';
 import './App.css';
 
 function App() {
-  const { loadCommandsYaml, loadSkits } = useSkitStore();
+  const { loadCommandsYaml, loadSkits, projectPath } = useSkitStore();
 
   useEffect(() => {
     const loadInitialData = async () => {
       try {
-        const commandsYamlContent = await loadCommandsYamlFile();
+        const commandsYamlContent = await loadCommandsYamlFile(projectPath);
         loadCommandsYaml(commandsYamlContent);
 
-        const skits = await loadSkitsFiles();
+        const skits = await loadSkitsFiles(projectPath);
         loadSkits(skits);
       } catch (error) {
         console.error('Failed to load initial data:', error);
@@ -103,7 +103,7 @@ commands:
     };
 
     loadInitialData();
-  }, [loadCommandsYaml, loadSkits]);
+  }, [loadCommandsYaml, loadSkits, projectPath]);
 
   return (
     <SidebarProvider>

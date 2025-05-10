@@ -3,7 +3,7 @@ import { useSkitStore } from '../../store/skitStore';
 import { Button } from '../ui/button';
 import { 
   Plus, Copy, Trash, Undo, Redo, Save, 
-  ChevronDown
+  ChevronDown, FolderOpen
 } from 'lucide-react';
 import { 
   DropdownMenu, 
@@ -16,6 +16,7 @@ import { parse } from 'yaml';
 import { toast } from 'sonner';
 import { DraggableCommand } from '../dnd/DraggableCommand';
 import { DropZone } from '../dnd/DropZone';
+import { selectProjectFolder } from '../../utils/fileSystem';
 
 export function Toolbar() {
   const { 
@@ -27,7 +28,11 @@ export function Toolbar() {
     undo,
     redo,
     saveSkit,
-    commandsYaml
+    commandsYaml,
+    projectPath,
+    setProjectPath,
+    loadSkits,
+    loadCommandsYaml
   } = useSkitStore();
 
   const commandDefinitions = React.useMemo(() => {
@@ -74,6 +79,30 @@ export function Toolbar() {
 
     addCommand(newCommand);
     toast.success(`${commandDef.label}を追加しました`);
+  };
+
+  const handleSelectFolder = async () => {
+    const selectedPath = await selectProjectFolder();
+    if (selectedPath) {
+      setProjectPath(selectedPath);
+      
+      try {
+        const commandsYamlContent = await import('../../utils/fileSystem').then(
+          module => module.loadCommandsYaml(selectedPath)
+        );
+        loadCommandsYaml(commandsYamlContent);
+        
+        const skits = await import('../../utils/fileSystem').then(
+          module => module.loadSkits(selectedPath)
+        );
+        loadSkits(skits);
+        
+        toast.success('プロジェクトフォルダを読み込みました');
+      } catch (error) {
+        console.error('Failed to load project data:', error);
+        toast.error('プロジェクトの読み込みに失敗しました');
+      }
+    }
   };
 
   const handleSave = () => {
@@ -141,7 +170,24 @@ export function Toolbar() {
         </DropZone>
       </div>
 
-      <div className="flex-1" />
+      <div className="flex-1 flex items-center">
+        {projectPath && (
+          <div className="text-xs text-gray-500 truncate max-w-[200px]" title={projectPath}>
+            {projectPath}
+          </div>
+        )}
+      </div>
+
+      <Button 
+        variant="outline" 
+        size="sm"
+        onClick={handleSelectFolder}
+        title="プロジェクトフォルダを開く"
+        className="mr-2"
+      >
+        <FolderOpen className="h-4 w-4 mr-1" />
+        フォルダ
+      </Button>
 
       <Button 
         variant="ghost" 

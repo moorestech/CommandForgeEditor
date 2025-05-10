@@ -6,7 +6,7 @@ interface UseDndSortableProps<T> {
   getItemId: (item: T) => string | number;
 }
 
-export function useDndSortable<T>({ onReorder }: UseDndSortableProps<T>) {
+export function useDndSortable<T>({ onReorder: _onReorder }: UseDndSortableProps<T>) {
   const [activeId, setActiveId] = useState<string | number | null>(null);
 
   const handleDragStart = (id: string | number) => {
