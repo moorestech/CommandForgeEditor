@@ -197,61 +197,64 @@ export const useSkitStore = create<SkitState>()(
       });
     },
 
-    saveSkit: () => {
-      return new Promise<void>((resolve, reject) => {
-        set(async (state) => {
-          if (!state.currentSkitId) {
-            reject(new Error('スキットが選択されていません'));
-            return;
-          }
-          
-          const currentSkit = state.skits[state.currentSkitId];
-          if (!currentSkit) {
-            reject(new Error('選択されたスキットが見つかりません'));
-            return;
-          }
-          
-          currentSkit.meta.modified = new Date().toISOString();
-          
-          try {
-            const { validateSkitData } = await import('../utils/validation');
-            const { saveSkit: saveSkitToFile } = await import('../utils/fileSystem');
-            
-            const errors = validateSkitData(currentSkit);
-            
-            if (errors.length > 0) {
-              state.validationErrors = errors;
-              reject(new Error(`バリデーションエラー: ${errors.join(', ')}`));
-              return;
-            }
-            
-            try {
-              const saveErrors = await saveSkitToFile(
-                state.currentSkitId,
-                currentSkit,
-                state.commandsYaml || '',
-                state.projectPath  // Add projectPath parameter
-              );
-              
-              if (saveErrors.length > 0) {
-                state.validationErrors = saveErrors;
-                reject(new Error(`保存エラー: ${saveErrors.join(', ')}`));
-              } else {
-                state.validationErrors = [];
-                resolve();
-              }
-            } catch (error) {
-              console.error('Failed to save skit:', error);
-              state.validationErrors = [`Failed to save skit: ${error instanceof Error ? error.message : String(error)}`];
-              reject(error);
-            }
-          } catch (error) {
-            console.error('Failed to validate skit:', error);
-            state.validationErrors = [`Failed to validate skit: ${error instanceof Error ? error.message : String(error)}`];
-            reject(error);
-          }
-        });
+    saveSkit: async () => {
+      const { currentSkitId, skits, commandsYaml, projectPath } = useSkitStore.getState();
+
+      if (!currentSkitId) {
+        throw new Error('スキットが選択されていません');
+      }
+
+      const currentSkit = skits[currentSkitId];
+      if (!currentSkit) {
+        throw new Error('選択されたスキットが見つかりません');
+      }
+
+      // Update modification timestamp synchronously
+      set((state) => {
+        if (state.skits[currentSkitId]) {
+          state.skits[currentSkitId].meta.modified = new Date().toISOString();
+        }
       });
+
+      try {
+        const { validateSkitData } = await import('../utils/validation');
+        const { saveSkit: saveSkitToFile } = await import('../utils/fileSystem');
+
+        const validationErrors = validateSkitData(currentSkit);
+
+        if (validationErrors.length > 0) {
+          set((state) => {
+            state.validationErrors = validationErrors;
+          });
+          throw new Error(`バリデーションエラー: ${validationErrors.join(', ')}`);
+        }
+
+        const saveErrors = await saveSkitToFile(
+          currentSkitId,
+          currentSkit,
+          commandsYaml || '',
+          projectPath
+        );
+
+        if (saveErrors.length > 0) {
+          set((state) => {
+            state.validationErrors = saveErrors;
+          });
+          throw new Error(`保存エラー: ${saveErrors.join(', ')}`);
+        }
+
+        set((state) => {
+          state.validationErrors = [];
+        });
+      } catch (error) {
+        console.error('Failed to save or validate skit:', error);
+        set((state) => {
+          state.validationErrors = [
+            `Failed to save or validate skit: ${error instanceof Error ? error.message : String(error)}`,
+          ];
+        });
+        throw error; // Re-throw the error to be caught by the caller
+      }
     },
 
     undo: () => {
