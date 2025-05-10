@@ -35,7 +35,7 @@ export function CommandList() {
 
   return (
     <ScrollArea className="h-full">
-      <DropZone id="command-list" className="p-4 space-y-2 min-h-[200px]">
+      <DropZone id="command-list" className="p-0 min-h-[200px]">
         <SortableList
           items={commands}
           getItemId={(command) => command.id}
@@ -43,23 +43,22 @@ export function CommandList() {
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
         >
-          {commands.map((command) => (
+          {commands.map((command, index) => (
             <SortableItem key={command.id} id={`command-item-${command.id}`}>
-              <Card 
-                className={`cursor-pointer transition-colors mb-2 ${
-                  selectedCommandId === command.id 
-                    ? 'bg-primary/10 border-primary' 
+              <div
+                className={`cursor-pointer transition-colors flex items-center py-2 px-3 border-b
+                  ${selectedCommandId === command.id
+                    ? 'bg-blue-500 text-white'
                     : 'hover:bg-accent'
-                } ${activeId === `command-item-${command.id}` ? 'opacity-50' : ''}`}
+                  } ${activeId === `command-item-${command.id}` ? 'opacity-50' : ''}`}
                 onClick={() => selectCommand(command.id)}
               >
-                <CardContent className="p-3">
-                  <div className="font-medium">{command.type}</div>
-                  <div className="text-sm text-muted-foreground truncate">
-                    {formatCommandPreview(command)}
-                  </div>
-                </CardContent>
-              </Card>
+                <div className="w-6 flex-shrink-0 mr-2">{index + 1}</div>
+                <div className="font-medium mr-2">{command.type}</div>
+                <div className="text-sm truncate">
+                  {formatCommandPreview(command)}
+                </div>
+              </div>
             </SortableItem>
           ))}
         </SortableList>

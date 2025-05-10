@@ -1,10 +1,11 @@
 import React from 'react';
 import { useSkitStore } from '../../store/skitStore';
 import { Button } from '../ui/button';
-import { 
-  Plus, Copy, Trash, Undo, Redo, Save, 
+import {
+  Plus, Copy, Trash, Undo, Redo, Save,
   ChevronDown, FolderOpen
 } from 'lucide-react';
+import { SidebarTrigger } from '../ui/sidebar';
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -119,6 +120,8 @@ export function Toolbar() {
 
   return (
     <div className="flex items-center gap-2 p-2 border-b">
+      <SidebarTrigger className="mr-2" />
+      
       <div className="flex items-center gap-2">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
