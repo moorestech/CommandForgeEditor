@@ -107,17 +107,18 @@ commands:
   return (
     <DndProvider>
       <MainLayout>
-        <div className="w-full flex flex-col overflow-hidden">
+        <div className="w-full flex flex-col overflow-hidden h-full">
           <Toolbar />
           <div className="flex-1 flex overflow-hidden">
-            <div className="w-1/3 border-r overflow-y-auto">
+            <div className="w-[200px] overflow-y-auto h-full">
               <CommandList />
             </div>
-            <div className="w-2/3 flex flex-col overflow-hidden">
+            <div className="border-l border-gray-300 w-[1px] h-full"></div>
+            <div className="flex-1 flex flex-col overflow-hidden">
               <div className="flex-1 overflow-y-auto p-4">
                 <CommandEditor />
               </div>
-              <div className="border-t">
+              <div>
                 <ValidationLog />
               </div>
             </div>

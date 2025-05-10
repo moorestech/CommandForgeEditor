@@ -35,7 +35,7 @@ export function CommandList() {
 
   return (
     <ScrollArea className="h-full">
-      <DropZone id="command-list" className="p-0 min-h-[200px]">
+      <DropZone id="command-list" className="p-0 h-full">
         <SortableList
           items={commands}
           getItemId={(command) => command.id}

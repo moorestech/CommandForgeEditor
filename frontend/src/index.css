@@ -33,5 +33,9 @@
     padding: 0;
     overflow: hidden;
   }
+  
+  .drop-zone {
+    height: 100% !important;
+  }
 }
 
