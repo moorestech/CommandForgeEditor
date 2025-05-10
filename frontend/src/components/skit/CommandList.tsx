@@ -141,30 +141,28 @@ export function CommandList() {
                 <ContextMenuSub>
                   <ContextMenuSubTrigger>上にコマンドを追加</ContextMenuSubTrigger>
                   <ContextMenuSubContent>
-                    <ContextMenuItem onClick={() => handleAddCommand('text', index, 'above')}>
-                      テキスト
-                    </ContextMenuItem>
-                    <ContextMenuItem onClick={() => handleAddCommand('emote', index, 'above')}>
-                      エモート
-                    </ContextMenuItem>
-                    <ContextMenuItem onClick={() => handleAddCommand('wait', index, 'above')}>
-                      待機
-                    </ContextMenuItem>
+                    {commandDefinitions.map((command: any) => (
+                      <ContextMenuItem 
+                        key={command.id}
+                        onClick={() => handleAddCommand(command.id, index, 'above')}
+                      >
+                        {command.label}
+                      </ContextMenuItem>
+                    ))}
                   </ContextMenuSubContent>
                 </ContextMenuSub>
                 
                 <ContextMenuSub>
                   <ContextMenuSubTrigger>下にコマンドを追加</ContextMenuSubTrigger>
                   <ContextMenuSubContent>
-                    <ContextMenuItem onClick={() => handleAddCommand('text', index, 'below')}>
-                      テキスト
-                    </ContextMenuItem>
-                    <ContextMenuItem onClick={() => handleAddCommand('emote', index, 'below')}>
-                      エモート
-                    </ContextMenuItem>
-                    <ContextMenuItem onClick={() => handleAddCommand('wait', index, 'below')}>
-                      待機
-                    </ContextMenuItem>
+                    {commandDefinitions.map((command: any) => (
+                      <ContextMenuItem 
+                        key={command.id}
+                        onClick={() => handleAddCommand(command.id, index, 'below')}
+                      >
+                        {command.label}
+                      </ContextMenuItem>
+                    ))}
                   </ContextMenuSubContent>
                 </ContextMenuSub>
               </ContextMenuContent>
