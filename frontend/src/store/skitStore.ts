@@ -23,7 +23,7 @@ interface SkitState {
   removeCommand: (commandId: number) => void;
   moveCommand: (fromIndex: number, toIndex: number) => void;
   duplicateCommand: (commandId: number) => void;
-  saveSkit: () => void;
+  saveSkit: () => Promise<void>;
   undo: () => void;
   redo: () => void;
   setValidationErrors: (errors: string[]) => void;
@@ -198,45 +198,59 @@ export const useSkitStore = create<SkitState>()(
     },
 
     saveSkit: () => {
-      set(async (state) => {
-        if (!state.currentSkitId) return;
-        
-        const currentSkit = state.skits[state.currentSkitId];
-        if (!currentSkit) return;
-        
-        currentSkit.meta.modified = new Date().toISOString();
-        
-        try {
-          const { validateSkitData } = await import('../utils/validation');
-          const { saveSkit: saveSkitToFile } = await import('../utils/fileSystem');
-          
-          const errors = validateSkitData(currentSkit);
-          
-          if (errors.length > 0) {
-            state.validationErrors = errors;
+      return new Promise<void>((resolve, reject) => {
+        set(async (state) => {
+          if (!state.currentSkitId) {
+            reject(new Error('スキットが選択されていません'));
             return;
           }
           
+          const currentSkit = state.skits[state.currentSkitId];
+          if (!currentSkit) {
+            reject(new Error('選択されたスキットが見つかりません'));
+            return;
+          }
+          
+          currentSkit.meta.modified = new Date().toISOString();
+          
           try {
-            const saveErrors = await saveSkitToFile(
-              state.currentSkitId,
-              currentSkit,
-              state.commandsYaml || ''
-            );
+            const { validateSkitData } = await import('../utils/validation');
+            const { saveSkit: saveSkitToFile } = await import('../utils/fileSystem');
             
-            if (saveErrors.length > 0) {
-              state.validationErrors = saveErrors;
-            } else {
-              state.validationErrors = [];
+            const errors = validateSkitData(currentSkit);
+            
+            if (errors.length > 0) {
+              state.validationErrors = errors;
+              reject(new Error(`バリデーションエラー: ${errors.join(', ')}`));
+              return;
+            }
+            
+            try {
+              const saveErrors = await saveSkitToFile(
+                state.currentSkitId,
+                currentSkit,
+                state.commandsYaml || '',
+                state.projectPath  // Add projectPath parameter
+              );
+              
+              if (saveErrors.length > 0) {
+                state.validationErrors = saveErrors;
+                reject(new Error(`保存エラー: ${saveErrors.join(', ')}`));
+              } else {
+                state.validationErrors = [];
+                resolve();
+              }
+            } catch (error) {
+              console.error('Failed to save skit:', error);
+              state.validationErrors = [`Failed to save skit: ${error instanceof Error ? error.message : String(error)}`];
+              reject(error);
             }
           } catch (error) {
-            console.error('Failed to save skit:', error);
-            state.validationErrors = [`Failed to save skit: ${error instanceof Error ? error.message : String(error)}`];
+            console.error('Failed to validate skit:', error);
+            state.validationErrors = [`Failed to validate skit: ${error instanceof Error ? error.message : String(error)}`];
+            reject(error);
           }
-        } catch (error) {
-          console.error('Failed to validate skit:', error);
-          state.validationErrors = [`Failed to validate skit: ${error instanceof Error ? error.message : String(error)}`];
-        }
+        });
       });
     },
 

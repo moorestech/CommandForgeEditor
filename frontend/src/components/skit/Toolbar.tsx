@@ -105,9 +105,13 @@ export function Toolbar() {
     }
   };
 
-  const handleSave = () => {
-    saveSkit();
-    toast.success('スキットを保存しました');
+  const handleSave = async () => {
+    try {
+      await saveSkit();
+      toast.success('スキットを保存しました');
+    } catch (error) {
+      toast.error(`保存に失敗しました: ${error instanceof Error ? error.message : String(error)}`);
+    }
   };
 
   const isDisabled = !currentSkitId;
