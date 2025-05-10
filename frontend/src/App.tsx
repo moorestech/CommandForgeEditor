@@ -8,7 +8,6 @@ import { useSkitStore } from './store/skitStore';
 import { loadCommandsYaml as loadCommandsYamlFile, loadSkits as loadSkitsFiles } from './utils/fileSystem';
 import { Toaster } from 'sonner';
 import { DndProvider } from './components/dnd/DndProvider';
-import { SidebarProvider } from './components/ui/sidebar';
 import './App.css';
 
 function App() {
@@ -106,29 +105,28 @@ commands:
   }, [loadCommandsYaml, loadSkits, projectPath]);
 
   return (
-    <SidebarProvider>
-      <DndProvider>
-        <MainLayout>
-          <div className="flex-1 flex flex-col overflow-hidden">
-            <Toolbar />
-            <div className="flex-1 flex overflow-hidden">
-              <div className="w-1/3 border-r overflow-y-auto">
-                <CommandList />
+    <DndProvider>
+      <MainLayout>
+        <div className="w-full flex flex-col overflow-hidden h-full">
+          <Toolbar />
+          <div className="flex-1 flex overflow-hidden">
+            <div className="w-[200px] overflow-y-auto h-full">
+              <CommandList />
+            </div>
+            <div className="border-l border-gray-300 w-[1px] h-full"></div>
+            <div className="flex-1 flex flex-col overflow-hidden">
+              <div className="flex-1 overflow-y-auto p-4">
+                <CommandEditor />
               </div>
-              <div className="w-2/3 flex flex-col overflow-hidden">
-                <div className="flex-1 overflow-y-auto p-4">
-                  <CommandEditor />
-                </div>
-                <div className="border-t">
-                  <ValidationLog />
-                </div>
+              <div>
+                <ValidationLog />
               </div>
             </div>
           </div>
-          <Toaster position="top-right" />
-        </MainLayout>
-      </DndProvider>
-    </SidebarProvider>
+        </div>
+        <Toaster position="top-right" />
+      </MainLayout>
+    </DndProvider>
   );
 }
 

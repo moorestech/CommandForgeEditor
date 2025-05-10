@@ -35,7 +35,7 @@ export function CommandList() {
 
   return (
     <ScrollArea className="h-full">
-      <DropZone id="command-list" className="p-4 space-y-2 min-h-[200px]">
+      <DropZone id="command-list" className="p-0 h-full">
         <SortableList
           items={commands}
           getItemId={(command) => command.id}
@@ -43,23 +43,26 @@ export function CommandList() {
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
         >
-          {commands.map((command) => (
-            <SortableItem key={command.id} id={`command-item-${command.id}`}>
-              <Card 
-                className={`cursor-pointer transition-colors mb-2 ${
-                  selectedCommandId === command.id 
-                    ? 'bg-primary/10 border-primary' 
+          {commands.map((command, index) => (
+            <SortableItem key={command.id} id={command.id}>
+              <div
+                className={`cursor-pointer transition-colors flex items-center py-2 px-2 border-b w-full
+                  ${selectedCommandId === command.id
+                    ? 'bg-blue-500 text-white'
                     : 'hover:bg-accent'
-                } ${activeId === `command-item-${command.id}` ? 'opacity-50' : ''}`}
+                  } ${activeId === command.id ? 'opacity-50' : ''}`}
                 onClick={() => selectCommand(command.id)}
+                data-testid={`command-item-${command.id}`}
               >
-                <CardContent className="p-3">
-                  <div className="font-medium">{command.type}</div>
-                  <div className="text-sm text-muted-foreground truncate">
-                    {formatCommandPreview(command)}
-                  </div>
-                </CardContent>
-              </Card>
+                {/* 行番号 */}
+                <div className="w-6 flex-shrink-0 mr-2 text-center">{index + 1}</div>
+                {/* コマンドタイプ */}
+                <div className="font-medium mr-2">{command.type}</div>
+                {/* コマンド内容プレビュー */}
+                <div className="text-sm truncate">
+                  {formatCommandPreview(command)}
+                </div>
+              </div>
             </SortableItem>
           ))}
         </SortableList>
