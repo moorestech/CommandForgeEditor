@@ -87,8 +87,13 @@ export function Toolbar() {
         {showCommandPicker && (
           <>
             <div 
-              className="fixed inset-0 z-50" 
-              onClick={() => setShowCommandPicker(false)}
+              className="fixed inset-0 z-40" 
+              onMouseDown={(e) => {
+                e.stopPropagation();
+                setTimeout(() => {
+                  setShowCommandPicker(false);
+                }, 50);
+              }}
             />
             <CommandPickerMenu 
               position={menuPosition} 

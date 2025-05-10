@@ -27,43 +27,50 @@ export function CommandPickerMenu({ onClose, position }: CommandPickerMenuProps)
     }
   }, [commandsYaml]);
 
-  const handleAddCommand = (commandType: string) => {
-    const commandDef = commandDefinitions.find((def: any) => def.id === commandType) as CommandDefinition;
-    if (!commandDef) return;
-
-    const newCommand: any = { type: commandType };
-    
-    Object.entries(commandDef.properties).forEach(([propName, propDefAny]) => {
-      const propDef = propDefAny as any;
-      if (propDef.default !== undefined) {
-        newCommand[propName] = propDef.default;
-      } else if (propDef.required) {
-        switch (propDef.type) {
-          case 'string':
-            newCommand[propName] = '';
-            break;
-          case 'number':
-            newCommand[propName] = 0;
-            break;
-          case 'boolean':
-            newCommand[propName] = false;
-            break;
-          case 'enum':
-            newCommand[propName] = propDef.options?.[0] || '';
-            break;
-          case 'asset':
-            newCommand[propName] = '';
-            break;
-        }
-      }
-    });
-
-    addCommand(newCommand);
-    toast.success(`${commandDef.label}を追加しました`);
-    
-    if (onClose) {
-      onClose();
+  const handleAddCommand = (commandType: string, e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
     }
+    
+    setTimeout(() => {
+      const commandDef = commandDefinitions.find((def: any) => def.id === commandType) as CommandDefinition;
+      if (!commandDef) return;
+
+      const newCommand: any = { type: commandType };
+      
+      Object.entries(commandDef.properties).forEach(([propName, propDefAny]) => {
+        const propDef = propDefAny as any;
+        if (propDef.default !== undefined) {
+          newCommand[propName] = propDef.default;
+        } else if (propDef.required) {
+          switch (propDef.type) {
+            case 'string':
+              newCommand[propName] = '';
+              break;
+            case 'number':
+              newCommand[propName] = 0;
+              break;
+            case 'boolean':
+              newCommand[propName] = false;
+              break;
+            case 'enum':
+              newCommand[propName] = propDef.options?.[0] || '';
+              break;
+            case 'asset':
+              newCommand[propName] = '';
+              break;
+          }
+        }
+      });
+
+      addCommand(newCommand);
+      toast.success(`${commandDef.label}を追加しました`);
+      
+      if (onClose) {
+        onClose();
+      }
+    }, 10);
   };
 
   const style = position ? {
@@ -83,16 +90,17 @@ export function CommandPickerMenu({ onClose, position }: CommandPickerMenuProps)
   return (
     <div 
       style={style}
-      className={`command-picker-menu ${!position ? 'w-full' : ''}`}
+      className={`command-picker-menu ${!position ? 'w-full' : ''} fixed z-50 bg-white border border-zinc-200 rounded-md shadow-md p-2 ${position ? 'w-64' : ''} max-h-[300px] overflow-y-auto`}
+      onClick={(e) => e.stopPropagation()} // Prevent clicks from closing the menu
     >
       {commandDefinitions.map((command: any) => (
         <div 
           key={command.id}
-          className="flex items-center w-full p-2 hover:bg-gray-100 cursor-pointer rounded-sm"
-          onClick={() => handleAddCommand(command.id)}
+          className="flex items-center w-full p-2 hover:bg-zinc-100 cursor-pointer rounded-sm text-sm"
+          onMouseDown={(e) => handleAddCommand(command.id, e)}
         >
           <DraggableCommand id={command.id}>
-            <div className="flex items-center w-full">
+            <div className="flex items-center w-full whitespace-nowrap overflow-hidden text-ellipsis">
               {command.label}
             </div>
           </DraggableCommand>
