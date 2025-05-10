@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { CommandDefinition } from '../../types';
 import { parse } from 'yaml';
 import { useSkitStore } from '../../store/skitStore';
@@ -27,6 +27,7 @@ export function CommandListMenu({ children, commandId, index }: CommandListMenuP
   const [showAddAbove, setShowAddAbove] = React.useState(false);
   const [showAddBelow, setShowAddBelow] = React.useState(false);
   const [menuPosition, setMenuPosition] = React.useState({ x: 0, y: 0 });
+  const commandListRef = useRef<HTMLDivElement>(null);
 
   const commandDefinitions = React.useMemo(() => {
     if (!commandsYaml) return [];
@@ -38,6 +39,29 @@ export function CommandListMenu({ children, commandId, index }: CommandListMenuP
       return [];
     }
   }, [commandsYaml]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        commandListRef.current && 
+        !commandListRef.current.contains(event.target as Node) &&
+        (showAddAbove || showAddBelow)
+      ) {
+        setShowAddAbove(false);
+        setShowAddBelow(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showAddAbove, showAddBelow]);
+
+  const closeAllMenus = () => {
+    setShowAddAbove(false);
+    setShowAddBelow(false);
+  };
 
   const handleAddCommand = (commandType: string, position: 'above' | 'below') => {
     const commandDef = commandDefinitions.find((def: any) => def.id === commandType) as CommandDefinition;
@@ -86,8 +110,7 @@ export function CommandListMenu({ children, commandId, index }: CommandListMenuP
       moveCommand(commandsLength - 1, index + 1);
     }
 
-    setShowAddAbove(false);
-    setShowAddBelow(false);
+    closeAllMenus();
   };
 
   const handleContextMenu = (e: React.MouseEvent) => {
@@ -111,6 +134,7 @@ export function CommandListMenu({ children, commandId, index }: CommandListMenuP
 
     return (
       <div 
+        ref={commandListRef}
         style={style}
         className="command-list-popup"
       >
@@ -118,7 +142,10 @@ export function CommandListMenu({ children, commandId, index }: CommandListMenuP
           <div 
             key={command.id}
             className="flex items-center w-full p-2 hover:bg-gray-100 cursor-pointer rounded-sm"
-            onClick={() => handleAddCommand(command.id, position)}
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent event bubbling
+              handleAddCommand(command.id, position);
+            }}
           >
             <DraggableCommand id={command.id}>
               <div className="flex items-center w-full">
@@ -133,7 +160,11 @@ export function CommandListMenu({ children, commandId, index }: CommandListMenuP
 
   return (
     <div onContextMenu={handleContextMenu}>
-      <ContextMenu>
+      <ContextMenu onOpenChange={(open) => {
+        if (!open) {
+          closeAllMenus();
+        }
+      }}>
         <ContextMenuTrigger asChild>
           {children}
         </ContextMenuTrigger>
@@ -143,10 +174,16 @@ export function CommandListMenu({ children, commandId, index }: CommandListMenuP
               削除
             </ContextMenuItem>
           )}
-          <ContextMenuItem onClick={() => setShowAddAbove(true)}>
+          <ContextMenuItem onClick={() => {
+            closeAllMenus(); // Close any existing menus first
+            setShowAddAbove(true);
+          }}>
             上にコマンドを追加
           </ContextMenuItem>
-          <ContextMenuItem onClick={() => setShowAddBelow(true)}>
+          <ContextMenuItem onClick={() => {
+            closeAllMenus(); // Close any existing menus first
+            setShowAddBelow(true);
+          }}>
             下にコマンドを追加
           </ContextMenuItem>
         </ContextMenuContent>
