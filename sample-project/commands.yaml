@@ -1,0 +1,15 @@
+version: 1
+commands:
+  - id: text
+    label: テキスト
+    description: 台詞を表示
+    format: "TEXT: {character}, {body}"
+    properties:
+      character:
+        type: enum
+        options: ["キャラA", "キャラB"]
+        required: true
+      body:
+        type: string
+        multiline: true
+        required: true
