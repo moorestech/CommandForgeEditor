@@ -62,17 +62,22 @@ export async function loadSkits(projectPath: string | null = null): Promise<Reco
     
     if (projectPath) {
       skitsPath = await join(projectPath, 'skits');
-      // Check if the skits directory exists in project path
-      if (await exists(skitsPath)) {
-        return await loadSkitsFromPath(skitsPath);
+      
+      if (!(await exists(skitsPath))) {
+        await createDir(skitsPath, { recursive: true });
+        console.log(`Created skits directory at ${skitsPath}`);
+        return {}; // Return empty object since directory was just created
       }
+      
+      return await loadSkitsFromPath(skitsPath);
     }
     
     skitsPath = await resolveResource('skits');
+    // as it should be part of the bundled resources
     return await loadSkitsFromPath(skitsPath);
   } catch (error) {
     console.error('Failed to load skits:', error);
-    throw error;
+    return {}; // Return empty object on error instead of throwing
   }
 }
 
