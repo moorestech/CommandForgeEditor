@@ -119,7 +119,7 @@ export function Toolbar() {
   const isCommandSelected = selectedCommandId !== null;
 
   return (
-    <div className="flex items-center gap-2 p-2 border-b">
+    <div className="flex items-center p-2 border-b w-full">
       <SidebarTrigger className="mr-2" />
       
       <div className="flex items-center gap-2">
@@ -177,7 +177,7 @@ export function Toolbar() {
         </DropZone>
       </div>
 
-      <div className="flex-1 flex items-center">
+      <div className="flex-1 flex items-center mx-2">
         {projectPath && (
           <div className="text-xs text-gray-500 truncate max-w-[200px]" title={projectPath}>
             {projectPath}
@@ -185,8 +185,8 @@ export function Toolbar() {
         )}
       </div>
 
-      <Button 
-        variant="outline" 
+      <Button
+        variant="outline"
         size="sm"
         onClick={handleSelectFolder}
         title="プロジェクトフォルダを開く"
@@ -196,33 +196,35 @@ export function Toolbar() {
         フォルダ
       </Button>
 
-      <Button 
-        variant="ghost" 
-        size="sm"
-        disabled={isDisabled}
-        onClick={undo}
-      >
-        <Undo className="h-4 w-4" />
-      </Button>
+      <div className="ml-auto flex items-center">
+        <Button
+          variant="ghost"
+          size="sm"
+          disabled={isDisabled}
+          onClick={undo}
+        >
+          <Undo className="h-4 w-4" />
+        </Button>
 
-      <Button 
-        variant="ghost" 
-        size="sm"
-        disabled={isDisabled}
-        onClick={redo}
-      >
-        <Redo className="h-4 w-4" />
-      </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          disabled={isDisabled}
+          onClick={redo}
+        >
+          <Redo className="h-4 w-4" />
+        </Button>
 
-      <Button 
-        variant="default" 
-        size="sm"
-        disabled={isDisabled}
-        onClick={handleSave}
-      >
-        <Save className="h-4 w-4 mr-1" />
-        保存
-      </Button>
+        <Button
+          variant="default"
+          size="sm"
+          disabled={isDisabled}
+          onClick={handleSave}
+        >
+          <Save className="h-4 w-4 mr-1" />
+          保存
+        </Button>
+      </div>
     </div>
   );
 }

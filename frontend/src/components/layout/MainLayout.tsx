@@ -16,7 +16,7 @@ interface MainLayoutProps {
 export function MainLayout({ children }: MainLayoutProps) {
   return (
     <SidebarProvider defaultOpen={false}>
-      <div className="flex h-screen">
+      <div className="flex h-screen w-full">
         <Sidebar>
           <SidebarHeader>
             <h2 className="text-lg font-semibold">スキット一覧</h2>
@@ -26,7 +26,7 @@ export function MainLayout({ children }: MainLayoutProps) {
             <SkitList />
           </SidebarContent>
         </Sidebar>
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 flex flex-col overflow-hidden w-full">
           {children}
         </div>
       </div>

@@ -107,7 +107,7 @@ commands:
   return (
     <DndProvider>
       <MainLayout>
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="w-full flex flex-col overflow-hidden">
           <Toolbar />
           <div className="flex-1 flex overflow-hidden">
             <div className="w-1/3 border-r overflow-y-auto">
