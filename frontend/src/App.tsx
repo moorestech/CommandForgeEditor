@@ -110,7 +110,7 @@ commands:
         <div className="w-full flex flex-col overflow-hidden h-full">
           <Toolbar />
           <div className="flex-1 flex overflow-hidden">
-            <div className="w-[200px] overflow-y-auto h-full">
+            <div className="w-[400px] overflow-y-auto h-full">
               <CommandList />
             </div>
             <div className="border-l border-gray-300 w-[1px] h-full"></div>
