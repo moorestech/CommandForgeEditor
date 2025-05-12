@@ -16,7 +16,7 @@ import {
   ContextMenuTrigger,
 } from '../ui/context-menu';
 import { parse } from 'yaml';
-import { useMemo, useCallback, memo, useRef, useLayoutEffect } from 'react';
+import { useMemo, useCallback, memo } from 'react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 
 /**
@@ -193,7 +193,7 @@ export const CommandList = memo(function CommandList() {
       </div>
     );
   }
-  
+
   return (
     <ScrollArea className="h-full relative">
       <DropZone id="command-list" className="p-0 h-full">
@@ -214,12 +214,7 @@ export const CommandList = memo(function CommandList() {
             onDragEnd={handleDragEnd}
           >
           {visibleCommands.map((command, index) => {
-            
-            const isGroupStart = command.type === 'group_start';
-            const isGroupEnd = command.type === 'group_end';
-            const isCollapsed = isGroupStart && command.isCollapsed;
-            const nestLevel = nestLevels.get(command.id) || 0;
-            
+
             return (
               <ContextMenu key={command.id}>
                <ContextMenuTrigger>
@@ -277,7 +272,6 @@ const CommandItem = memo(({
   commandsMap: Map<string, any>;
 }) => {
   const isGroupStart = command.type === 'group_start';
-  const isGroupEnd = command.type === 'group_end';
   const isCollapsed = isGroupStart && command.isCollapsed;
 
   // コマンドプレビューをメモ化
