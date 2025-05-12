@@ -213,36 +213,40 @@ export const CommandList = memo(function CommandList() {
               if (!currentSkit) return;
               const commands = currentSkit.commands;
               
-              // ドラッグされたコマンドが選択されているかチェック
-              if (selectedCommandIds.includes(cmd1.id)) {
-                if (selectedCommandIds.length > 1) {
-                  if (cmd1.type === 'group_start') {
-                    const groupIndices = getGroupCommandIndices(commands, originalFromIndex);
-                    moveCommands(groupIndices, originalToIndex);
-                  } else {
-                    const selectedIndices = selectedCommandIds
-                      .map(id => commands.findIndex(cmd => cmd.id === id))
-                      .filter(index => index !== -1);
-                    
-                    const topLevelGroups = getTopLevelGroups(commands, selectedIndices);
-                    
-                    if (topLevelGroups.length > 0) {
-                      const groupIndex = topLevelGroups[0];
-                      const groupIndices = getGroupCommandIndices(commands, groupIndex);
-                      moveCommands(groupIndices, originalToIndex);
-                    } else {
-                      moveCommands(selectedIndices, originalToIndex);
-                    }
-                  }
+              // ドラッグされたコマンド (cmd1) が group_start かどうかをまず確認
+              if (cmd1.type === 'group_start') {
+                // ドラッグされたのがグループ開始コマンドなら、選択状態に関わらずグループ全体を移動
+                const groupIndices = getGroupCommandIndices(commands, originalFromIndex);
+                moveCommands(groupIndices, originalToIndex);
+              } else if (selectedCommandIds.includes(cmd1.id) && selectedCommandIds.length > 1) {
+                // ドラッグされたコマンドが選択されており、かつ複数選択されている場合
+                // (ただし、group_start のケースは上で処理済みなので、ここは通常の複数コマンド移動)
+                const selectedIndices = selectedCommandIds
+                  .map(id => commands.findIndex(cmd => cmd.id === id))
+                  .filter(index => index !== -1);
+                
+                // 選択範囲にトップレベルのグループが含まれているかチェック
+                // (このロジックはグループ内のアイテムを個別に選択して移動する場合に影響する可能性があるため注意)
+                const topLevelGroupsInSelection = getTopLevelGroups(commands, selectedIndices);
+
+                if (topLevelGroupsInSelection.length > 0 && topLevelGroupsInSelection.includes(originalFromIndex)) {
+                  // 選択範囲内にドラッグ開始点が含まれるトップレベルグループがある場合、そのグループを移動
+                  // (この分岐は複雑なので、もし意図しない挙動があれば見直しが必要)
+                  const groupIndexToMove = topLevelGroupsInSelection.find(gi => {
+                    const groupCmds = getGroupCommandIndices(commands, gi);
+                    return groupCmds.includes(originalFromIndex);
+                  }) ?? topLevelGroupsInSelection[0]; // フォールバック
+
+                  const groupIndices = getGroupCommandIndices(commands, groupIndexToMove);
+                  moveCommands(groupIndices, originalToIndex);
                 } else {
-                  if (cmd1.type === 'group_start') {
-                    const groupIndices = getGroupCommandIndices(commands, originalFromIndex);
-                    moveCommands(groupIndices, originalToIndex);
-                  } else {
-                    moveCommand(originalFromIndex, originalToIndex);
-                  }
+                  // 通常の複数選択アイテム移動 (グループは含まないか、ネストされたグループの一部)
+                  moveCommands(selectedIndices, originalToIndex);
                 }
               } else {
+                // ドラッグされたコマンドが group_start ではなく、
+                // かつ単一選択であるか、または選択されていない場合 (dnd-kitが選択外アイテムのドラッグを許可する場合)
+                // この場合は単一コマンドとして移動　
                 moveCommand(originalFromIndex, originalToIndex);
               }
             }}
