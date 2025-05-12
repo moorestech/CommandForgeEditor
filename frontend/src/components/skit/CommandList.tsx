@@ -1,4 +1,4 @@
-import { useSkitStore } from '../../store/skitStore';
+import { useSkitStore, getGroupCommandIndices, getTopLevelGroups } from '../../store/skitStore';
 import { ScrollArea } from '../ui/scroll-area';
 import { useDndSortable } from '../../hooks/useDndSortable';
 import { SortableList } from '../dnd/SortableList';
@@ -37,6 +37,7 @@ export const CommandList = memo(function CommandList() {
     selectedCommandIds, 
     selectCommand,
     moveCommand,
+    moveCommands,
     addCommand,
     removeCommand,
     commandsYaml,
@@ -208,7 +209,42 @@ export const CommandList = memo(function CommandList() {
               const originalFromIndex = commandToIndexMap.get(cmd1.id) || fromIndex;
               const originalToIndex = commandToIndexMap.get(cmd2.id) || toIndex;
               
-              moveCommand(originalFromIndex, originalToIndex);
+              const currentSkit = skits[currentSkitId || ''];
+              if (!currentSkit) return;
+              const commands = currentSkit.commands;
+              
+              // ドラッグされたコマンドが選択されているかチェック
+              if (selectedCommandIds.includes(cmd1.id)) {
+                if (selectedCommandIds.length > 1) {
+                  if (cmd1.type === 'group_start') {
+                    const groupIndices = getGroupCommandIndices(commands, originalFromIndex);
+                    moveCommands(groupIndices, originalToIndex);
+                  } else {
+                    const selectedIndices = selectedCommandIds
+                      .map(id => commands.findIndex(cmd => cmd.id === id))
+                      .filter(index => index !== -1);
+                    
+                    const topLevelGroups = getTopLevelGroups(commands, selectedIndices);
+                    
+                    if (topLevelGroups.length > 0) {
+                      const groupIndex = topLevelGroups[0];
+                      const groupIndices = getGroupCommandIndices(commands, groupIndex);
+                      moveCommands(groupIndices, originalToIndex);
+                    } else {
+                      moveCommands(selectedIndices, originalToIndex);
+                    }
+                  }
+                } else {
+                  if (cmd1.type === 'group_start') {
+                    const groupIndices = getGroupCommandIndices(commands, originalFromIndex);
+                    moveCommands(groupIndices, originalToIndex);
+                  } else {
+                    moveCommand(originalFromIndex, originalToIndex);
+                  }
+                }
+              } else {
+                moveCommand(originalFromIndex, originalToIndex);
+              }
             }}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}

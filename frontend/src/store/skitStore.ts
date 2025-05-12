@@ -22,6 +22,7 @@ interface SkitState {
   updateCommand: (commandId: number, updates: Partial<SkitCommand>) => void;
   removeCommand: (commandId: number) => void;
   moveCommand: (fromIndex: number, toIndex: number) => void;
+  moveCommands: (fromIndices: number[], toIndex: number) => void;
   duplicateCommand: (commandId: number) => void;
   saveSkit: () => Promise<void>;
   undo: () => void;
@@ -191,6 +192,44 @@ export const useSkitStore = create<SkitState>()(
         const commands = [...currentSkit.commands];
         const [movedCommand] = commands.splice(fromIndex, 1);
         commands.splice(toIndex, 0, movedCommand);
+        
+        currentSkit.commands = commands;
+        currentSkit.meta.modified = new Date().toISOString();
+      });
+    },
+    
+    moveCommands: (fromIndices: number[], toIndex: number) => {
+      set((state) => {
+        if (!state.currentSkitId) return;
+        
+        const currentSkit = state.skits[state.currentSkitId];
+        if (!currentSkit) return;
+        
+        if (fromIndices.length === 0) return;
+        
+        state.history.past.push(JSON.parse(JSON.stringify(currentSkit)));
+        state.history.future = [];
+        
+        const commands = [...currentSkit.commands];
+        const movedCommands: SkitCommand[] = [];
+        
+        const sortedIndices = [...fromIndices].sort((a, b) => a - b);
+        
+        let offset = 0;
+        for (const idx of sortedIndices) {
+          if (idx < toIndex) {
+            offset++;
+          }
+        }
+        
+        for (let i = sortedIndices.length - 1; i >= 0; i--) {
+          const fromIndex = sortedIndices[i];
+          const [movedCommand] = commands.splice(fromIndex, 1);
+          movedCommands.unshift(movedCommand); // 削除した順と逆順で保存
+        }
+        
+        const adjustedToIndex = Math.max(0, toIndex - offset);
+        commands.splice(adjustedToIndex, 0, ...movedCommands);
         
         currentSkit.commands = commands;
         currentSkit.meta.modified = new Date().toISOString();
@@ -487,3 +526,47 @@ export const useSkitStore = create<SkitState>()(
     }),
   }
 ));
+
+export const getGroupCommandIndices = (commands: SkitCommand[], groupStartIndex: number): number[] => {
+  const indices: number[] = [groupStartIndex];
+  let nestLevel = 1;
+  
+  for (let i = groupStartIndex + 1; i < commands.length; i++) {
+    const cmd = commands[i];
+    
+    if (cmd.type === 'group_start') {
+      nestLevel++;
+    } else if (cmd.type === 'group_end') {
+      nestLevel--;
+      if (nestLevel === 0) {
+        indices.push(i); // グループエンドも含める
+        break;
+      }
+    }
+    
+    indices.push(i);
+  }
+  
+  return indices;
+};
+
+export const getTopLevelGroups = (commands: SkitCommand[], selectedIndices: number[]): number[] => {
+  return selectedIndices.filter(index => {
+    const cmd = commands[index];
+    if (cmd.type !== 'group_start') return false;
+    
+    for (const otherIndex of selectedIndices) {
+      if (otherIndex === index) continue;
+      
+      const otherCmd = commands[otherIndex];
+      if (otherCmd.type !== 'group_start') continue;
+      
+      const groupIndices = getGroupCommandIndices(commands, otherIndex);
+      if (groupIndices.includes(index)) {
+        return false; // 他のグループに含まれている
+      }
+    }
+    
+    return true; // 他のどのグループにも含まれていない
+  });
+};
