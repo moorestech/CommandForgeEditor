@@ -3,6 +3,7 @@ import { join, resolveResource } from '@tauri-apps/api/path';
 import { open } from '@tauri-apps/api/dialog';
 import { Skit } from '../types';
 import { validateSkitData, validateCommandsYaml } from './validation';
+import { isReservedCommand, getReservedCommandDefinition } from './reservedCommands';
 
 /**
  * Opens a folder selection dialog
@@ -213,6 +214,19 @@ function validateCommandProperties(skit: Skit, commandsConfig: any): string[] {
     const commandDef = commandsConfig.commands.find((def: any) => def.id === command.type);
     
     if (!commandDef) {
+      if (isReservedCommand(command.type)) {
+        const reservedDef = getReservedCommandDefinition(command.type);
+        
+        if (reservedDef && reservedDef.properties) {
+          Object.entries(reservedDef.properties).forEach(([propName, propDef]: [string, any]) => {
+            if (propDef.required && (command[propName] === undefined || command[propName] === '')) {
+              errors.push(`Command ${command.id}: Required property "${propName}" is missing`);
+            }
+          });
+        }
+        return;
+      }
+      
       errors.push(`Command type "${command.type}" is not defined in commands.yaml`);
       return;
     }

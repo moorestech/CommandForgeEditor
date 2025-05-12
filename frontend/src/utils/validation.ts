@@ -2,6 +2,7 @@ import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
 import { parse } from 'yaml';
 import { CommandsConfig, Skit } from '../types';
+import { isReservedCommand, getReservedCommandDefinition, getCombinedCommandsConfig } from './reservedCommands';
 
 const ajv = new Ajv();
 addFormats(ajv);
@@ -123,11 +124,24 @@ export function validateCommandProperties(
     const commandDef = commandsConfig.commands.find(def => def.id === command.type);
     
     if (!commandDef) {
+      if (isReservedCommand(command.type)) {
+        const reservedDef = getReservedCommandDefinition(command.type);
+        
+        if (reservedDef && reservedDef.properties) {
+          Object.entries(reservedDef.properties).forEach(([propName, propDef]: [string, any]) => {
+            if (propDef.required && (command[propName] === undefined || command[propName] === '')) {
+              errors.push(`Command ${command.id}: Required property "${propName}" is missing`);
+            }
+          });
+        }
+        return;
+      }
+      
       errors.push(`Command type "${command.type}" is not defined in commands.yaml`);
       return;
     }
     
-    Object.entries(commandDef.properties).forEach(([propName, propDef]) => {
+    Object.entries(commandDef.properties).forEach(([propName, propDef]: [string, any]) => {
       if (propDef.required && (command[propName] === undefined || command[propName] === '')) {
         errors.push(`Command ${command.id}: Required property "${propName}" is missing`);
       }
@@ -151,7 +165,9 @@ export function validateCommandsYaml(yamlContent: string): {
     const valid = validateCommandsConfig(parsed);
     
     if (valid) {
-      return { config: parsed, errors: [] };
+      const combinedConfig = getCombinedCommandsConfig(parsed);
+      
+      return { config: combinedConfig, errors: [] };
     }
     
     return { 
