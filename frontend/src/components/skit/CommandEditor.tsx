@@ -12,13 +12,14 @@ export function CommandEditor() {
   const { 
     skits, 
     currentSkitId, 
-    selectedCommandId, 
+    selectedCommandIds, 
     updateCommand,
     commandsYaml
   } = useSkitStore();
   
   const [commandDefinitions, setCommandDefinitions] = useState<CommandDefinition[]>([]);
   const currentSkit = currentSkitId ? skits[currentSkitId] : null;
+  const selectedCommandId = selectedCommandIds.length > 0 ? selectedCommandIds[0] : null;
   const selectedCommand = currentSkit?.commands.find(cmd => cmd.id === selectedCommandId);
   
   useEffect(() => {

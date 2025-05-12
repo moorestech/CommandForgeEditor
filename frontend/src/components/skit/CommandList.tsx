@@ -17,21 +17,78 @@ import {
 } from '../ui/context-menu';
 import { parse } from 'yaml';
 import { useMemo } from 'react';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 
 export function CommandList() {
   const { 
     skits, 
     currentSkitId, 
-    selectedCommandId, 
+    selectedCommandIds, 
     selectCommand,
     moveCommand,
     addCommand,
     removeCommand,
-    commandsYaml
+    commandsYaml,
+    createGroup,
+    ungroupCommands,
+    toggleGroupCollapse
   } = useSkitStore();
 
   const currentSkit = currentSkitId ? skits[currentSkitId] : null;
   const commands = currentSkit?.commands || [];
+  
+  const calculateNestLevels = (commands: SkitCommand[]): Map<number, number> => {
+    const nestLevels = new Map<number, number>();
+    let currentLevel = 0;
+    const groupStack: number[] = [];
+    
+    commands.forEach((cmd) => {
+      nestLevels.set(cmd.id, currentLevel);
+      
+      if (cmd.type === 'group_start') {
+        groupStack.push(cmd.id);
+        currentLevel++;
+      } else if (cmd.type === 'group_end') {
+        if (groupStack.length > 0) {
+          groupStack.pop();
+          currentLevel = Math.max(0, currentLevel - 1);
+        }
+      }
+    });
+    
+    return nestLevels;
+  };
+  
+  const shouldHideCommand = (commandId: number): boolean => {
+    const commandIndex = commands.findIndex(cmd => cmd.id === commandId);
+    if (commandIndex === -1) return false;
+    
+    let nestLevel = 0;
+    
+    for (let i = commandIndex - 1; i >= 0; i--) {
+      const cmd = commands[i];
+      if (cmd.type === 'group_end') {
+        nestLevel++;
+      } else if (cmd.type === 'group_start') {
+        nestLevel--;
+        if (nestLevel < 0 && cmd.isCollapsed) {
+          return true;
+        }
+        if (nestLevel < 0) {
+          nestLevel = 0;
+        }
+      }
+    }
+    
+    return false;
+  };
+  
+  const handleCommandClick = (commandId: number, event: React.MouseEvent) => {
+    const isCtrlPressed = event.ctrlKey || event.metaKey; // metaKeyはMac用
+    const isShiftPressed = event.shiftKey;
+    
+    selectCommand(commandId, isCtrlPressed, isShiftPressed);
+  };
 
   const commandDefinitions = useMemo(() => {
     if (!commandsYaml) return [];
@@ -97,6 +154,10 @@ export function CommandList() {
     );
   }
 
+  const nestLevels = calculateNestLevels(commands);
+  
+  const visibleCommands = commands.filter(cmd => !shouldHideCommand(cmd.id));
+  
   return (
     <ScrollArea className="h-full">
       <DropZone id="command-list" className="p-0 h-full">
@@ -107,144 +168,122 @@ export function CommandList() {
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
         >
-          {commands.map((command, index) => (
-            <ContextMenu key={command.id}>
-              <ContextMenuTrigger>
-                <SortableItem id={command.id}>
-                  <div
-                    className={`cursor-pointer transition-colors flex items-center py-2 px-2 border-b w-full
-                      ${selectedCommandId === command.id
-                        ? 'bg-blue-500 text-white'
-                        : 'hover:bg-accent'
-                      } ${activeId === command.id ? 'opacity-50' : ''}`}
-                    onClick={() => selectCommand(command.id)}
-                    data-testid={`command-item-${command.id}`}
-                  >
-                    {/* 行番号 */}
-                    <div className="w-6 flex-shrink-0 mr-2 text-center">{index + 1}</div>
-                    
-                    {/* コマンド内容 - フォーマットが適用できるかどうかで表示を分岐 */}
-                    {hasCommandFormat(command) ? (
-                      // commandListLabelFormatが使われている場合はプレビューのみ表示
-                      <div className="text-sm truncate flex-1">
-                        {formatCommandPreview(command)}
+          {commands.map((command, index) => {
+            if (shouldHideCommand(command.id)) {
+              return null;
+            }
+            
+            const isGroupStart = command.type === 'group_start';
+            const isGroupEnd = command.type === 'group_end';
+            const isCollapsed = isGroupStart && command.isCollapsed;
+            const nestLevel = nestLevels.get(command.id) || 0;
+            
+            return (
+              <ContextMenu key={command.id}>
+                <ContextMenuTrigger>
+                  <SortableItem id={command.id}>
+                    <div
+                      className={`cursor-pointer transition-colors flex items-center py-2 px-2 border-b w-full
+                        ${selectedCommandIds.includes(command.id)
+                          ? 'bg-blue-500 text-white'
+                          : 'hover:bg-accent'
+                        } ${activeId === command.id ? 'opacity-50' : ''}`}
+                      onClick={(e) => handleCommandClick(command.id, e)}
+                      data-testid={`command-item-${command.id}`}
+                      style={{ paddingLeft: `${(nestLevel * 16) + 8}px` }}
+                    >
+                      {/* グループ開始コマンドの場合は折りたたみアイコンを表示 */}
+                      {isGroupStart && (
+                        <button
+                          className="mr-1 p-1 hover:bg-gray-200 rounded"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleGroupCollapse(command.id);
+                          }}
+                        >
+                          {isCollapsed ? <ChevronRight size={16} /> : <ChevronDown size={16} />}
+                        </button>
+                      )}
+                      
+                      {/* 行番号 */}
+                      <div className="w-6 flex-shrink-0 mr-2 text-center">{index + 1}</div>
+                      
+                      {/* コマンドタイプ */}
+                      <div className={`font-medium mr-2 ${isGroupStart ? 'font-bold' : ''}`}>
+                        {isGroupStart ? command.groupName : command.type}
                       </div>
-                    ) : (
-                      // フォーマットがない場合は従来通りタイプとプレビューを表示
-                      <>
-                        <div className="font-medium mr-2">{command.type}</div>
-                        <div className="text-sm truncate">
-                          {formatCommandPreview(command)}
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </SortableItem>
-              </ContextMenuTrigger>
-              <ContextMenuContent>
-                <ContextMenuItem onClick={() => removeCommand(command.id)}>
-                  削除
-                </ContextMenuItem>
-                
-                <ContextMenuSeparator />
-                
-                <ContextMenuSub>
-                  <ContextMenuSubTrigger>上にコマンドを追加</ContextMenuSubTrigger>
-                  <ContextMenuSubContent>
-                    {commandDefinitions.map((command: any) => (
-                      <ContextMenuItem 
-                        key={command.id}
-                        onClick={() => handleAddCommand(command.id, index, 'above')}
-                      >
-                        {command.label}
-                      </ContextMenuItem>
-                    ))}
-                  </ContextMenuSubContent>
-                </ContextMenuSub>
-                
-                <ContextMenuSub>
-                  <ContextMenuSubTrigger>下にコマンドを追加</ContextMenuSubTrigger>
-                  <ContextMenuSubContent>
-                    {commandDefinitions.map((command: any) => (
-                      <ContextMenuItem 
-                        key={command.id}
-                        onClick={() => handleAddCommand(command.id, index, 'below')}
-                      >
-                        {command.label}
-                      </ContextMenuItem>
-                    ))}
-                  </ContextMenuSubContent>
-                </ContextMenuSub>
-              </ContextMenuContent>
-            </ContextMenu>
-          ))}
+                      
+                      {/* コマンド内容プレビュー */}
+                      <div className="text-sm truncate">
+                        {isGroupStart ? '' : formatCommandPreview(command)}
+                      </div>
+                    </div>
+                  </SortableItem>
+                </ContextMenuTrigger>
+                <ContextMenuContent>
+                  <ContextMenuItem onClick={() => removeCommand(command.id)}>
+                    削除
+                  </ContextMenuItem>
+                  
+                  {/* グループ開始コマンドの場合はグループ解除オプションを表示 */}
+                  {isGroupStart && (
+                    <ContextMenuItem onClick={() => ungroupCommands(command.id)}>
+                      グループ解除
+                    </ContextMenuItem>
+                  )}
+                  
+                  {/* 複数選択時はグループ化オプションを表示 */}
+                  {selectedCommandIds.length > 1 && selectedCommandIds.includes(command.id) && (
+                    <ContextMenuItem onClick={() => createGroup()}>
+                      グループ化
+                    </ContextMenuItem>
+                  )}
+                  
+                  <ContextMenuSeparator />
+                  
+                  <ContextMenuSub>
+                    <ContextMenuSubTrigger>上にコマンドを追加</ContextMenuSubTrigger>
+                    <ContextMenuSubContent>
+                      {commandDefinitions.map((cmdDef: any) => (
+                        <ContextMenuItem 
+                          key={cmdDef.id}
+                          onClick={() => handleAddCommand(cmdDef.id, index, 'above')}
+                        >
+                          {cmdDef.label}
+                        </ContextMenuItem>
+                      ))}
+                    </ContextMenuSubContent>
+                  </ContextMenuSub>
+                  
+                  <ContextMenuSub>
+                    <ContextMenuSubTrigger>下にコマンドを追加</ContextMenuSubTrigger>
+                    <ContextMenuSubContent>
+                      {commandDefinitions.map((cmdDef: any) => (
+                        <ContextMenuItem 
+                          key={cmdDef.id}
+                          onClick={() => handleAddCommand(cmdDef.id, index, 'below')}
+                        >
+                          {cmdDef.label}
+                        </ContextMenuItem>
+                      ))}
+                    </ContextMenuSubContent>
+                  </ContextMenuSub>
+                </ContextMenuContent>
+              </ContextMenu>
+            );
+          })}
         </SortableList>
       </DropZone>
     </ScrollArea>
   );
 }
 
-/**
- * コマンドに対応するコマンド定義に commandListLabelFormat が設定されているかチェック
- */
-function hasCommandFormat(command: SkitCommand): boolean {
-  const { type } = command;
-  const commandsYaml = useSkitStore.getState().commandsYaml;
-  
-  if (!commandsYaml) {
-    return false;
-  }
-  
-  try {
-    const parsed = parse(commandsYaml);
-    const commandDef = parsed?.commands?.find((def: any) => def.id === type);
-    return !!commandDef?.commandListLabelFormat;
-  } catch (error) {
-    return false;
-  }
-}
-
 function formatCommandPreview(command: SkitCommand): string {
   const { type, id: _, ...props } = command;
   
-  // コマンド定義を取得
-  const commandsYaml = useSkitStore.getState().commandsYaml;
-  if (!commandsYaml) {
-    // フォールバック: 最初のプロパティ値を返す
-    const firstPropValue = Object.values(props).find(val =>
-      typeof val === 'string' && val !== type && val.length > 0
-    );
-    return firstPropValue as string || type;
-  }
+  const firstPropValue = Object.values(props).find(val => 
+    typeof val === 'string' && val !== type && val.length > 0
+  );
   
-  try {
-    const parsed = parse(commandsYaml);
-    const commandDef = parsed?.commands?.find((def: any) => def.id === type);
-    
-    if (!commandDef || !commandDef.commandListLabelFormat) {
-      // フォールバック: 最初のプロパティ値を返す
-      const firstPropValue = Object.values(props).find(val =>
-        typeof val === 'string' && val !== type && val.length > 0
-      );
-      return firstPropValue as string || type;
-    }
-    
-    // commandListLabelFormatを使用してフォーマット
-    let formatted = commandDef.commandListLabelFormat;
-    Object.entries(props).forEach(([key, value]) => {
-      const placeholder = `{${key}}`;
-      if (formatted.includes(placeholder)) {
-        formatted = formatted.replace(placeholder, String(value));
-      }
-    });
-    
-    return formatted;
-  } catch (error) {
-    console.error('Failed to format command preview:', error);
-    // フォールバック: 最初のプロパティ値を返す
-    const firstPropValue = Object.values(props).find(val =>
-      typeof val === 'string' && val !== type && val.length > 0
-    );
-    return firstPropValue as string || type;
-  }
+  return firstPropValue as string || type;
 }

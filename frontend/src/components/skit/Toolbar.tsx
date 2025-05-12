@@ -22,7 +22,7 @@ import { selectProjectFolder } from '../../utils/fileSystem';
 export function Toolbar() {
   const { 
     currentSkitId, 
-    selectedCommandId, 
+    selectedCommandIds, 
     addCommand, 
     removeCommand, 
     duplicateCommand,
@@ -116,7 +116,7 @@ export function Toolbar() {
   };
 
   const isDisabled = !currentSkitId;
-  const isCommandSelected = selectedCommandId !== null;
+  const isCommandSelected = selectedCommandIds.length > 0;
 
   return (
     <div className="flex items-center p-2 border-b w-full">
@@ -157,7 +157,7 @@ export function Toolbar() {
             variant="outline" 
             size="sm"
             disabled={!isCommandSelected}
-            onClick={() => selectedCommandId && duplicateCommand(selectedCommandId)}
+            onClick={() => selectedCommandIds.length > 0 && duplicateCommand(selectedCommandIds[0])}
           >
             <Copy className="h-4 w-4 mr-1" />
             複製
@@ -169,7 +169,7 @@ export function Toolbar() {
             variant="outline" 
             size="sm"
             disabled={!isCommandSelected}
-            onClick={() => selectedCommandId && removeCommand(selectedCommandId)}
+            onClick={() => selectedCommandIds.length > 0 && removeCommand(selectedCommandIds[0])}
           >
             <Trash className="h-4 w-4 mr-1" />
             削除
