@@ -43,12 +43,12 @@ const commandsConfigSchema = {
       type: 'array',
       items: {
         type: 'object',
-        required: ['id', 'label', 'description', 'format', 'properties'],
+        required: ['id', 'label', 'description', 'commandListLabelFormat', 'properties'],
         properties: {
           id: { type: 'string' },
           label: { type: 'string' },
           description: { type: 'string' },
-          format: { type: 'string' },
+          commandListLabelFormat: { type: 'string' },
           properties: {
             type: 'object',
             additionalProperties: {
