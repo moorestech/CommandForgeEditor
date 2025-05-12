@@ -208,15 +208,27 @@ export function CommandList() {
                       {/* 行番号 */}
                       <div className="w-6 flex-shrink-0 mr-2 text-center">{index + 1}</div>
                       
-                      {/* コマンドタイプ */}
-                      <div className={`font-medium mr-2 ${isGroupStart ? 'font-bold' : ''}`}>
-                        {isGroupStart ? command.groupName : command.type}
-                      </div>
-                      
-                      {/* コマンド内容プレビュー */}
-                      <div className="text-sm truncate">
-                        {isGroupStart ? '' : formatCommandPreview(command)}
-                      </div>
+                      {isGroupStart ? (
+                        // グループの場合はグループ名を表示
+                        <div className="font-medium font-bold">
+                          {command.groupName}
+                        </div>
+                      ) : hasCommandFormat(command) ? (
+                        // commandListLabelFormat が適用できる場合はプレビューのみ表示
+                        <div className="truncate flex-1">
+                          {formatCommandPreview(command)}
+                        </div>
+                      ) : (
+                        // フォーマットがない場合は従来通りタイプとプレビューを表示
+                        <>
+                          <div className="font-medium mr-2">
+                            {command.type}
+                          </div>
+                          <div className="text-sm truncate">
+                            {formatCommandPreview(command)}
+                          </div>
+                        </>
+                      )}
                     </div>
                   </SortableItem>
                 </ContextMenuTrigger>
@@ -278,12 +290,67 @@ export function CommandList() {
   );
 }
 
+/**
+ * コマンドに対応するコマンド定義に commandListLabelFormat が設定されているかチェック
+ */
+function hasCommandFormat(command: SkitCommand): boolean {
+  const { type } = command;
+  const commandsYaml = useSkitStore.getState().commandsYaml;
+  
+  if (!commandsYaml) {
+    return false;
+  }
+  
+  try {
+    const parsed = parse(commandsYaml);
+    const commandDef = parsed?.commands?.find((def: any) => def.id === type);
+    return !!commandDef?.commandListLabelFormat;
+  } catch (error) {
+    return false;
+  }
+}
+
 function formatCommandPreview(command: SkitCommand): string {
   const { type, id: _, ...props } = command;
   
-  const firstPropValue = Object.values(props).find(val => 
-    typeof val === 'string' && val !== type && val.length > 0
-  );
+  // コマンド定義を取得
+  const commandsYaml = useSkitStore.getState().commandsYaml;
+  if (!commandsYaml) {
+    // フォールバック: 最初のプロパティ値を返す
+    const firstPropValue = Object.values(props).find(val =>
+      typeof val === 'string' && val !== type && val.length > 0
+    );
+    return firstPropValue as string || type;
+  }
   
-  return firstPropValue as string || type;
+  try {
+    const parsed = parse(commandsYaml);
+    const commandDef = parsed?.commands?.find((def: any) => def.id === type);
+    
+    if (!commandDef || !commandDef.commandListLabelFormat) {
+      // フォールバック: 最初のプロパティ値を返す
+      const firstPropValue = Object.values(props).find(val =>
+        typeof val === 'string' && val !== type && val.length > 0
+      );
+      return firstPropValue as string || type;
+    }
+    
+    // commandListLabelFormatを使用してフォーマット
+    let formatted = commandDef.commandListLabelFormat;
+    Object.entries(props).forEach(([key, value]) => {
+      const placeholder = `{${key}}`;
+      if (formatted.includes(placeholder)) {
+        formatted = formatted.replace(placeholder, String(value));
+      }
+    });
+    
+    return formatted;
+  } catch (error) {
+    console.error('Failed to format command preview:', error);
+    // フォールバック: 最初のプロパティ値を返す
+    const firstPropValue = Object.values(props).find(val =>
+      typeof val === 'string' && val !== type && val.length > 0
+    );
+    return firstPropValue as string || type;
+  }
 }
