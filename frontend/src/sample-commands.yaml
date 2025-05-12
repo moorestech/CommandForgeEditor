@@ -1,0 +1,40 @@
+version: 1
+commands:
+  - id: text
+    label: テキスト
+    description: 台詞を表示
+    format: "TEXT: {character}, {body}"
+    properties:
+      character:
+        type: enum
+        options: ["キャラA", "キャラB"]
+        required: true
+      body:
+        type: string
+        multiline: true
+        required: true
+
+  - id: emote
+    label: エモート
+    description: 立ち絵・表情切替
+    format: "EMOTE: {character}, {emotion}"
+    properties:
+      character:
+        type: enum
+        options: ["キャラA", "キャラB"]
+        required: true
+      emotion:
+        type: enum
+        options: ["笑顔", "驚き", "怒り", "悲しみ"]
+        required: true
+
+  - id: wait
+    label: 待機
+    description: 指定秒数だけウェイト
+    format: "WAIT: {seconds}"
+    properties:
+      seconds:
+        type: number
+        default: 0.5
+        constraints:
+          min: 0
