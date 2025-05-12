@@ -333,7 +333,7 @@ const CommandItem = memo(({
         } ${isActive ? 'opacity-50' : ''}`}
       onClick={(e) => handleCommandClick(command.id, e)}
       data-testid={`command-item-${command.id}`}
-      style={{ paddingLeft: `${(nestLevel * 16) + 8}px` }}
+      style={{ paddingLeft: `${(nestLevel * 28) + 8}px` }}
     >
       {/* グループ開始コマンドの場合は折りたたみアイコンを表示 */}
       {isGroupStart && (
