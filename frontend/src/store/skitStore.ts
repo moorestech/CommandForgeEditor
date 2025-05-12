@@ -6,7 +6,7 @@ import { Skit, SkitCommand } from '../types';
 interface SkitState {
   skits: Record<string, Skit>;
   currentSkitId: string | null;
-  selectedCommandId: number | null;
+  selectedCommandIds: number[]; // 複数選択に対応するため配列に変更
   commandsYaml: string | null;
   projectPath: string | null;  // Add project path state
   validationErrors: string[];
@@ -17,7 +17,7 @@ interface SkitState {
   
   loadSkits: (skits: Record<string, Skit>) => void;
   setCurrentSkit: (skitId: string) => void;
-  selectCommand: (commandId: number | null) => void;
+  selectCommand: (commandId: number | null, multiSelect?: boolean, rangeSelect?: boolean) => void;
   addCommand: (command: Omit<SkitCommand, 'id'>) => void;
   updateCommand: (commandId: number, updates: Partial<SkitCommand>) => void;
   removeCommand: (commandId: number) => void;
@@ -29,6 +29,10 @@ interface SkitState {
   setValidationErrors: (errors: string[]) => void;
   loadCommandsYaml: (yaml: string) => void;
   setProjectPath: (path: string | null) => void;  // Add project path setter
+  createGroup: () => void;
+  ungroupCommands: (groupStartId: number) => void;
+  toggleGroupCollapse: (groupStartId: number) => void;
+  renameGroup: (groupStartId: number, newName: string) => void;
 }
 
 export const useSkitStore = create<SkitState>()(
@@ -36,7 +40,7 @@ export const useSkitStore = create<SkitState>()(
     immer((set) => ({
     skits: {},
     currentSkitId: null,
-    selectedCommandId: null,
+    selectedCommandIds: [], // 複数選択に対応するため配列に変更
     commandsYaml: null,
     projectPath: null,  // Initialize project path
     validationErrors: [],
@@ -54,7 +58,7 @@ export const useSkitStore = create<SkitState>()(
     setCurrentSkit: (skitId) => {
       set((state) => {
         state.currentSkitId = skitId;
-        state.selectedCommandId = null;
+        state.selectedCommandIds = [];
         state.history = {
           past: [],
           future: [],
@@ -62,9 +66,43 @@ export const useSkitStore = create<SkitState>()(
       });
     },
 
-    selectCommand: (commandId) => {
+    selectCommand: (commandId, multiSelect = false, rangeSelect = false) => {
       set((state) => {
-        state.selectedCommandId = commandId;
+        if (!state.currentSkitId) return;
+        const currentSkit = state.skits[state.currentSkitId];
+        if (!currentSkit) return;
+
+        if (commandId === null) {
+          state.selectedCommandIds = [];
+          return;
+        }
+
+        if (multiSelect) {
+          const index = state.selectedCommandIds.indexOf(commandId);
+          if (index === -1) {
+            state.selectedCommandIds.push(commandId);
+          } else {
+            state.selectedCommandIds.splice(index, 1);
+          }
+        } else if (rangeSelect && state.selectedCommandIds.length > 0) {
+          const lastSelectedId = state.selectedCommandIds[state.selectedCommandIds.length - 1];
+          const commands = currentSkit.commands;
+          
+          const lastIndex = commands.findIndex(cmd => cmd.id === lastSelectedId);
+          const currentIndex = commands.findIndex(cmd => cmd.id === commandId);
+          
+          if (lastIndex !== -1 && currentIndex !== -1) {
+            const start = Math.min(lastIndex, currentIndex);
+            const end = Math.max(lastIndex, currentIndex);
+            
+            const rangeIds = commands.slice(start, end + 1).map(cmd => cmd.id);
+            
+            const newSelection = [...new Set([...state.selectedCommandIds, ...rangeIds])];
+            state.selectedCommandIds = newSelection;
+          }
+        } else {
+          state.selectedCommandIds = [commandId];
+        }
       });
     },
 
@@ -91,7 +129,7 @@ export const useSkitStore = create<SkitState>()(
         
         currentSkit.commands.push(newCommand);
         currentSkit.meta.modified = new Date().toISOString();
-        state.selectedCommandId = newCommand.id;
+        state.selectedCommandIds = [newCommand.id];
       });
     },
 
@@ -136,9 +174,7 @@ export const useSkitStore = create<SkitState>()(
         
         currentSkit.meta.modified = new Date().toISOString();
         
-        if (state.selectedCommandId === commandId) {
-          state.selectedCommandId = null;
-        }
+        state.selectedCommandIds = state.selectedCommandIds.filter(id => id !== commandId);
       });
     },
 
@@ -193,7 +229,7 @@ export const useSkitStore = create<SkitState>()(
         
         currentSkit.commands.splice(index + 1, 0, duplicatedCommand);
         currentSkit.meta.modified = new Date().toISOString();
-        state.selectedCommandId = duplicatedCommand.id;
+        state.selectedCommandIds = [duplicatedCommand.id];
       });
     },
 
@@ -304,6 +340,143 @@ export const useSkitStore = create<SkitState>()(
     setProjectPath: (path) => {
       set((state) => {
         state.projectPath = path;
+      });
+    },
+
+    createGroup: () => {
+      set((state) => {
+        if (!state.currentSkitId) return;
+        
+        const currentSkit = state.skits[state.currentSkitId];
+        if (!currentSkit) return;
+        
+        if (state.selectedCommandIds.length === 0) return;
+        
+        state.history.past.push(JSON.parse(JSON.stringify(currentSkit)));
+        state.history.future = [];
+        
+        const maxId = currentSkit.commands.reduce(
+          (max, cmd) => Math.max(max, cmd.id),
+          0
+        );
+        
+        const selectedCommands = currentSkit.commands.filter(cmd => 
+          state.selectedCommandIds.includes(cmd.id)
+        );
+        
+        if (selectedCommands.length === 0) return;
+        
+        selectedCommands.sort((a, b) => {
+          const indexA = currentSkit.commands.findIndex(cmd => cmd.id === a.id);
+          const indexB = currentSkit.commands.findIndex(cmd => cmd.id === b.id);
+          return indexA - indexB;
+        });
+        
+        const firstSelectedIndex = currentSkit.commands.findIndex(
+          cmd => cmd.id === selectedCommands[0].id
+        );
+        
+        const lastSelectedIndex = currentSkit.commands.findIndex(
+          cmd => cmd.id === selectedCommands[selectedCommands.length - 1].id
+        );
+        
+        const startCommand = {
+          id: maxId + 1,
+          type: 'group_start',
+          groupName: '新しいグループ',
+          isCollapsed: false
+        };
+        
+        const endCommand = {
+          id: maxId + 2,
+          type: 'group_end'
+        };
+        
+        currentSkit.commands.splice(firstSelectedIndex, 0, startCommand);
+        currentSkit.commands.splice(lastSelectedIndex + 2, 0, endCommand);
+        
+        currentSkit.meta.modified = new Date().toISOString();
+        
+        state.selectedCommandIds = [startCommand.id];
+      });
+    },
+    
+    ungroupCommands: (groupStartId) => {
+      set((state) => {
+        if (!state.currentSkitId) return;
+        
+        const currentSkit = state.skits[state.currentSkitId];
+        if (!currentSkit) return;
+        
+        state.history.past.push(JSON.parse(JSON.stringify(currentSkit)));
+        state.history.future = [];
+        
+        const startIndex = currentSkit.commands.findIndex(cmd => cmd.id === groupStartId);
+        if (startIndex === -1 || currentSkit.commands[startIndex].type !== 'group_start') return;
+        
+        let nestLevel = 1;
+        let endIndex = -1;
+        
+        for (let i = startIndex + 1; i < currentSkit.commands.length; i++) {
+          const cmd = currentSkit.commands[i];
+          if (cmd.type === 'group_start') {
+            nestLevel++;
+          } else if (cmd.type === 'group_end') {
+            nestLevel--;
+            if (nestLevel === 0) {
+              endIndex = i;
+              break;
+            }
+          }
+        }
+        
+        if (endIndex === -1) return;
+        
+        currentSkit.commands.splice(endIndex, 1);
+        currentSkit.commands.splice(startIndex, 1);
+        
+        currentSkit.meta.modified = new Date().toISOString();
+        
+        state.selectedCommandIds = [];
+      });
+    },
+    
+    toggleGroupCollapse: (groupStartId) => {
+      set((state) => {
+        if (!state.currentSkitId) return;
+        
+        const currentSkit = state.skits[state.currentSkitId];
+        if (!currentSkit) return;
+        
+        const groupIndex = currentSkit.commands.findIndex(
+          cmd => cmd.id === groupStartId && cmd.type === 'group_start'
+        );
+        
+        if (groupIndex === -1) return;
+        
+        currentSkit.commands[groupIndex].isCollapsed = !currentSkit.commands[groupIndex].isCollapsed;
+      });
+    },
+    
+    renameGroup: (groupStartId, newName) => {
+      set((state) => {
+        if (!state.currentSkitId) return;
+        
+        const currentSkit = state.skits[state.currentSkitId];
+        if (!currentSkit) return;
+        
+        state.history.past.push(JSON.parse(JSON.stringify(currentSkit)));
+        state.history.future = [];
+        
+        const groupIndex = currentSkit.commands.findIndex(
+          cmd => cmd.id === groupStartId && cmd.type === 'group_start'
+        );
+        
+        if (groupIndex === -1) return;
+        
+        currentSkit.commands[groupIndex].groupName = newName;
+        
+        currentSkit.meta.modified = new Date().toISOString();
       });
     },
   })),

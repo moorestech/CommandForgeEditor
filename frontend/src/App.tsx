@@ -97,6 +97,25 @@ commands:
         default: 0.5
         constraints:
           min: 0
+
+  - id: group_start
+    label: グループ開始
+    description: グループの開始位置
+    format: "GROUP_START: {groupName}"
+    properties:
+      groupName:
+        type: string
+        default: "新しいグループ"
+        required: true
+      isCollapsed:
+        type: boolean
+        default: false
+
+  - id: group_end
+    label: グループ終了
+    description: グループの終了位置
+    format: "GROUP_END"
+    properties: {}
 `;
             loadCommandsYaml(commandsYaml);
           } catch (e) {
