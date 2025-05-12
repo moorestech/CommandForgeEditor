@@ -3,7 +3,7 @@
     "title": "青春カフェ物語",
     "version": 1,
     "created": "2025-05-10T12:00:00+09:00",
-    "modified": "2025-05-12T17:45:00+09:00"
+    "modified": "2025-05-12T15:17:12.288Z"
   },
   "commands": [
     {
@@ -24,16 +24,34 @@
       "volume": 0.7
     },
     {
+      "id": 149,
+      "type": "group_start",
+      "groupName": "新しいグループ",
+      "isCollapsed": false
+    },
+    {
       "id": 4,
       "type": "camera",
       "action": "ズームアウト",
       "target": "全体"
     },
     {
+      "id": 151,
+      "type": "group_start",
+      "groupName": "新しいグループ",
+      "isCollapsed": false
+    },
+    {
       "id": 5,
       "type": "emote",
       "character": "キャラA",
       "emotion": "通常"
+    },
+    {
+      "id": 153,
+      "type": "group_start",
+      "groupName": "新しいグループ",
+      "isCollapsed": false
     },
     {
       "id": 6,
@@ -53,16 +71,30 @@
       "seconds": 0.5
     },
     {
+      "id": 154,
+      "type": "group_end"
+    },
+    {
       "id": 9,
       "type": "emote",
       "character": "キャラB",
       "emotion": "困惑"
     },
     {
+      "id": 152,
+      "type": "group_end"
+    },
+    {
       "id": 10,
       "type": "text",
       "character": "キャラB",
       "body": "ほんとそれ。特に最後の問題は全然わからなかった..."
+    },
+    {
+      "id": 155,
+      "type": "group_start",
+      "groupName": "新しいグループ",
+      "isCollapsed": true
     },
     {
       "id": 11,
@@ -82,6 +114,10 @@
       "type": "sound",
       "effect": "ドア",
       "volume": 0.8
+    },
+    {
+      "id": 156,
+      "type": "group_end"
     },
     {
       "id": 14,
@@ -106,6 +142,10 @@
       "type": "text",
       "character": "キャラB",
       "body": "今日の数学のテスト。全然できなかったよ..."
+    },
+    {
+      "id": 150,
+      "type": "group_end"
     },
     {
       "id": 18,
@@ -576,7 +616,7 @@
     {
       "id": 96,
       "type": "wait",
-      "seconds": 1.0
+      "seconds": 1
     },
     {
       "id": 97,
@@ -880,7 +920,7 @@
     {
       "id": 146,
       "type": "wait",
-      "seconds": 2.0
+      "seconds": 2
     },
     {
       "id": 147,
