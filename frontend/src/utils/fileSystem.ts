@@ -34,6 +34,11 @@ export async function selectProjectFolder(): Promise<string | null> {
  */
 export async function loadCommandsYaml(projectPath: string | null = null): Promise<string> {
   try {
+    // Web環境の場合はすぐに例外をスロー
+    if (import.meta.env.DEV && typeof window !== 'undefined' && !(window as any).__TAURI__) {
+      throw new Error('Running in web environment, Tauri API not available');
+    }
+    
     let commandsYamlPath;
     
     if (projectPath) {
@@ -51,6 +56,7 @@ export async function loadCommandsYaml(projectPath: string | null = null): Promi
   }
 }
 
+
 /**
  * Loads all skits from the skits directory
  * @param projectPath Optional project path
@@ -58,6 +64,11 @@ export async function loadCommandsYaml(projectPath: string | null = null): Promi
  */
 export async function loadSkits(projectPath: string | null = null): Promise<Record<string, Skit>> {
   try {
+    // Web環境の場合はすぐに例外をスロー
+    if (import.meta.env.DEV && typeof window !== 'undefined' && !(window as any).__TAURI__) {
+      throw new Error('Running in web environment, Tauri API not available');
+    }
+    
     let skitsPath;
     
     if (projectPath) {
