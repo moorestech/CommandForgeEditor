@@ -3,7 +3,7 @@ commands:
   - id: text
     label: テキスト
     description: 台詞を表示
-    format: "{character}：{body}"
+    commandListLabelFormat: "{character}：{body}"
     properties:
       character:
         type: enum
@@ -17,7 +17,7 @@ commands:
   - id: emote
     label: エモート
     description: 立ち絵・表情切替
-    format: "EMOTE: {character}, {emotion}"
+    commandListLabelFormat: "EMOTE: {character}, {emotion}"
     properties:
       character:
         type: enum
@@ -31,7 +31,7 @@ commands:
   - id: wait
     label: 待機
     description: 指定秒数だけウェイト
-    format: "WAIT: {seconds}"
+    commandListLabelFormat: "WAIT: {seconds}"
     properties:
       seconds:
         type: number
@@ -42,7 +42,7 @@ commands:
   - id: bgm
     label: BGM
     description: 背景音楽を変更
-    format: "BGM: {track}, volume={volume}"
+    commandListLabelFormat: "BGM: {track}, volume={volume}"
     properties:
       track:
         type: enum
@@ -58,7 +58,7 @@ commands:
   - id: sound
     label: 効果音
     description: 効果音を再生
-    format: "SOUND: {effect}, volume={volume}"
+    commandListLabelFormat: "SOUND: {effect}, volume={volume}"
     properties:
       effect:
         type: enum
@@ -74,7 +74,7 @@ commands:
   - id: background
     label: 背景
     description: 背景画像を変更
-    format: "BG: {scene}, effect={transition}"
+    commandListLabelFormat: "BG: {scene}, effect={transition}"
     properties:
       scene:
         type: enum
@@ -88,7 +88,7 @@ commands:
   - id: camera
     label: カメラ
     description: カメラワークを指定
-    format: "CAMERA: {action}, target={target}"
+    commandListLabelFormat: "CAMERA: {action}, target={target}"
     properties:
       action:
         type: enum
@@ -102,7 +102,7 @@ commands:
   - id: choice
     label: 選択肢
     description: 選択肢を表示
-    format: "CHOICE: {options}"
+    commandListLabelFormat: "CHOICE: {options}"
     properties:
       options:
         type: string
@@ -117,7 +117,7 @@ commands:
   - id: action
     label: アクション
     description: キャラクターのアクションを実行
-    format: "ACTION: {character}, {action}"
+    commandListLabelFormat: "ACTION: {character}, {action}"
     properties:
       character:
         type: enum
@@ -135,7 +135,7 @@ commands:
   - id: narration
     label: ナレーション
     description: ナレーションテキストを表示
-    format: "NARRATION: {text}"
+    commandListLabelFormat: "NARRATION: {text}"
     properties:
       text:
         type: string
