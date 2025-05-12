@@ -22,6 +22,7 @@ interface SkitState {
   updateCommand: (commandId: number, updates: Partial<SkitCommand>) => void;
   removeCommand: (commandId: number) => void;
   moveCommand: (fromIndex: number, toIndex: number) => void;
+  moveCommands: (fromIndices: number[], toIndex: number) => void;
   duplicateCommand: (commandId: number) => void;
   saveSkit: () => Promise<void>;
   undo: () => void;
@@ -196,7 +197,88 @@ export const useSkitStore = create<SkitState>()(
         currentSkit.meta.modified = new Date().toISOString();
       });
     },
+    
+    moveCommands: (fromIndices: number[], toIndex: number) => {
+      set((state) => {
+        if (!state.currentSkitId) return;
+        const currentSkit = state.skits[state.currentSkitId];
+        if (!currentSkit) return;
+        
+        if (fromIndices.length === 0) return;
 
+        state.history.past.push(JSON.parse(JSON.stringify(currentSkit)));
+        state.history.future = [];
+        
+        // commandsFromStore は操作過程で変更されるため、元のskit.commandsを参照する場合は state.skits[state.currentSkitId].commands を使う
+        const commandsFromStore = [...currentSkit.commands];
+        const movedItems: SkitCommand[] = [];
+        
+        // fromIndices をソートして、後方から安全に要素を削除できるようにする
+        const sortedFromIndices = [...fromIndices].sort((a, b) => a - b);
+        
+        // sortedFromIndices に基づいて、元の配列からアイテムを削除しつつ movedItems に収集
+        for (let i = sortedFromIndices.length - 1; i >= 0; i--) {
+          const fromIdx = sortedFromIndices[i];
+          // commandsFromStore から直接 splice して取り出す
+          const [movedItem] = commandsFromStore.splice(fromIdx, 1);
+          movedItems.unshift(movedItem); // 取り出した順の逆で先頭に追加すると元の順序になる
+        }
+        // この時点で commandsFromStore は移動対象が取り除かれた配列
+        // movedItems は移動するアイテムが元の順序で格納されている
+
+        let insertionPoint;
+
+        // toIndex は「ドロップ先のアイテムの元の配列におけるインデックス」
+        if (toIndex >= state.skits[state.currentSkitId].commands.length) {
+            // ドロップ先が元の配列の範囲外（例: リストの最後にドロップ）の場合
+            insertionPoint = commandsFromStore.length; // 残ったコマンドの末尾に挿入
+        } else {
+            // ドロップ先が元の配列の範囲内の場合
+            const dropTargetItemInOriginalArray = state.skits[state.currentSkitId].commands[toIndex];
+            if (!dropTargetItemInOriginalArray) {
+                // 通常ここには来ないはずだが、安全策
+                console.warn(`[moveCommands] dropTargetItemInOriginalArray not found for toIndex ${toIndex}. Inserting at end of remaining.`);
+                insertionPoint = commandsFromStore.length;
+            } else {
+                // commandsFromStore (移動アイテム削除後) の中で、ドロップ先アイテムを探す
+                const indexOfDropTargetInRemaining = commandsFromStore.findIndex(cmd => cmd.id === dropTargetItemInOriginalArray.id);
+
+                if (indexOfDropTargetInRemaining === -1) {
+                    // ドロップ先アイテムが移動対象に含まれていたか、何らかの理由で見つからない場合
+                    // この場合、toIndex が指していた元の位置を基準に挿入点を推測する
+                    let countValidItemsBeforeToIndex = 0;
+                    for(let i=0; i < toIndex; i++) {
+                        const itemInOriginal = state.skits[state.currentSkitId].commands[i];
+                        // commandsFromStore にまだ存在するか (つまり削除されなかったか)
+                        if (commandsFromStore.find(cmd => cmd.id === itemInOriginal.id)) {
+                            countValidItemsBeforeToIndex++;
+                        }
+                    }
+                    insertionPoint = countValidItemsBeforeToIndex;
+                    console.warn(`[moveCommands] Drop target (ID: ${dropTargetItemInOriginalArray.id}) not found in remaining. Inferred insertionPoint: ${insertionPoint}`);
+                } else {
+                    // ドロップ先アイテムが見つかった場合
+                    // 移動元 (movedItems の最初の要素の元のインデックス) と toIndex を比較して、上か下かを判断
+                    const originalFromIndexForMovedItems = state.skits[state.currentSkitId].commands.findIndex(cmd => cmd.id === movedItems[0].id);
+                    if (originalFromIndexForMovedItems < toIndex) {
+                        // 下への移動: ドロップ先アイテムの「次」の位置
+                        insertionPoint = indexOfDropTargetInRemaining + 1;
+                    } else {
+                        // 上への移動: ドロップ先アイテムの「前」の位置 (つまり、そのアイテムの現在のインデックス)
+                        insertionPoint = indexOfDropTargetInRemaining;
+                    }
+                }
+            }
+        }
+        
+
+        // 算出した挿入ポイントに movedItems を展開して挿入
+        commandsFromStore.splice(insertionPoint, 0, ...movedItems);
+        
+        currentSkit.commands = commandsFromStore;
+        currentSkit.meta.modified = new Date().toISOString();
+      });
+    },
     duplicateCommand: (commandId) => {
       set((state) => {
         if (!state.currentSkitId) return;
@@ -487,3 +569,47 @@ export const useSkitStore = create<SkitState>()(
     }),
   }
 ));
+
+export const getGroupCommandIndices = (commands: SkitCommand[], groupStartIndex: number): number[] => {
+  const indices: number[] = [groupStartIndex];
+  let nestLevel = 1;
+  
+  for (let i = groupStartIndex + 1; i < commands.length; i++) {
+    const cmd = commands[i];
+    
+    if (cmd.type === 'group_start') {
+      nestLevel++;
+    } else if (cmd.type === 'group_end') {
+      nestLevel--;
+      if (nestLevel === 0) {
+        indices.push(i); // グループエンドも含める
+        break;
+      }
+    }
+    
+    indices.push(i);
+  }
+  
+  return indices;
+};
+
+export const getTopLevelGroups = (commands: SkitCommand[], selectedIndices: number[]): number[] => {
+  return selectedIndices.filter(index => {
+    const cmd = commands[index];
+    if (cmd.type !== 'group_start') return false;
+    
+    for (const otherIndex of selectedIndices) {
+      if (otherIndex === index) continue;
+      
+      const otherCmd = commands[otherIndex];
+      if (otherCmd.type !== 'group_start') continue;
+      
+      const groupIndices = getGroupCommandIndices(commands, otherIndex);
+      if (groupIndices.includes(index)) {
+        return false; // 他のグループに含まれている
+      }
+    }
+    
+    return true; // 他のどのグループにも含まれていない
+  });
+};
