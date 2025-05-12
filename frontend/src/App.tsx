@@ -34,8 +34,6 @@ function App() {
         const skits = await loadSkitsFiles(projectPath);
         loadSkits(skits);
       } catch (error) {
-        console.error('Failed to load initial data:', error);
-        
         if (import.meta.env.DEV) {
           // 外部ファイルからサンプルデータをロード
           try {
@@ -51,6 +49,8 @@ function App() {
           } catch (e) {
             console.error('Failed to load sample commands.yaml:', e);
           }
+        }else{
+          console.error('Failed to load initial data:', error);
         }
       }
     };
