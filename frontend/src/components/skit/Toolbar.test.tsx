@@ -55,7 +55,7 @@ commands:
   - id: text
     label: テキスト
     description: 台詞を表示
-    format: "TEXT: {character}, {body}"
+    commandListLabelFormat: "TEXT: {character}, {body}"
     properties:
       character:
         type: enum

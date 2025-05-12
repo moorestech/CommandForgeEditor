@@ -19,7 +19,7 @@ export interface CommandDefinition {
   id: string;
   label: string;
   description: string;
-  format: string;
+  commandListLabelFormat: string;
   properties: Record<string, PropertyDefinition>;
 }
 

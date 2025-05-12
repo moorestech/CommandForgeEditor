@@ -177,9 +177,44 @@ export function CommandList() {
 function formatCommandPreview(command: SkitCommand): string {
   const { type, id: _, ...props } = command;
   
-  const firstPropValue = Object.values(props).find(val => 
-    typeof val === 'string' && val !== type && val.length > 0
-  );
+  // コマンド定義を取得
+  const commandsYaml = useSkitStore.getState().commandsYaml;
+  if (!commandsYaml) {
+    // フォールバック: 最初のプロパティ値を返す
+    const firstPropValue = Object.values(props).find(val =>
+      typeof val === 'string' && val !== type && val.length > 0
+    );
+    return firstPropValue as string || type;
+  }
   
-  return firstPropValue as string || type;
+  try {
+    const parsed = parse(commandsYaml);
+    const commandDef = parsed?.commands?.find((def: any) => def.id === type);
+    
+    if (!commandDef || !commandDef.commandListLabelFormat) {
+      // フォールバック: 最初のプロパティ値を返す
+      const firstPropValue = Object.values(props).find(val =>
+        typeof val === 'string' && val !== type && val.length > 0
+      );
+      return firstPropValue as string || type;
+    }
+    
+    // commandListLabelFormatを使用してフォーマット
+    let formatted = commandDef.commandListLabelFormat;
+    Object.entries(props).forEach(([key, value]) => {
+      const placeholder = `{${key}}`;
+      if (formatted.includes(placeholder)) {
+        formatted = formatted.replace(placeholder, String(value));
+      }
+    });
+    
+    return formatted;
+  } catch (error) {
+    console.error('Failed to format command preview:', error);
+    // フォールバック: 最初のプロパティ値を返す
+    const firstPropValue = Object.values(props).find(val =>
+      typeof val === 'string' && val !== type && val.length > 0
+    );
+    return firstPropValue as string || type;
+  }
 }
