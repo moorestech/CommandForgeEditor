@@ -122,12 +122,22 @@ export function CommandList() {
                   >
                     {/* 行番号 */}
                     <div className="w-6 flex-shrink-0 mr-2 text-center">{index + 1}</div>
-                    {/* コマンドタイプ */}
-                    <div className="font-medium mr-2">{command.type}</div>
-                    {/* コマンド内容プレビュー */}
-                    <div className="text-sm truncate">
-                      {formatCommandPreview(command)}
-                    </div>
+                    
+                    {/* コマンド内容 - フォーマットが適用できるかどうかで表示を分岐 */}
+                    {hasCommandFormat(command) ? (
+                      // commandListLabelFormatが使われている場合はプレビューのみ表示
+                      <div className="text-sm truncate flex-1">
+                        {formatCommandPreview(command)}
+                      </div>
+                    ) : (
+                      // フォーマットがない場合は従来通りタイプとプレビューを表示
+                      <>
+                        <div className="font-medium mr-2">{command.type}</div>
+                        <div className="text-sm truncate">
+                          {formatCommandPreview(command)}
+                        </div>
+                      </>
+                    )}
                   </div>
                 </SortableItem>
               </ContextMenuTrigger>
@@ -172,6 +182,26 @@ export function CommandList() {
       </DropZone>
     </ScrollArea>
   );
+}
+
+/**
+ * コマンドに対応するコマンド定義に commandListLabelFormat が設定されているかチェック
+ */
+function hasCommandFormat(command: SkitCommand): boolean {
+  const { type } = command;
+  const commandsYaml = useSkitStore.getState().commandsYaml;
+  
+  if (!commandsYaml) {
+    return false;
+  }
+  
+  try {
+    const parsed = parse(commandsYaml);
+    const commandDef = parsed?.commands?.find((def: any) => def.id === type);
+    return !!commandDef?.commandListLabelFormat;
+  } catch (error) {
+    return false;
+  }
 }
 
 function formatCommandPreview(command: SkitCommand): string {
