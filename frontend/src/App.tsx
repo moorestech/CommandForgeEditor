@@ -7,10 +7,12 @@ import { ValidationLog } from './components/skit/ValidationLog';
 import { useSkitStore } from './store/skitStore';
 import {
   loadCommandsYaml as loadCommandsYamlFile,
-  loadSkits as loadSkitsFiles,
+  loadSkits as loadSkitsFiles
+} from './utils/fileSystem';
+import {
   loadSampleCommandsYaml,
   loadSampleSkit
-} from './utils/fileSystem';
+} from './utils/devFileSystem';
 import { Toaster } from 'sonner';
 import { DndProvider } from './components/dnd/DndProvider';
 import {
