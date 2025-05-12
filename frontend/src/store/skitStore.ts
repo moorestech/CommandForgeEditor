@@ -215,20 +215,21 @@ export const useSkitStore = create<SkitState>()(
         
         const sortedIndices = [...fromIndices].sort((a, b) => a - b);
         
-        let offset = 0;
-        for (const idx of sortedIndices) {
-          if (idx < toIndex) {
-            offset++;
-          }
-        }
-        
         for (let i = sortedIndices.length - 1; i >= 0; i--) {
           const fromIndex = sortedIndices[i];
           const [movedCommand] = commands.splice(fromIndex, 1);
           movedCommands.unshift(movedCommand); // 削除した順と逆順で保存
         }
         
-        const adjustedToIndex = Math.max(0, toIndex - offset);
+        let adjustedToIndex = toIndex;
+        for (const idx of sortedIndices) {
+          if (idx < toIndex) {
+            adjustedToIndex--;
+          }
+        }
+        
+        adjustedToIndex = Math.max(0, adjustedToIndex);
+        
         commands.splice(adjustedToIndex, 0, ...movedCommands);
         
         currentSkit.commands = commands;
