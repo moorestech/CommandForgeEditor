@@ -3,7 +3,7 @@ commands:
   - id: text
     label: テキスト
     description: 台詞を表示
-    format: "TEXT: {character}, {body}"
+    commandListLabelFormat: "TEXT: {character}, {body}"
     properties:
       character:
         type: enum
@@ -17,7 +17,7 @@ commands:
   - id: emote
     label: エモート2
     description: 立ち絵・表情切替
-    format: "EMOTE: {character}, {emotion}"
+    commandListLabelFormat: "EMOTE: {character}, {emotion}"
     properties:
       character:
         type: enum
@@ -31,7 +31,7 @@ commands:
   - id: wait
     label: 待機
     description: 指定秒数だけウェイト
-    format: "WAIT: {seconds}"
+    commandListLabelFormat: "WAIT: {seconds}"
     properties:
       seconds:
         type: number
