@@ -215,6 +215,8 @@ export const useSkitStore = create<SkitState>()(
         
         const sortedIndices = [...fromIndices].sort((a, b) => a - b);
         
+        const isMovingDownByOne = sortedIndices.length === 1 && sortedIndices[0] + 1 === toIndex;
+        
         for (let i = sortedIndices.length - 1; i >= 0; i--) {
           const fromIndex = sortedIndices[i];
           const [movedCommand] = commands.splice(fromIndex, 1);
@@ -222,9 +224,12 @@ export const useSkitStore = create<SkitState>()(
         }
         
         let adjustedToIndex = toIndex;
-        for (const idx of sortedIndices) {
-          if (idx < toIndex) {
-            adjustedToIndex--;
+        
+        if (!isMovingDownByOne) {
+          for (const idx of sortedIndices) {
+            if (idx < toIndex) {
+              adjustedToIndex--;
+            }
           }
         }
         
