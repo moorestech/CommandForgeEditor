@@ -246,7 +246,7 @@ export const CommandList = memo(function CommandList() {
               } else {
                 // ドラッグされたコマンドが group_start ではなく、
                 // かつ単一選択であるか、または選択されていない場合 (dnd-kitが選択外アイテムのドラッグを許可する場合)
-                // この場合は単一コマンドとして移動　
+                // この場合は単一コマンドとして移動
                 moveCommand(originalFromIndex, originalToIndex);
               }
             }}
