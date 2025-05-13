@@ -38,6 +38,7 @@ export interface SkitMeta {
 export interface SkitCommand {
   id: number;
   type: string;
+  backgroundColor?: string; // Background color for the command
   [key: string]: any; // Additional properties based on command type
 }
 

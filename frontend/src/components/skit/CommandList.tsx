@@ -368,16 +368,35 @@ const CommandItem = memo(({
     return lines;
   }, [nestLevel, command.type]);
 
+  const backgroundColorStyle = command.backgroundColor 
+    ? { backgroundColor: command.backgroundColor, paddingLeft: `${(nestLevel * 28) + 8}px` }
+    : { paddingLeft: `${(nestLevel * 28) + 8}px` };
+    
+  const getTextColor = (bgColor: string) => {
+    if (!bgColor || bgColor === '') return '';
+    
+    const hex = bgColor.replace('#', '');
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    
+    const brightness = (r * 0.299 + g * 0.587 + b * 0.114);
+    
+    return brightness < 128 ? 'text-white' : 'text-black';
+  };
+  
+  const textColorClass = command.backgroundColor ? getTextColor(command.backgroundColor) : '';
+
   return (
     <div
       className={`cursor-pointer transition-colors flex items-center py-2 px-2 border-b w-full relative
         ${isSelected
           ? 'bg-blue-500 text-white'
-          : 'hover:bg-accent'
+          : command.backgroundColor ? textColorClass : 'hover:bg-accent'
         } ${isActive ? 'opacity-50' : ''}`}
       onClick={(e) => handleCommandClick(command.id, e)}
       data-testid={`command-item-${command.id}`}
-      style={{ paddingLeft: `${(nestLevel * 28) + 8}px` }}
+      style={backgroundColorStyle}
     >
       {/* ネストレベルを示す垂直ライン */}
       {nestLines}
