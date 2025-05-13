@@ -131,7 +131,10 @@ export const CommandList = memo(function CommandList() {
     const commandDef = commandDefinitions.find((def: any) => def.id === commandType);
     if (!commandDef) return;
 
-    const newCommand: any = { type: commandType };
+    const newCommand: any = { 
+      type: commandType,
+      backgroundColor: commandDef.defaultBackgroundColor || "#ffffff"
+    };
     
     Object.entries(commandDef.properties).forEach(([propName, propDefAny]) => {
       const propDef = propDefAny as any;

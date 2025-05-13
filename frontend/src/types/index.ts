@@ -20,6 +20,7 @@ export interface CommandDefinition {
   label: string;
   description: string;
   commandListLabelFormat: string;
+  defaultBackgroundColor?: string;
   properties: Record<string, PropertyDefinition>;
 }
 
