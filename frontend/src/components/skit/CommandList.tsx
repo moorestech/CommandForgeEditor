@@ -327,6 +327,10 @@ const CommandItem = memo(({
   const nestLines = useMemo(() => {
     const lines = [];
     for (let i = 0; i < nestLevel; i++) {
+      if (command.type === 'group_end' && i === nestLevel - 1) {
+        continue;
+      }
+      
       lines.push(
         <div 
           key={`nest-line-${i}`}
@@ -335,8 +339,34 @@ const CommandItem = memo(({
         />
       );
     }
+    
+    if (command.type === 'group_end' && nestLevel > 0) {
+      lines.push(
+        <div 
+          key="l-shaped-line"
+          className="absolute w-[16px] h-[2px] bg-zinc-300 dark:bg-zinc-700"
+          style={{ 
+            left: `${(nestLevel - 1) * 28 + 16}px`, 
+            top: '50%'
+          }}
+        />
+      );
+      
+      lines.push(
+        <div 
+          key="l-vertical-top"
+          className="absolute w-[2px] bg-zinc-300 dark:bg-zinc-700"
+          style={{ 
+            left: `${(nestLevel - 1) * 28 + 16}px`,
+            top: 0,
+            height: '50%'
+          }}
+        />
+      );
+    }
+    
     return lines;
-  }, [nestLevel]);
+  }, [nestLevel, command.type]);
 
   return (
     <div
