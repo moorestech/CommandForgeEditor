@@ -103,11 +103,39 @@ async function loadSkitsFromPath(skitsPath: string): Promise<Record<string, Skit
     const skitFiles = await readDir(skitsPath);
     const skits: Record<string, Skit> = {};
     
+    // Load commands.yaml to get defaultBackgroundColor for each command type
+    let commandsConfig;
+    try {
+      const commandsYamlPath = await join(skitsPath, '../commands.yaml');
+      if (await exists(commandsYamlPath)) {
+        const commandsYaml = await readTextFile(commandsYamlPath);
+        const { validateCommandsYaml } = await import('./validation');
+        const { config } = validateCommandsYaml(commandsYaml);
+        commandsConfig = config;
+      }
+    } catch (error) {
+      console.error('Failed to load commands.yaml for background colors:', error);
+    }
+    
     for (const file of skitFiles) {
       if (file.name && file.name.endsWith('.json')) {
         const skitId = file.name.replace('.json', '');
         const skitContent = await readTextFile(`${skitsPath}/${file.name}`);
-        skits[skitId] = JSON.parse(skitContent);
+        const skit = JSON.parse(skitContent);
+        
+        if (commandsConfig && commandsConfig.commands) {
+          skit.commands = skit.commands.map((command: any) => {
+            if (!command.backgroundColor) {
+              const commandDef = commandsConfig.commands.find((def: any) => def.id === command.type);
+              if (commandDef && commandDef.defaultBackgroundColor) {
+                return { ...command, backgroundColor: commandDef.defaultBackgroundColor };
+              }
+            }
+            return command;
+          });
+        }
+        
+        skits[skitId] = skit;
       }
     }
     
