@@ -324,9 +324,23 @@ const CommandItem = memo(({
     return hasCommandFormat(command, commandsMap);
   }, [command, commandsMap]);
 
+  const nestLines = useMemo(() => {
+    const lines = [];
+    for (let i = 0; i < nestLevel; i++) {
+      lines.push(
+        <div 
+          key={`nest-line-${i}`}
+          className="absolute h-full w-[2px] bg-zinc-300 dark:bg-zinc-700"
+          style={{ left: `${i * 28 + 16}px` }}
+        />
+      );
+    }
+    return lines;
+  }, [nestLevel]);
+
   return (
     <div
-      className={`cursor-pointer transition-colors flex items-center py-2 px-2 border-b w-full
+      className={`cursor-pointer transition-colors flex items-center py-2 px-2 border-b w-full relative
         ${isSelected
           ? 'bg-blue-500 text-white'
           : 'hover:bg-accent'
@@ -335,6 +349,9 @@ const CommandItem = memo(({
       data-testid={`command-item-${command.id}`}
       style={{ paddingLeft: `${(nestLevel * 28) + 8}px` }}
     >
+      {/* ネストレベルを示す垂直ライン */}
+      {nestLines}
+      
       {/* グループ開始コマンドの場合は折りたたみアイコンを表示 */}
       {isGroupStart && (
         <button
