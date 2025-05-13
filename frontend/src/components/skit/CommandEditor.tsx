@@ -7,6 +7,7 @@ import { Textarea } from '../ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { CommandDefinition, PropertyDefinition } from '../../types';
 import { parse } from 'yaml';
+import { isReservedCommand, getReservedCommandDefinition } from '../../utils/reservedCommands';
 
 export function CommandEditor() {
   const { 
@@ -45,7 +46,11 @@ export function CommandEditor() {
     );
   }
   
-  const commandDef = commandDefinitions.find(def => def.id === selectedCommand.type);
+  let commandDef = commandDefinitions.find(def => def.id === selectedCommand.type);
+  
+  if (!commandDef && isReservedCommand(selectedCommand.type)) {
+    commandDef = getReservedCommandDefinition(selectedCommand.type);
+  }
   
   if (!commandDef) {
     return (
