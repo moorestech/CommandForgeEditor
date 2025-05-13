@@ -4,6 +4,7 @@ commands:
     label: テキスト
     description: 台詞を表示
     commandListLabelFormat: "{character}：{body}"
+    defaultBackgroundColor: "#000000"
     properties:
       character:
         type: enum

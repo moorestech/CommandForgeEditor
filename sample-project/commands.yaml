@@ -4,6 +4,7 @@ commands:
     label: テキスト
     description: 台詞を表示
     commandListLabelFormat: "TEXT: {character}, {body}"
+    defaultBackgroundColor: "#e6f7ff"
     properties:
       character:
         type: enum
@@ -18,6 +19,7 @@ commands:
     label: エモート2
     description: 立ち絵・表情切替
     commandListLabelFormat: "EMOTE: {character}, {emotion}"
+    defaultBackgroundColor: "#fff0f6"
     properties:
       character:
         type: enum
@@ -32,6 +34,7 @@ commands:
     label: 待機
     description: 指定秒数だけウェイト
     commandListLabelFormat: "WAIT: {seconds}"
+    defaultBackgroundColor: "#f6ffed"
     properties:
       seconds:
         type: number

@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { CommandDefinition, PropertyDefinition } from '../../types';
 import { parse } from 'yaml';
 import { isReservedCommand, getReservedCommandDefinition } from '../../utils/reservedCommands';
+import { ColorPicker } from '../ui/color-picker';
 
 export function CommandEditor() {
   const { 
@@ -64,12 +65,24 @@ export function CommandEditor() {
     updateCommand(selectedCommand.id, { [property]: value });
   };
 
+  const defaultBgColor = commandDef.defaultBackgroundColor || "#ffffff";
+  
   return (
     <Card className="border-0 shadow-none">
       <CardHeader className="pb-2">
         <CardTitle>{commandDef.label}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* Background Color Picker */}
+        <div className="space-y-2">
+          <Label htmlFor="backgroundColor">背景色</Label>
+          <ColorPicker
+            value={selectedCommand.backgroundColor || defaultBgColor}
+            onChange={(value) => handlePropertyChange("backgroundColor", value)}
+          />
+        </div>
+        
+        {/* Command Properties */}
         {Object.entries(commandDef.properties).map(([propName, propDef]) => (
           <div key={propName} className="space-y-2">
             <Label htmlFor={propName}>

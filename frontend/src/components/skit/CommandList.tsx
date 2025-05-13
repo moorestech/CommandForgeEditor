@@ -131,7 +131,10 @@ export const CommandList = memo(function CommandList() {
     const commandDef = commandDefinitions.find((def: any) => def.id === commandType);
     if (!commandDef) return;
 
-    const newCommand: any = { type: commandType };
+    const newCommand: any = { 
+      type: commandType,
+      backgroundColor: commandDef.defaultBackgroundColor || "#ffffff"
+    };
     
     Object.entries(commandDef.properties).forEach(([propName, propDefAny]) => {
       const propDef = propDefAny as any;
@@ -368,16 +371,42 @@ const CommandItem = memo(({
     return lines;
   }, [nestLevel, command.type]);
 
+  // Get command definition to check for defaultBackgroundColor
+  const commandDef = commandsMap.get(command.type);
+  const defaultBgColor = commandDef?.defaultBackgroundColor || "#ffffff";
+  
+  const bgColor = command.backgroundColor || defaultBgColor;
+  
+  const backgroundColorStyle = {
+    paddingLeft: `${(nestLevel * 28) + 8}px`,
+    ...(isSelected ? {} : { backgroundColor: bgColor })
+  };
+    
+  const getTextColor = (bgColor: string) => {
+    if (!bgColor || bgColor === '') return '';
+    
+    const hex = bgColor.replace('#', '');
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    
+    const brightness = (r * 0.299 + g * 0.587 + b * 0.114);
+    
+    return brightness < 128 ? 'text-white' : 'text-black';
+  };
+  
+  const textColorClass = getTextColor(bgColor);
+
   return (
     <div
       className={`cursor-pointer transition-colors flex items-center py-2 px-2 border-b w-full relative
         ${isSelected
           ? 'bg-blue-500 text-white'
-          : 'hover:bg-accent'
+          : textColorClass || 'hover:bg-accent'
         } ${isActive ? 'opacity-50' : ''}`}
       onClick={(e) => handleCommandClick(command.id, e)}
       data-testid={`command-item-${command.id}`}
-      style={{ paddingLeft: `${(nestLevel * 28) + 8}px` }}
+      style={backgroundColorStyle}
     >
       {/* ネストレベルを示す垂直ライン */}
       {nestLines}
