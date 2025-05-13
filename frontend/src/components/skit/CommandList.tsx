@@ -366,7 +366,7 @@ const CommandItem = memo(({
       )}
       
       {/* 行番号 */}
-      <div className="w-6 flex-shrink-0 mr-2 text-center">{index + 1}</div>
+      <div className="w-6 flex-shrink-0 mr-2 text-center command-index">{index + 1}</div>
       
       {isGroupStart ? (
         // グループの場合はグループ名を表示

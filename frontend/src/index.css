@@ -25,6 +25,10 @@
   }
 }
 
+.command-index {
+  font-size: 0.75rem; /* 12px */
+}
+
 @layer base {
   html, body {
     width: 100%;
