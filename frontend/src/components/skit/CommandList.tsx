@@ -371,11 +371,15 @@ const CommandItem = memo(({
     return lines;
   }, [nestLevel, command.type]);
 
+  // Get command definition to check for defaultBackgroundColor
+  const commandDef = commandsMap.get(command.type);
+  const defaultBgColor = commandDef?.defaultBackgroundColor || "#ffffff";
+  
+  const bgColor = command.backgroundColor || defaultBgColor;
+  
   const backgroundColorStyle = isSelected
     ? { paddingLeft: `${(nestLevel * 28) + 8}px` }
-    : command.backgroundColor 
-      ? { backgroundColor: command.backgroundColor, paddingLeft: `${(nestLevel * 28) + 8}px` }
-      : { paddingLeft: `${(nestLevel * 28) + 8}px` };
+    : { backgroundColor: bgColor, paddingLeft: `${(nestLevel * 28) + 8}px` };
     
   const getTextColor = (bgColor: string) => {
     if (!bgColor || bgColor === '') return '';
@@ -390,14 +394,14 @@ const CommandItem = memo(({
     return brightness < 128 ? 'text-white' : 'text-black';
   };
   
-  const textColorClass = command.backgroundColor ? getTextColor(command.backgroundColor) : '';
+  const textColorClass = getTextColor(bgColor);
 
   return (
     <div
       className={`cursor-pointer transition-colors flex items-center py-2 px-2 border-b w-full relative
         ${isSelected
           ? 'bg-blue-500 text-white'
-          : command.backgroundColor ? textColorClass : 'hover:bg-accent'
+          : textColorClass || 'hover:bg-accent'
         } ${isActive ? 'opacity-50' : ''}`}
       onClick={(e) => handleCommandClick(command.id, e)}
       data-testid={`command-item-${command.id}`}
