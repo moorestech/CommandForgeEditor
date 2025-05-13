@@ -65,6 +65,8 @@ export function CommandEditor() {
     updateCommand(selectedCommand.id, { [property]: value });
   };
 
+  const defaultBgColor = commandDef.defaultBackgroundColor || "#ffffff";
+  
   return (
     <Card className="border-0 shadow-none">
       <CardHeader className="pb-2">
@@ -75,7 +77,7 @@ export function CommandEditor() {
         <div className="space-y-2">
           <Label htmlFor="backgroundColor">背景色</Label>
           <ColorPicker
-            value={selectedCommand.backgroundColor || "#ffffff"}
+            value={selectedCommand.backgroundColor || defaultBgColor}
             onChange={(value) => handlePropertyChange("backgroundColor", value)}
           />
         </div>
