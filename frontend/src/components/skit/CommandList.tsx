@@ -377,9 +377,10 @@ const CommandItem = memo(({
   
   const bgColor = command.backgroundColor || defaultBgColor;
   
-  const backgroundColorStyle = isSelected
-    ? { paddingLeft: `${(nestLevel * 28) + 8}px` }
-    : { backgroundColor: bgColor, paddingLeft: `${(nestLevel * 28) + 8}px` };
+  const backgroundColorStyle = {
+    paddingLeft: `${(nestLevel * 28) + 8}px`,
+    ...(isSelected ? {} : { backgroundColor: bgColor })
+  };
     
   const getTextColor = (bgColor: string) => {
     if (!bgColor || bgColor === '') return '';
