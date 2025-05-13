@@ -335,8 +335,22 @@ const CommandItem = memo(({
         />
       );
     }
+    
+    if (command.type === 'group_end' && nestLevel > 0) {
+      lines.push(
+        <div 
+          key="l-shaped-line"
+          className="absolute w-[16px] h-[2px] bg-zinc-300 dark:bg-zinc-700"
+          style={{ 
+            left: `${(nestLevel - 1) * 28 + 16}px`, 
+            top: '50%'
+          }}
+        />
+      );
+    }
+    
     return lines;
-  }, [nestLevel]);
+  }, [nestLevel, command.type]);
 
   return (
     <div
