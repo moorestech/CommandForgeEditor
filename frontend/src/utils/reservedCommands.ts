@@ -9,7 +9,7 @@ export const reservedCommands: CommandDefinition[] = [
     id: 'group_start',
     label: 'グループ開始',
     description: 'グループの開始位置',
-    format: 'GROUP_START: {groupName}',
+    commandListLabelFormat: 'GROUP_START: {groupName}',
     properties: {
       groupName: {
         type: 'string',
@@ -26,7 +26,7 @@ export const reservedCommands: CommandDefinition[] = [
     id: 'group_end',
     label: 'グループ終了',
     description: 'グループの終了位置',
-    format: 'GROUP_END',
+    commandListLabelFormat: 'GROUP_END',
     properties: {}
   }
 ];
