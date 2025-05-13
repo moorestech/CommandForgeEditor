@@ -75,7 +75,7 @@ export function CommandEditor() {
         <div className="space-y-2">
           <Label htmlFor="backgroundColor">背景色</Label>
           <ColorPicker
-            value={selectedCommand.backgroundColor || "#c9c9c9"}
+            value={selectedCommand.backgroundColor || "#ffffff"}
             onChange={(value) => handlePropertyChange("backgroundColor", value)}
           />
         </div>
