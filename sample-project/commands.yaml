@@ -56,3 +56,18 @@ commands:
         type: string
         required: true
         multiline: true
+
+  - id: branch
+    label: 分岐
+    description: 他のコマンドを参照する分岐
+    commandListLabelFormat: "BRANCH: Target {targetCommand}"
+    defaultBackgroundColor: "#f9f0ff"
+    properties:
+      targetCommand:
+        type: command
+        required: true
+        commandTypes: ["text"] # Only allow text and narration commands
+      condition:
+        type: string
+        required: true
+        multiline: true
