@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useSkitStore } from '../../store/skitStore';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Label } from '../ui/label';
@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { CommandDefinition, PropertyDefinition } from '../../types';
 import { parse } from 'yaml';
 import { isReservedCommand, getReservedCommandDefinition } from '../../utils/reservedCommands';
+import { formatCommandPreview } from '../../utils/commandFormatting';
 import { ColorPicker } from '../ui/color-picker';
 
 export function CommandEditor() {
@@ -23,6 +24,25 @@ export function CommandEditor() {
   const currentSkit = currentSkitId ? skits[currentSkitId] : null;
   const selectedCommandId = selectedCommandIds.length > 0 ? selectedCommandIds[0] : null;
   const selectedCommand = currentSkit?.commands.find(cmd => cmd.id === selectedCommandId);
+  const commands = currentSkit?.commands || [];
+  
+  const commandsMap = useMemo(() => {
+    if (!commandsYaml) return new Map();
+    try {
+      const parsed = parse(commandsYaml);
+      const definitions = parsed?.commands || [];
+      
+      const map = new Map<string, any>();
+      definitions.forEach((def: any) => {
+        map.set(def.id, def);
+      });
+      
+      return map;
+    } catch (error) {
+      console.error('Failed to parse commands.yaml:', error);
+      return new Map<string, any>();
+    }
+  }, [commandsYaml]);
   
   useEffect(() => {
     if (commandsYaml) {
@@ -93,7 +113,9 @@ export function CommandEditor() {
               propName, 
               propDef, 
               selectedCommand[propName], 
-              (value) => handlePropertyChange(propName, value)
+              (value) => handlePropertyChange(propName, value),
+              commands,
+              commandsMap
             )}
           </div>
         ))}
@@ -106,7 +128,9 @@ function renderPropertyInput(
   propName: string, 
   propDef: PropertyDefinition, 
   value: any, 
-  onChange: (value: any) => void
+  onChange: (value: any) => void,
+  commands?: any[], // Add commands parameter
+  commandsMap?: Map<string, any> // Add commandsMap parameter
 ) {
   switch (propDef.type) {
     case 'string':
@@ -180,6 +204,36 @@ function renderPropertyInput(
           onChange={(e) => onChange(e.target.value)}
         />
       );
+      
+    case 'command': {
+      const commandsList = commands || [];
+      console.log('Command Types:', commandsList.map(cmd => cmd.type));
+      console.log('Filtering for:', propDef.commandTypes);
+      
+      const filteredCommands = propDef.commandTypes
+        ? commandsList.filter(cmd => propDef.commandTypes?.includes(cmd.type))
+        : commandsList;
+        
+      console.log('Filtered Commands:', filteredCommands.map(cmd => cmd.type));
+        
+      return (
+        <Select
+          value={value?.toString() || ''}
+          onValueChange={(val) => onChange(Number(val))}
+        >
+          <SelectTrigger id={propName}>
+            <SelectValue placeholder="コマンドを選択" />
+          </SelectTrigger>
+          <SelectContent>
+            {filteredCommands.map((cmd) => (
+              <SelectItem key={cmd.id} value={cmd.id.toString()}>
+                {cmd.id}: {formatCommandPreview(cmd, commandsMap || new Map<string, any>())}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      );
+    }
       
     default:
       return (

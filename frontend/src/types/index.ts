@@ -1,5 +1,5 @@
 
-export type PropertyType = 'string' | 'number' | 'boolean' | 'enum' | 'asset';
+export type PropertyType = 'string' | 'number' | 'boolean' | 'enum' | 'asset' | 'command';
 
 export interface PropertyDefinition {
   type: PropertyType;
@@ -8,6 +8,7 @@ export interface PropertyDefinition {
   multiline?: boolean;
   options?: string[];
   optionsFrom?: string;
+  commandTypes?: string[]; // Array of command types that can be selected
   constraints?: {
     min?: number;
     max?: number;

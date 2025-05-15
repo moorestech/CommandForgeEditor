@@ -57,7 +57,7 @@ const commandsConfigSchema = {
               properties: {
                 type: { 
                   type: 'string',
-                  enum: ['string', 'number', 'boolean', 'enum', 'asset']
+                  enum: ['string', 'number', 'boolean', 'enum', 'asset', 'command']
                 },
                 required: { type: 'boolean' },
                 default: { },
@@ -67,6 +67,10 @@ const commandsConfigSchema = {
                   items: { type: 'string' }
                 },
                 optionsFrom: { type: 'string' },
+                commandTypes: { 
+                  type: 'array',
+                  items: { type: 'string' }
+                },
                 constraints: {
                   type: 'object',
                   properties: {
@@ -144,6 +148,19 @@ export function validateCommandProperties(
     Object.entries(commandDef.properties).forEach(([propName, propDef]: [string, any]) => {
       if (propDef.required && (command[propName] === undefined || command[propName] === '')) {
         errors.push(`Command ${command.id}: Required property "${propName}" is missing`);
+      }
+      
+      if (propDef.type === 'command' && command[propName] !== undefined && command[propName] !== '') {
+        const commandId = Number(command[propName]);
+        const referredCommand = skit.commands.find(cmd => cmd.id === commandId);
+        
+        if (!referredCommand) {
+          errors.push(`Command ${command.id}: Referenced command ID ${commandId} does not exist in the current skit`);
+        } else if (propDef.commandTypes && propDef.commandTypes.length > 0) {
+          if (!propDef.commandTypes.includes(referredCommand.type)) {
+            errors.push(`Command ${command.id}: Referenced command type "${referredCommand.type}" is not allowed for property "${propName}"`);
+          }
+        }
       }
     });
   });
