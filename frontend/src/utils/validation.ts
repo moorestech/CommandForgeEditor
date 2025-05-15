@@ -57,7 +57,7 @@ const commandsConfigSchema = {
               properties: {
                 type: { 
                   type: 'string',
-                  enum: ['string', 'number', 'boolean', 'enum', 'asset']
+                  enum: ['string', 'number', 'boolean', 'enum', 'asset', 'command']
                 },
                 required: { type: 'boolean' },
                 default: { },
@@ -144,6 +144,14 @@ export function validateCommandProperties(
     Object.entries(commandDef.properties).forEach(([propName, propDef]: [string, any]) => {
       if (propDef.required && (command[propName] === undefined || command[propName] === '')) {
         errors.push(`Command ${command.id}: Required property "${propName}" is missing`);
+      }
+      
+      if (propDef.type === 'command' && command[propName] !== undefined && command[propName] !== '') {
+        const commandId = Number(command[propName]);
+        const commandExists = skit.commands.some(cmd => cmd.id === commandId);
+        if (!commandExists) {
+          errors.push(`Command ${command.id}: Referenced command ID ${commandId} does not exist in the current skit`);
+        }
       }
     });
   });

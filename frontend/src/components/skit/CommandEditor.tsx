@@ -23,6 +23,7 @@ export function CommandEditor() {
   const currentSkit = currentSkitId ? skits[currentSkitId] : null;
   const selectedCommandId = selectedCommandIds.length > 0 ? selectedCommandIds[0] : null;
   const selectedCommand = currentSkit?.commands.find(cmd => cmd.id === selectedCommandId);
+  const commands = currentSkit?.commands || [];
   
   useEffect(() => {
     if (commandsYaml) {
@@ -93,7 +94,8 @@ export function CommandEditor() {
               propName, 
               propDef, 
               selectedCommand[propName], 
-              (value) => handlePropertyChange(propName, value)
+              (value) => handlePropertyChange(propName, value),
+              commands
             )}
           </div>
         ))}
@@ -106,7 +108,8 @@ function renderPropertyInput(
   propName: string, 
   propDef: PropertyDefinition, 
   value: any, 
-  onChange: (value: any) => void
+  onChange: (value: any) => void,
+  commands?: any[] // Add commands parameter
 ) {
   switch (propDef.type) {
     case 'string':
@@ -179,6 +182,25 @@ function renderPropertyInput(
           value={value || ''}
           onChange={(e) => onChange(e.target.value)}
         />
+      );
+      
+    case 'command':
+      return (
+        <Select
+          value={value?.toString() || ''}
+          onValueChange={(val) => onChange(Number(val))}
+        >
+          <SelectTrigger id={propName}>
+            <SelectValue placeholder="コマンドを選択" />
+          </SelectTrigger>
+          <SelectContent>
+            {commands?.map((cmd) => (
+              <SelectItem key={cmd.id} value={cmd.id.toString()}>
+                {cmd.id}: {cmd.type}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       );
       
     default:

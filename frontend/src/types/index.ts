@@ -1,5 +1,5 @@
 
-export type PropertyType = 'string' | 'number' | 'boolean' | 'enum' | 'asset';
+export type PropertyType = 'string' | 'number' | 'boolean' | 'enum' | 'asset' | 'command';
 
 export interface PropertyDefinition {
   type: PropertyType;
