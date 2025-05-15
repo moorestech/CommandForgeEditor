@@ -1,23 +1,9 @@
-import { useSkitStore, getGroupCommandIndices, getTopLevelGroups } from '../../store/skitStore';
-import { ScrollArea } from '../ui/scroll-area';
-import { useDndSortable } from '../../hooks/useDndSortable';
+import React, { memo, useCallback, useMemo } from 'react';
+import { useSkitStore, getGroupCommandIndices } from '../../store/skitStore';
 import { SortableList } from '../dnd/SortableList';
-import { SortableItem } from '../dnd/SortableItem';
+import { CommandItem } from './CommandItem';
 import { DropZone } from '../dnd/DropZone';
 import { SkitCommand } from '../../types';
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuSeparator,
-  ContextMenuSub,
-  ContextMenuSubContent,
-  ContextMenuSubTrigger,
-  ContextMenuTrigger,
-} from '../ui/context-menu';
-import { parse } from 'yaml';
-import { useMemo, useCallback, memo } from 'react';
-import { ChevronDown, ChevronRight } from 'lucide-react';
 
 /**
  * CommandList コンポーネント - パフォーマンス最適化済み
@@ -36,540 +22,143 @@ export const CommandList = memo(function CommandList() {
     currentSkitId, 
     selectedCommandIds, 
     selectCommand,
-    moveCommand,
-    moveCommands,
-    addCommand,
-    removeCommand,
-    commandsYaml,
-    createGroup,
-    ungroupCommands,
-    toggleGroupCollapse
+    moveCommand 
   } = useSkitStore();
-
+  
   const currentSkit = currentSkitId ? skits[currentSkitId] : null;
-  const commands = currentSkit?.commands || [];
   
-  // 計算処理をuseCallbackでメモ化して毎回再生成されないようにする
-  const calculateNestLevels = useCallback((commands: SkitCommand[]): Map<number, number> => {
-    const nestLevels = new Map<number, number>();
-    let currentLevel = 0;
-    const groupStack: number[] = [];
+  const commands = useMemo(() => {
+    return currentSkit?.commands || [];
+  }, [currentSkit]);
+  
+  const visibleCommands = useMemo(() => {
+    if (!commands.length) return [];
     
-    commands.forEach((cmd) => {
-      nestLevels.set(cmd.id, currentLevel);
+    const result: SkitCommand[] = [];
+    const hiddenGroupStarts: number[] = [];
+    
+    for (let i = 0; i < commands.length; i++) {
+      const command = commands[i];
       
-      if (cmd.type === 'group_start') {
-        groupStack.push(cmd.id);
-        currentLevel++;
-      } else if (cmd.type === 'group_end') {
-        if (groupStack.length > 0) {
-          groupStack.pop();
-          currentLevel = Math.max(0, currentLevel - 1);
+      if (hiddenGroupStarts.length > 0) {
+        if (command.type === 'group_start') {
+          hiddenGroupStarts.push(i);
+        } else if (command.type === 'group_end') {
+          hiddenGroupStarts.pop();
         }
+        continue;
       }
-    });
+      
+      result.push(command);
+      
+      if (command.type === 'group_start' && command.isCollapsed) {
+        hiddenGroupStarts.push(i);
+      }
+    }
     
-    return nestLevels;
-  }, []);
+    return result;
+  }, [commands]);
   
-  const shouldHideCommand = useCallback((commandId: number): boolean => {
-    const commandIndex = commands.findIndex(cmd => cmd.id === commandId);
-    if (commandIndex === -1) return false;
+  const handleCommandClick = useCallback((id: number) => {
+    selectCommand(id);
+  }, [selectCommand]);
+  
+  const handleContextMenu = useCallback((e: React.MouseEvent, id: number) => {
+    e.preventDefault();
+    selectCommand(id);
+  }, [selectCommand]);
+  
+  const handleReorder = useCallback((fromIndex: number, toIndex: number) => {
+    const fromCommandId = visibleCommands[fromIndex].id;
+    moveCommand(fromCommandId, toIndex);
+  }, [visibleCommands, moveCommand]);
+  
+  const getCommandGroupInfo = useCallback((commandId: number) => {
+    if (!commands.length) return null;
     
+    const commandIndex = commands.findIndex(cmd => cmd.id === commandId);
+    if (commandIndex === -1) return null;
+    
+    let groupStartIndex = -1;
     let nestLevel = 0;
     
-    // コラップス状態のグループを検索する際に、
-    // 各コマンドの親グループをキャッシュしておくとさらに最適化可能
-    for (let i = commandIndex - 1; i >= 0; i--) {
+    for (let i = commandIndex; i >= 0; i--) {
       const cmd = commands[i];
       if (cmd.type === 'group_end') {
         nestLevel++;
       } else if (cmd.type === 'group_start') {
+        if (nestLevel === 0) {
+          groupStartIndex = i;
+          break;
+        }
         nestLevel--;
-        if (nestLevel < 0 && cmd.isCollapsed) {
-          return true;
-        }
-        if (nestLevel < 0) {
-          nestLevel = 0;
-        }
       }
     }
     
-    return false;
+    if (groupStartIndex === -1) return null;
+    
+    const groupIndices = getGroupCommandIndices(commands, groupStartIndex);
+    
+    const isFirst = groupIndices[1] === commandIndex; // 最初のコマンド（グループ開始の次）
+    const isLast = groupIndices[groupIndices.length - 2] === commandIndex; // 最後のコマンド（グループ終了の前）
+    
+    return { isFirst, isLast };
   }, [commands]);
   
-  const handleCommandClick = useCallback((commandId: number, event: React.MouseEvent) => {
-    const isCtrlPressed = event.ctrlKey || event.metaKey; // metaKeyはMac用
-    const isShiftPressed = event.shiftKey;
-    
-    selectCommand(commandId, isCtrlPressed, isShiftPressed);
-  }, [selectCommand]);
-
-  // commandsYamlをパースした結果をメモ化
-  const parsedCommands = useMemo(() => {
-    if (!commandsYaml) return { commandDefinitions: [], commandsMap: new Map() };
-    try {
-      const parsed = parse(commandsYaml);
-      const definitions = parsed?.commands || [];
-      
-      // コマンド定義をIDでマップ化して高速アクセスできるようにする
-      const commandsMap = new Map();
-      definitions.forEach((def: any) => {
-        commandsMap.set(def.id, def);
-      });
-      
-      return { commandDefinitions: definitions, commandsMap };
-    } catch (error) {
-      console.error('Failed to parse commands.yaml:', error);
-      return { commandDefinitions: [], commandsMap: new Map() };
-    }
-  }, [commandsYaml]);
+  const isCommandInGroup = useCallback((commandId: number) => {
+    return getCommandGroupInfo(commandId) !== null;
+  }, [getCommandGroupInfo]);
   
-  const { commandDefinitions, commandsMap } = parsedCommands;
-
-  const handleAddCommand = useCallback((commandType: string, targetIndex: number, position: 'above' | 'below') => {
-    const commandDef = commandDefinitions.find((def: any) => def.id === commandType);
-    if (!commandDef) return;
-
-    const newCommand: any = { 
-      type: commandType,
-      backgroundColor: commandDef.defaultBackgroundColor || "#ffffff"
-    };
-    
-    Object.entries(commandDef.properties).forEach(([propName, propDefAny]) => {
-      const propDef = propDefAny as any;
-      if (propDef.default !== undefined) {
-        newCommand[propName] = propDef.default;
-      } else if (propDef.required) {
-        switch (propDef.type) {
-          case 'string':
-            newCommand[propName] = '';
-            break;
-          case 'number':
-            newCommand[propName] = 0;
-            break;
-          case 'boolean':
-            newCommand[propName] = false;
-            break;
-          case 'enum':
-            newCommand[propName] = propDef.options?.[0] || '';
-            break;
-          case 'asset':
-            newCommand[propName] = '';
-            break;
-        }
-      }
-    });
-
-    addCommand(newCommand);
-    
-    const newCommandIndex = commands.length;
-    
-    const newPosition = position === 'above' ? targetIndex : targetIndex + 1;
-    moveCommand(newCommandIndex, newPosition);
-  }, [commandDefinitions, addCommand, moveCommand, commands]);
-
-  // ネストレベルと表示非表示の計算をメモ化
-  const { nestLevels, visibleCommands, commandToIndexMap } = useMemo(() => {
-    const nestLevels = calculateNestLevels(commands);
-    const visibleCommands = commands.filter(cmd => !shouldHideCommand(cmd.id));
-    
-    // オリジナルインデックスへの高速マッピング（ドラッグ＆ドロップ処理の最適化）
-    const commandToIndexMap = new Map<number, number>();
-    commands.forEach((cmd, index) => {
-      commandToIndexMap.set(cmd.id, index);
-    });
-    
-    return { nestLevels, visibleCommands, commandToIndexMap };
-  }, [commands, calculateNestLevels, shouldHideCommand]);
-  
-  // ドラッグ&ドロップのハンドラーもvisibleCommandsを参照するように調整
-  const { activeId, handleDragStart, handleDragEnd } = useDndSortable({
-    items: visibleCommands,
-    onReorder: () => {}, // Handled by SortableList
-    getItemId: (command) => command.id
-  });
-
   if (!currentSkit) {
     return (
-      <div className="p-4 text-center text-muted-foreground">
+      <div className="p-4 text-center text-gray-500">
         スキットが選択されていません
       </div>
     );
   }
-
-  return (
-    <ScrollArea className="h-full relative">
-      <DropZone id="command-list" className="p-0 h-full">
-        <div className="command-list-container">
-          <SortableList
-            items={visibleCommands}
-            getItemId={(command) => command.id}
-            onReorder={(fromIndex, toIndex) => {
-              // 表示用インデックスから元のコマンド配列のインデックスへ変換
-              const cmd1 = visibleCommands[fromIndex];
-              const cmd2 = visibleCommands[toIndex];
-              const originalFromIndex = commandToIndexMap.get(cmd1.id) || fromIndex;
-              const originalToIndex = commandToIndexMap.get(cmd2.id) || toIndex;
-              
-              const currentSkit = skits[currentSkitId || ''];
-              if (!currentSkit) return;
-              const commands = currentSkit.commands;
-              
-              // ドラッグされたコマンド (cmd1) が group_start かどうかをまず確認
-              if (cmd1.type === 'group_start') {
-                // ドラッグされたのがグループ開始コマンドなら、選択状態に関わらずグループ全体を移動
-                const groupIndices = getGroupCommandIndices(commands, originalFromIndex);
-                moveCommands(groupIndices, originalToIndex);
-              } else if (selectedCommandIds.includes(cmd1.id) && selectedCommandIds.length > 1) {
-                // ドラッグされたコマンドが選択されており、かつ複数選択されている場合
-                // (ただし、group_start のケースは上で処理済みなので、ここは通常の複数コマンド移動)
-                const selectedIndices = selectedCommandIds
-                  .map(id => commands.findIndex(cmd => cmd.id === id))
-                  .filter(index => index !== -1);
-                
-                // 選択範囲にトップレベルのグループが含まれているかチェック
-                // (このロジックはグループ内のアイテムを個別に選択して移動する場合に影響する可能性があるため注意)
-                const topLevelGroupsInSelection = getTopLevelGroups(commands, selectedIndices);
-
-                if (topLevelGroupsInSelection.length > 0 && topLevelGroupsInSelection.includes(originalFromIndex)) {
-                  // 選択範囲内にドラッグ開始点が含まれるトップレベルグループがある場合、そのグループを移動
-                  // (この分岐は複雑なので、もし意図しない挙動があれば見直しが必要)
-                  const groupIndexToMove = topLevelGroupsInSelection.find(gi => {
-                    const groupCmds = getGroupCommandIndices(commands, gi);
-                    return groupCmds.includes(originalFromIndex);
-                  }) ?? topLevelGroupsInSelection[0]; // フォールバック
-
-                  const groupIndices = getGroupCommandIndices(commands, groupIndexToMove);
-                  moveCommands(groupIndices, originalToIndex);
-                } else {
-                  // 通常の複数選択アイテム移動 (グループは含まないか、ネストされたグループの一部)
-                  moveCommands(selectedIndices, originalToIndex);
-                }
-              } else {
-                // ドラッグされたコマンドが group_start ではなく、
-                // かつ単一選択であるか、または選択されていない場合 (dnd-kitが選択外アイテムのドラッグを許可する場合)
-                // この場合は単一コマンドとして移動
-                moveCommand(originalFromIndex, originalToIndex);
-              }
-            }}
-            onDragStart={handleDragStart}
-            onDragEnd={handleDragEnd}
-          >
-          {visibleCommands.map((command, index) => {
-
-            return (
-              <ContextMenu key={command.id}>
-               <ContextMenuTrigger>
-                 <SortableItem id={command.id}>
-                   <CommandItem
-                     command={command}
-                     index={index}
-                     isSelected={selectedCommandIds.includes(command.id)}
-                     isActive={activeId === command.id}
-                     nestLevel={nestLevels.get(command.id) || 0}
-                     handleCommandClick={handleCommandClick}
-                     toggleGroupCollapse={toggleGroupCollapse}
-                     commandsMap={commandsMap}
-                   />
-                  </SortableItem>
-                </ContextMenuTrigger>
-                <CommandContextMenu
-                  command={command}
-                  index={index}
-                  commandDefinitions={commandDefinitions}
-                  selectedCommandIds={selectedCommandIds}
-                  removeCommand={removeCommand}
-                  ungroupCommands={ungroupCommands}
-                  createGroup={createGroup}
-                  handleAddCommand={handleAddCommand}
-                />
-              </ContextMenu>
-            );
-          })}
-          </SortableList>
-        </div>
-      </DropZone>
-    </ScrollArea>
-  );
-});
-
-// メモ化コンポーネント
-const CommandItem = memo(({
-  command,
-  index,
-  isSelected,
-  isActive,
-  nestLevel,
-  handleCommandClick,
-  toggleGroupCollapse,
-  commandsMap
-}: {
-  command: SkitCommand;
-  index: number;
-  isSelected: boolean;
-  isActive: boolean;
-  nestLevel: number;
-  handleCommandClick: (id: number, event: React.MouseEvent) => void;
-  toggleGroupCollapse: (id: number) => void;
-  commandsMap: Map<string, any>;
-}) => {
-  const isGroupStart = command.type === 'group_start';
-  const isCollapsed = isGroupStart && command.isCollapsed;
-
-  // コマンドプレビューをメモ化
-  const commandPreview = useMemo(() => {
-    return formatCommandPreview(command, commandsMap);
-  }, [command, commandsMap]);
   
-  // コマンドにフォーマットがあるかチェック
-  const hasFormat = useMemo(() => {
-    return hasCommandFormat(command, commandsMap);
-  }, [command, commandsMap]);
-
-  const nestLines = useMemo(() => {
-    const lines = [];
-    for (let i = 0; i < nestLevel; i++) {
-      if (command.type === 'group_end' && i === nestLevel - 1) {
-        continue;
-      }
-      
-      lines.push(
-        <div 
-          key={`nest-line-${i}`}
-          className="absolute h-full w-[2px] bg-zinc-300 dark:bg-zinc-700"
-          style={{ left: `${i * 28 + 16}px` }}
-        />
-      );
-    }
-    
-    if (command.type === 'group_end' && nestLevel > 0) {
-      lines.push(
-        <div 
-          key="l-shaped-line"
-          className="absolute w-[16px] h-[2px] bg-zinc-300 dark:bg-zinc-700"
-          style={{ 
-            left: `${(nestLevel - 1) * 28 + 16}px`, 
-            top: '50%'
-          }}
-        />
-      );
-      
-      lines.push(
-        <div 
-          key="l-vertical-top"
-          className="absolute w-[2px] bg-zinc-300 dark:bg-zinc-700"
-          style={{ 
-            left: `${(nestLevel - 1) * 28 + 16}px`,
-            top: 0,
-            height: '50%'
-          }}
-        />
-      );
-    }
-    
-    return lines;
-  }, [nestLevel, command.type]);
-
-  // Get command definition to check for defaultBackgroundColor
-  const commandDef = commandsMap.get(command.type);
-  const defaultBgColor = commandDef?.defaultBackgroundColor || "#ffffff";
-  
-  const bgColor = command.backgroundColor || defaultBgColor;
-  
-  const backgroundColorStyle = {
-    paddingLeft: `${(nestLevel * 28) + 8}px`,
-    ...(isSelected ? {} : { backgroundColor: bgColor })
-  };
-    
-  const getTextColor = (bgColor: string) => {
-    if (!bgColor || bgColor === '') return '';
-    
-    const hex = bgColor.replace('#', '');
-    const r = parseInt(hex.substring(0, 2), 16);
-    const g = parseInt(hex.substring(2, 4), 16);
-    const b = parseInt(hex.substring(4, 6), 16);
-    
-    const brightness = (r * 0.299 + g * 0.587 + b * 0.114);
-    
-    return brightness < 128 ? 'text-white' : 'text-black';
-  };
-  
-  const textColorClass = getTextColor(bgColor);
-
-  return (
-    <div
-      className={`cursor-pointer transition-colors flex items-center py-2 px-2 border-b w-full relative
-        ${isSelected
-          ? 'bg-blue-500 text-white'
-          : textColorClass || 'hover:bg-accent'
-        } ${isActive ? 'opacity-50' : ''}`}
-      onClick={(e) => handleCommandClick(command.id, e)}
-      data-testid={`command-item-${command.id}`}
-      style={backgroundColorStyle}
-    >
-      {/* ネストレベルを示す垂直ライン */}
-      {nestLines}
-      
-      {/* グループ開始コマンドの場合は折りたたみアイコンを表示 */}
-      {isGroupStart && (
-        <button
-          className="mr-1 p-1 hover:bg-gray-200 rounded"
-          onClick={(e) => {
-            e.stopPropagation();
-            toggleGroupCollapse(command.id);
-          }}
-        >
-          {isCollapsed ? <ChevronRight size={16} /> : <ChevronDown size={16} />}
-        </button>
-      )}
-      
-      {/* 行番号 */}
-      <div className="w-6 flex-shrink-0 mr-2 text-center command-index">{index + 1}</div>
-      
-      {isGroupStart ? (
-        // グループの場合はグループ名を表示
-        <div className="font-medium font-bold">
-          {command.groupName}
-        </div>
-      ) : hasFormat ? (
-        // commandListLabelFormat が適用できる場合はプレビューのみ表示
-        <div className="truncate flex-1">
-          {commandPreview}
-        </div>
-      ) : (
-        // フォーマットがない場合は従来通りタイプとプレビューを表示
-        <>
-          <div className="font-medium mr-2">
-            {command.type}
-          </div>
-          <div className="text-sm truncate">
-            {commandPreview}
-          </div>
-        </>
-      )}
-    </div>
-  );
-});
-
-/**
- * コマンドに対応するコマンド定義に commandListLabelFormat が設定されているかチェック
- */
-function hasCommandFormat(command: SkitCommand, commandsMap: Map<string, any>): boolean {
-  const { type } = command;
-  
-  if (!commandsMap) {
-    return false;
-  }
-  
-  const commandDef = commandsMap.get(type);
-  return !!commandDef?.commandListLabelFormat;
-}
-
-// コンテキストメニューをメモ化コンポーネントとして分離
-const CommandContextMenu = memo(({
-  command,
-  index,
-  commandDefinitions,
-  selectedCommandIds,
-  removeCommand,
-  ungroupCommands,
-  createGroup,
-  handleAddCommand
-}: {
-  command: SkitCommand;
-  index: number;
-  commandDefinitions: any[];
-  selectedCommandIds: number[];
-  removeCommand: (id: number) => void;
-  ungroupCommands: (id: number) => void;
-  createGroup: () => void;
-  handleAddCommand: (commandType: string, targetIndex: number, position: 'above' | 'below') => void;
-}) => {
-  const isGroupStart = command.type === 'group_start';
-  
-  return (
-    <ContextMenuContent>
-      <ContextMenuItem onClick={() => removeCommand(command.id)}>
-        削除
-      </ContextMenuItem>
-      
-      {/* グループ開始コマンドの場合はグループ解除オプションを表示 */}
-      {isGroupStart && (
-        <ContextMenuItem onClick={() => ungroupCommands(command.id)}>
-          グループ解除
-        </ContextMenuItem>
-      )}
-      
-      {/* 複数選択時はグループ化オプションを表示 */}
-      {selectedCommandIds.length > 1 && selectedCommandIds.includes(command.id) && (
-        <ContextMenuItem onClick={() => createGroup()}>
-          グループ化
-        </ContextMenuItem>
-      )}
-      
-      <ContextMenuSeparator />
-      
-      <ContextMenuSub>
-        <ContextMenuSubTrigger>上にコマンドを追加</ContextMenuSubTrigger>
-        <ContextMenuSubContent>
-          {commandDefinitions.map((cmdDef: any) => (
-            <ContextMenuItem
-              key={cmdDef.id}
-              onClick={() => handleAddCommand(cmdDef.id, index, 'above')}
-            >
-              {cmdDef.label}
-            </ContextMenuItem>
-          ))}
-        </ContextMenuSubContent>
-      </ContextMenuSub>
-      
-      <ContextMenuSub>
-        <ContextMenuSubTrigger>下にコマンドを追加</ContextMenuSubTrigger>
-        <ContextMenuSubContent>
-          {commandDefinitions.map((cmdDef: any) => (
-            <ContextMenuItem
-              key={cmdDef.id}
-              onClick={() => handleAddCommand(cmdDef.id, index, 'below')}
-            >
-              {cmdDef.label}
-            </ContextMenuItem>
-          ))}
-        </ContextMenuSubContent>
-      </ContextMenuSub>
-    </ContextMenuContent>
-  );
-});
-
-function formatCommandPreview(command: SkitCommand, commandsMap: Map<string, any>): string {
-  const { type, id: _, ...props } = command;
-  
-  if (!commandsMap) {
-    // フォールバック: 最初のプロパティ値を返す
-    const firstPropValue = Object.values(props).find(val =>
-      typeof val === 'string' && val !== type && val.length > 0
+  if (visibleCommands.length === 0) {
+    return (
+      <div className="p-4 text-center text-gray-500">
+        コマンドがありません
+      </div>
     );
-    return firstPropValue as string || type;
   }
   
-  const commandDef = commandsMap.get(type);
-  
-  if (!commandDef || !commandDef.commandListLabelFormat) {
-    // フォールバック: 最初のプロパティ値を返す
-    const firstPropValue = Object.values(props).find(val =>
-      typeof val === 'string' && val !== type && val.length > 0
-    );
-    return firstPropValue as string || type;
-  }
-  
-  // commandListLabelFormatを使用してフォーマット
-  let formatted = commandDef.commandListLabelFormat;
-  Object.entries(props).forEach(([key, value]) => {
-    const placeholder = `{${key}}`;
-    if (formatted.includes(placeholder)) {
-      formatted = formatted.replace(placeholder, String(value));
-    }
-  });
-  
-  return formatted;
-}
+  return (
+    <DropZone id="command-list" className="p-2 h-full">
+      <SortableList
+        items={visibleCommands}
+        getItemId={(command: SkitCommand) => `command-item-${command.id}`}
+        onReorder={handleReorder}
+      >
+        {visibleCommands.map((command, index) => {
+          const isSelected = selectedCommandIds.includes(command.id);
+          
+          // グループ関連の情報を計算
+          const isInGroup = isCommandInGroup(command.id);
+          const groupInfo = isInGroup 
+            ? getCommandGroupInfo(command.id) 
+            : null;
+          
+          return (
+            <CommandItem
+              key={command.id}
+              id={command.id}
+              type={command.type}
+              index={index + 1}
+              groupName={command.groupName}
+              isFirstInGroup={groupInfo?.isFirst}
+              isLastInGroup={groupInfo?.isLast}
+              isCollapsed={command.isCollapsed}
+              backgroundColor={command.backgroundColor}
+              isSelected={isSelected}
+              onClick={() => handleCommandClick(command.id)}
+              onContextMenu={(e) => handleContextMenu(e, command.id)}
+            />
+          );
+        })}
+      </SortableList>
+    </DropZone>
+  );
+});
