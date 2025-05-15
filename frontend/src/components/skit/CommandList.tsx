@@ -1,4 +1,5 @@
 import { useSkitStore, getGroupCommandIndices, getTopLevelGroups } from '../../store/skitStore';
+import { getReservedCommandDefinition, isReservedCommand } from '../../utils/reservedCommands';
 import { ScrollArea } from '../ui/scroll-area';
 import { useDndSortable } from '../../hooks/useDndSortable';
 import { SortableList } from '../dnd/SortableList';
@@ -428,9 +429,9 @@ const CommandItem = memo(({
       <div className="w-6 flex-shrink-0 mr-2 text-center command-index">{index + 1}</div>
       
       {isGroupStart ? (
-        // グループの場合はグループ名を表示
+        // グループの場合はフォーマットされたラベルまたはグループ名を表示
         <div className="font-medium font-bold">
-          {command.groupName}
+          {(hasFormat ? commandPreview : command.groupName)}
         </div>
       ) : hasFormat ? (
         // commandListLabelFormat が適用できる場合はプレビューのみ表示
@@ -458,10 +459,18 @@ const CommandItem = memo(({
 function hasCommandFormat(command: SkitCommand, commandsMap: Map<string, any>): boolean {
   const { type } = command;
   
-  if (!commandsMap) {
+  // 予約コマンドかどうかをチェック
+  const isReserved = isReservedCommand(type);
+  
+  if (isReserved) {
+    // 予約コマンドの場合は、reservedCommandsから定義を取得
+    const commandDef = getReservedCommandDefinition(type);
+    return !!commandDef?.commandListLabelFormat;
+  } else if (!commandsMap) {
     return false;
   }
   
+  // 通常コマンドの場合は、commandsMapから定義を取得
   const commandDef = commandsMap.get(type);
   return !!commandDef?.commandListLabelFormat;
 }
@@ -544,16 +553,20 @@ const CommandContextMenu = memo(({
 function formatCommandPreview(command: SkitCommand, commandsMap: Map<string, any>): string {
   const { type, id: _, ...props } = command;
   
-  if (!commandsMap) {
-    // フォールバック: 最初のプロパティ値を返す
-    const firstPropValue = Object.values(props).find(val =>
-      typeof val === 'string' && val !== type && val.length > 0
-    );
-    return firstPropValue as string || type;
+  // 予約コマンドかどうかをチェック
+  const isReserved = isReservedCommand(type);
+  
+  // コマンド定義を取得（通常コマンドまたは予約コマンド）
+  let commandDef;
+  if (isReserved) {
+    // 予約コマンドの場合は、reservedCommandsから定義を取得
+    commandDef = getReservedCommandDefinition(type);
+  } else if (commandsMap) {
+    // 通常コマンドの場合は、commandsMapから定義を取得
+    commandDef = commandsMap.get(type);
   }
   
-  const commandDef = commandsMap.get(type);
-  
+  // コマンド定義が存在せず、またはcommandListLabelFormatが無い場合
   if (!commandDef || !commandDef.commandListLabelFormat) {
     // フォールバック: 最初のプロパティ値を返す
     const firstPropValue = Object.values(props).find(val =>

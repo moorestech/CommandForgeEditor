@@ -3,8 +3,7 @@ commands:
   - id: text
     label: テキスト
     description: 台詞を表示
-    commandListLabelFormat: "{character}：{body}"
-    defaultBackgroundColor: "#000000"
+    commandListLabelFormat: "{character}「{body}」"
     properties:
       character:
         type: enum

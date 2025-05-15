@@ -469,9 +469,12 @@ export const useSkitStore = create<SkitState>()(
           isCollapsed: false
         };
         
+        // group_endコマンドを作成
         const endCommand = {
           id: maxId + 2,
           type: 'group_end'
+          // Note: commandListLabelFormatなどの情報はCommandList.tsxで
+          // getReservedCommandDefinition()を使って取得するようになりました
         };
         
         currentSkit.commands.splice(firstSelectedIndex, 0, startCommand);
