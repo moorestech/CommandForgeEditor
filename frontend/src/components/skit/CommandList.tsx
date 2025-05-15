@@ -1,5 +1,6 @@
 import { useSkitStore, getGroupCommandIndices, getTopLevelGroups } from '../../store/skitStore';
 import { getReservedCommandDefinition, isReservedCommand } from '../../utils/reservedCommands';
+import { formatCommandPreview, hasCommandFormat } from '../../utils/commandFormatting';
 import { ScrollArea } from '../ui/scroll-area';
 import { useDndSortable } from '../../hooks/useDndSortable';
 import { SortableList } from '../dnd/SortableList';
@@ -456,24 +457,6 @@ const CommandItem = memo(({
 /**
  * コマンドに対応するコマンド定義に commandListLabelFormat が設定されているかチェック
  */
-function hasCommandFormat(command: SkitCommand, commandsMap: Map<string, any>): boolean {
-  const { type } = command;
-  
-  // 予約コマンドかどうかをチェック
-  const isReserved = isReservedCommand(type);
-  
-  if (isReserved) {
-    // 予約コマンドの場合は、reservedCommandsから定義を取得
-    const commandDef = getReservedCommandDefinition(type);
-    return !!commandDef?.commandListLabelFormat;
-  } else if (!commandsMap) {
-    return false;
-  }
-  
-  // 通常コマンドの場合は、commandsMapから定義を取得
-  const commandDef = commandsMap.get(type);
-  return !!commandDef?.commandListLabelFormat;
-}
 
 // コンテキストメニューをメモ化コンポーネントとして分離
 const CommandContextMenu = memo(({
@@ -549,40 +532,3 @@ const CommandContextMenu = memo(({
     </ContextMenuContent>
   );
 });
-
-function formatCommandPreview(command: SkitCommand, commandsMap: Map<string, any>): string {
-  const { type, id: _, ...props } = command;
-  
-  // 予約コマンドかどうかをチェック
-  const isReserved = isReservedCommand(type);
-  
-  // コマンド定義を取得（通常コマンドまたは予約コマンド）
-  let commandDef;
-  if (isReserved) {
-    // 予約コマンドの場合は、reservedCommandsから定義を取得
-    commandDef = getReservedCommandDefinition(type);
-  } else if (commandsMap) {
-    // 通常コマンドの場合は、commandsMapから定義を取得
-    commandDef = commandsMap.get(type);
-  }
-  
-  // コマンド定義が存在せず、またはcommandListLabelFormatが無い場合
-  if (!commandDef || !commandDef.commandListLabelFormat) {
-    // フォールバック: 最初のプロパティ値を返す
-    const firstPropValue = Object.values(props).find(val =>
-      typeof val === 'string' && val !== type && val.length > 0
-    );
-    return firstPropValue as string || type;
-  }
-  
-  // commandListLabelFormatを使用してフォーマット
-  let formatted = commandDef.commandListLabelFormat;
-  Object.entries(props).forEach(([key, value]) => {
-    const placeholder = `{${key}}`;
-    if (formatted.includes(placeholder)) {
-      formatted = formatted.replace(placeholder, String(value));
-    }
-  });
-  
-  return formatted;
-}

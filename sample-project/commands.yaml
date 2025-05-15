@@ -51,6 +51,7 @@ commands:
       targetCommand:
         type: command
         required: true
+        commandTypes: ["text", "narration"] # Only allow text and narration commands
       condition:
         type: string
         required: true

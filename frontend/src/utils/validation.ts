@@ -67,6 +67,10 @@ const commandsConfigSchema = {
                   items: { type: 'string' }
                 },
                 optionsFrom: { type: 'string' },
+                commandTypes: { 
+                  type: 'array',
+                  items: { type: 'string' }
+                },
                 constraints: {
                   type: 'object',
                   properties: {
@@ -148,9 +152,14 @@ export function validateCommandProperties(
       
       if (propDef.type === 'command' && command[propName] !== undefined && command[propName] !== '') {
         const commandId = Number(command[propName]);
-        const commandExists = skit.commands.some(cmd => cmd.id === commandId);
-        if (!commandExists) {
+        const referredCommand = skit.commands.find(cmd => cmd.id === commandId);
+        
+        if (!referredCommand) {
           errors.push(`Command ${command.id}: Referenced command ID ${commandId} does not exist in the current skit`);
+        } else if (propDef.commandTypes && propDef.commandTypes.length > 0) {
+          if (!propDef.commandTypes.includes(referredCommand.type)) {
+            errors.push(`Command ${command.id}: Referenced command type "${referredCommand.type}" is not allowed for property "${propName}"`);
+          }
         }
       }
     });
