@@ -352,11 +352,45 @@ export const useSkitStore = create<SkitState>()(
           });
           throw new Error(`バリデーションエラー: ${validationErrors.join(', ')}`);
         }
-
+        
+        // コマンド定義を含めたYAML文字列を生成する
+        const yaml = await import('yaml').then(module => {
+          // commandsYamlからロードした定義とreservedCommandsを結合
+          const yamlObj = {
+            version: 1,
+            commands: [] as CommandDefinition[]
+          };
+          
+          // まずYAMLからロードした通常のコマンド定義を追加
+          const currentYaml = useSkitStore.getState().commandsYaml;
+          if (currentYaml) {
+            try {
+              const parsed = parse(currentYaml);
+              if (parsed && parsed.commands) {
+                yamlObj.commands = parsed.commands;
+              }
+            } catch (error) {
+              console.error('保存時のYAMLパースエラー:', error);
+            }
+          }
+          
+          // 次に予約済みコマンドを追加（すでに存在する場合は上書き）
+          for (const reservedCmd of reservedCommands) {
+            const existingIndex = yamlObj.commands.findIndex(cmd => cmd.id === reservedCmd.id);
+            if (existingIndex >= 0) {
+              yamlObj.commands[existingIndex] = reservedCmd;
+            } else {
+              yamlObj.commands.push(reservedCmd);
+            }
+          }
+          
+          return module.stringify(yamlObj);
+        });
+        
         const saveErrors = await saveSkitToFile(
           currentSkitId,
           currentSkit,
-          useSkitStore.getState().commandsYaml || '',
+          yaml,
           projectPath
         );
 
