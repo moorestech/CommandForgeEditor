@@ -20,14 +20,15 @@ describe('Toolbar', () => {
   it('renders disabled buttons when no skit is selected', () => {
     (useSkitStore as any).mockReturnValue({
       currentSkitId: null,
-      selectedCommandId: null,
+      selectedCommandIds: [],
       addCommand: vi.fn(),
       removeCommand: vi.fn(),
       duplicateCommand: vi.fn(),
       undo: vi.fn(),
       redo: vi.fn(),
       saveSkit: vi.fn(),
-      commandsYaml: '',
+      commandDefinitions: [],
+      commandsMap: new Map(),
     });
 
     render(<Toolbar />);
@@ -40,32 +41,41 @@ describe('Toolbar', () => {
   });
 
   it('renders enabled buttons when a skit is selected', () => {
+    const testCommands = [
+      {
+        id: "text",
+        label: "テキスト",
+        description: "台詞を表示",
+        commandListLabelFormat: "TEXT: {character}, {body}",
+        properties: {
+          character: {
+            type: "enum",
+            options: ["キャラA", "キャラB"],
+            required: true
+          },
+          body: {
+            type: "string",
+            multiline: true,
+            required: true
+          }
+        }
+      }
+    ];
+    
+    const commandsMap = new Map();
+    commandsMap.set("text", testCommands[0]);
+    
     (useSkitStore as any).mockReturnValue({
       currentSkitId: 'test-skit',
-      selectedCommandId: null,
+      selectedCommandIds: [],
       addCommand: vi.fn(),
       removeCommand: vi.fn(),
       duplicateCommand: vi.fn(),
       undo: vi.fn(),
       redo: vi.fn(),
       saveSkit: vi.fn(),
-      commandsYaml: `
-version: 1
-commands:
-  - id: text
-    label: テキスト
-    description: 台詞を表示
-    commandListLabelFormat: "TEXT: {character}, {body}"
-    properties:
-      character:
-        type: enum
-        options: ["キャラA", "キャラB"]
-        required: true
-      body:
-        type: string
-        multiline: true
-        required: true
-`,
+      commandDefinitions: testCommands,
+      commandsMap: commandsMap,
     });
 
     render(<Toolbar />);

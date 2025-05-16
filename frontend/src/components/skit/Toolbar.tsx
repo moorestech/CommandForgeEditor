@@ -20,32 +20,21 @@ import { DropZone } from '../dnd/DropZone';
 import { selectProjectFolder } from '../../utils/fileSystem';
 
 export function Toolbar() {
-  const { 
-    currentSkitId, 
-    selectedCommandIds, 
-    addCommand, 
-    removeCommand, 
+  const {
+    currentSkitId,
+    selectedCommandIds,
+    addCommand,
+    removeCommand,
     duplicateCommand,
     undo,
     redo,
     saveSkit,
-    commandsYaml,
+    commandDefinitions,
     projectPath,
     setProjectPath,
     loadSkits,
     loadCommandsYaml
   } = useSkitStore();
-
-  const commandDefinitions = React.useMemo(() => {
-    if (!commandsYaml) return [];
-    try {
-      const parsed = parse(commandsYaml);
-      return parsed?.commands || [];
-    } catch (error) {
-      console.error('Failed to parse commands.yaml:', error);
-      return [];
-    }
-  }, [commandsYaml]);
 
   const handleAddCommand = (commandType: string) => {
     const commandDef = commandDefinitions.find((def: any) => def.id === commandType) as CommandDefinition;

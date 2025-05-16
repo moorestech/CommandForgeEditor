@@ -1,13 +1,17 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import { persist } from 'zustand/middleware';
-import { Skit, SkitCommand } from '../types';
+import { Skit, SkitCommand, CommandDefinition } from '../types';
+import { parse } from 'yaml';
+import { reservedCommands } from '../utils/reservedCommands';
 
 interface SkitState {
   skits: Record<string, Skit>;
   currentSkitId: string | null;
   selectedCommandIds: number[]; // 複数選択に対応するため配列に変更
-  commandsYaml: string | null;
+  commandDefinitions: CommandDefinition[];
+  commandsMap: Map<string, CommandDefinition>;
+  commandsYaml: string | null; // YAMLの元データを保持しておく必要があります
   projectPath: string | null;  // Add project path state
   validationErrors: string[];
   history: {
@@ -42,6 +46,8 @@ export const useSkitStore = create<SkitState>()(
     skits: {},
     currentSkitId: null,
     selectedCommandIds: [], // 複数選択に対応するため配列に変更
+    commandDefinitions: [],
+    commandsMap: new Map<string, CommandDefinition>(),
     commandsYaml: null,
     projectPath: null,  // Initialize project path
     validationErrors: [],
@@ -316,7 +322,7 @@ export const useSkitStore = create<SkitState>()(
     },
 
     saveSkit: async () => {
-      const { currentSkitId, skits, commandsYaml, projectPath } = useSkitStore.getState();
+      const { currentSkitId, skits, commandDefinitions, projectPath } = useSkitStore.getState();
 
       if (!currentSkitId) {
         throw new Error('スキットが選択されていません');
@@ -350,7 +356,7 @@ export const useSkitStore = create<SkitState>()(
         const saveErrors = await saveSkitToFile(
           currentSkitId,
           currentSkit,
-          commandsYaml || '',
+          useSkitStore.getState().commandsYaml || '',
           projectPath
         );
 
@@ -416,6 +422,33 @@ export const useSkitStore = create<SkitState>()(
     loadCommandsYaml: (yaml) => {
       set((state) => {
         state.commandsYaml = yaml;
+        
+        try {
+          const parsed = parse(yaml);
+          // YAMLからロードしたコマンド定義
+          const definitions = parsed?.commands || [];
+          
+          // reservedCommandsを追加
+          const allDefinitions = [...definitions, ...reservedCommands];
+          
+          // コマンド定義をIDでマッピング
+          const commandsMap = new Map<string, CommandDefinition>();
+          allDefinitions.forEach((def: CommandDefinition) => {
+            commandsMap.set(def.id, def);
+          });
+          
+          state.commandDefinitions = allDefinitions;
+          state.commandsMap = commandsMap;
+        } catch (error) {
+          console.error('Failed to parse commands.yaml:', error);
+          // エラー時でもreservedCommandsは追加する
+          state.commandDefinitions = [...reservedCommands];
+          const commandsMap = new Map<string, CommandDefinition>();
+          reservedCommands.forEach((def: CommandDefinition) => {
+            commandsMap.set(def.id, def);
+          });
+          state.commandsMap = commandsMap;
+        }
       });
     },
     

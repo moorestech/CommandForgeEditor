@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useSkitStore } from '../../store/skitStore';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Label } from '../ui/label';
@@ -6,57 +6,22 @@ import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { CommandDefinition, PropertyDefinition } from '../../types';
-import { parse } from 'yaml';
 import { formatCommandPreview } from '../../utils/commandFormatting';
 import { ColorPicker } from '../ui/color-picker';
 
 export function CommandEditor() {
-  const { 
-    skits, 
-    currentSkitId, 
-    selectedCommandIds, 
+  const {
+    skits,
+    currentSkitId,
+    selectedCommandIds,
     updateCommand,
-    commandsYaml
+    commandDefinitions,
+    commandsMap
   } = useSkitStore();
-  
-  const [commandDefinitions, setCommandDefinitions] = useState<CommandDefinition[]>([]);
   const currentSkit = currentSkitId ? skits[currentSkitId] : null;
   const selectedCommandId = selectedCommandIds.length > 0 ? selectedCommandIds[0] : null;
   const selectedCommand = currentSkit?.commands.find(cmd => cmd.id === selectedCommandId);
   const commands = currentSkit?.commands || [];
-  
-  const commandsMap = useMemo(() => {
-    if (!commandsYaml) return new Map();
-    try {
-      const parsed = parse(commandsYaml);
-      const definitions = parsed?.commands || [];
-      
-      const map = new Map<string, any>();
-      definitions.forEach((def: any) => {
-        map.set(def.id, def);
-      });
-      
-      return map;
-    } catch (error) {
-      console.error('Failed to parse commands.yaml:', error);
-      return new Map<string, any>();
-    }
-  }, [commandsYaml]);
-  
-  useEffect(() => {
-    if (commandsYaml) {
-      try {
-        const parsed = parse(commandsYaml);
-        if (parsed && parsed.commands) {
-          setCommandDefinitions(parsed.commands);
-        }
-      } catch (error) {
-        console.error('Failed to parse commands.yaml:', error);
-      }
-    }
-  }, [commandsYaml]);
-  
-
   
   if (!selectedCommand) {
     return (
@@ -125,7 +90,7 @@ function renderPropertyInput(
   value: any, 
   onChange: (value: any) => void,
   commands?: any[], // Add commands parameter
-  commandsMap?: Map<string, any> // Add commandsMap parameter
+  commandsMap?: Map<string, CommandDefinition> // commandsMapの型を修正
 ) {
   switch (propDef.type) {
     case 'string':

@@ -5,7 +5,7 @@ import { useDndSortable } from '../../hooks/useDndSortable';
 import { SortableList } from '../dnd/SortableList';
 import { SortableItem } from '../dnd/SortableItem';
 import { DropZone } from '../dnd/DropZone';
-import { SkitCommand } from '../../types';
+import { SkitCommand, CommandDefinition } from '../../types';
 import {
   ContextMenu,
   ContextMenuContent,
@@ -16,7 +16,6 @@ import {
   ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from '../ui/context-menu';
-import { parse } from 'yaml';
 import { useMemo, useCallback, memo } from 'react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 
@@ -32,16 +31,17 @@ import { ChevronDown, ChevronRight } from 'lucide-react';
  * 6. 表示対象のコマンドのみをレンダリング（非表示コマンドはDOMに含めない）
  */
 export const CommandList = memo(function CommandList() {
-  const { 
-    skits, 
-    currentSkitId, 
-    selectedCommandIds, 
+  const {
+    skits,
+    currentSkitId,
+    selectedCommandIds,
     selectCommand,
     moveCommand,
     moveCommands,
     addCommand,
     removeCommand,
-    commandsYaml,
+    commandDefinitions,
+    commandsMap,
     createGroup,
     ungroupCommands,
     toggleGroupCollapse
@@ -106,27 +106,7 @@ export const CommandList = memo(function CommandList() {
     selectCommand(commandId, isCtrlPressed, isShiftPressed);
   }, [selectCommand]);
 
-  // commandsYamlをパースした結果をメモ化
-  const parsedCommands = useMemo(() => {
-    if (!commandsYaml) return { commandDefinitions: [], commandsMap: new Map() };
-    try {
-      const parsed = parse(commandsYaml);
-      const definitions = parsed?.commands || [];
-      
-      // コマンド定義をIDでマップ化して高速アクセスできるようにする
-      const commandsMap = new Map();
-      definitions.forEach((def: any) => {
-        commandsMap.set(def.id, def);
-      });
-      
-      return { commandDefinitions: definitions, commandsMap };
-    } catch (error) {
-      console.error('Failed to parse commands.yaml:', error);
-      return { commandDefinitions: [], commandsMap: new Map() };
-    }
-  }, [commandsYaml]);
-  
-  const { commandDefinitions, commandsMap } = parsedCommands;
+  // commandDefinitions と commandsMap はstoreから直接取得するようになったため、パース処理は不要
 
   const handleAddCommand = useCallback((commandType: string, targetIndex: number, position: 'above' | 'below') => {
     const commandDef = commandDefinitions.find((def: any) => def.id === commandType);
@@ -313,7 +293,7 @@ const CommandItem = memo(({
   nestLevel: number;
   handleCommandClick: (id: number, event: React.MouseEvent) => void;
   toggleGroupCollapse: (id: number) => void;
-  commandsMap: Map<string, any>;
+  commandsMap: Map<string, CommandDefinition>;
 }) => {
   const isGroupStart = command.type === 'group_start';
   const isCollapsed = isGroupStart && command.isCollapsed;
@@ -470,7 +450,7 @@ const CommandContextMenu = memo(({
 }: {
   command: SkitCommand;
   index: number;
-  commandDefinitions: any[];
+  commandDefinitions: CommandDefinition[];
   selectedCommandIds: number[];
   removeCommand: (id: number) => void;
   ungroupCommands: (id: number) => void;
