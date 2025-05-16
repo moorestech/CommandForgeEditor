@@ -1,4 +1,3 @@
-import React from 'react';
 import { useSkitStore } from '../../store/skitStore';
 import { Button } from '../ui/button';
 import {
@@ -13,45 +12,34 @@ import {
   DropdownMenuTrigger 
 } from '../ui/dropdown-menu';
 import { CommandDefinition, PropertyDefinition } from '../../types';
-import { parse } from 'yaml';
+// 未使用のインポートを削除
 import { toast } from 'sonner';
 import { DraggableCommand } from '../dnd/DraggableCommand';
 import { DropZone } from '../dnd/DropZone';
 import { selectProjectFolder } from '../../utils/fileSystem';
 
 export function Toolbar() {
-  const { 
-    currentSkitId, 
-    selectedCommandIds, 
-    addCommand, 
-    removeCommand, 
+  const {
+    currentSkitId,
+    selectedCommandIds,
+    addCommand,
+    removeCommand,
     duplicateCommand,
     undo,
     redo,
     saveSkit,
-    commandsYaml,
+    commandDefinitions,
     projectPath,
     setProjectPath,
     loadSkits,
     loadCommandsYaml
   } = useSkitStore();
 
-  const commandDefinitions = React.useMemo(() => {
-    if (!commandsYaml) return [];
-    try {
-      const parsed = parse(commandsYaml);
-      return parsed?.commands || [];
-    } catch (error) {
-      console.error('Failed to parse commands.yaml:', error);
-      return [];
-    }
-  }, [commandsYaml]);
-
   const handleAddCommand = (commandType: string) => {
-    const commandDef = commandDefinitions.find((def: any) => def.id === commandType) as CommandDefinition;
+    const commandDef = commandDefinitions.find((def: CommandDefinition) => def.id === commandType);
     if (!commandDef) return;
 
-    const newCommand: any = { type: commandType };
+    const newCommand: Record<string, unknown> = { type: commandType };
     
     Object.entries(commandDef.properties).forEach(([propName, propDefAny]) => {
       const propDef = propDefAny as PropertyDefinition;
@@ -137,7 +125,7 @@ export function Toolbar() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start">
-            {commandDefinitions.map((command: any) => (
+            {commandDefinitions.map((command: CommandDefinition) => (
               <DropdownMenuItem 
                 key={command.id}
                 onClick={() => handleAddCommand(command.id)}

@@ -22,7 +22,7 @@ vi.mock('../dnd/DropZone', () => ({
 
 describe('CommandList', () => {
   it('renders empty state when no skit is selected', () => {
-    (useSkitStore as any).mockReturnValue({
+    (useSkitStore as jest.MockedFunction<typeof useSkitStore>).mockReturnValue({
       skits: {},
       currentSkitId: null,
       selectedCommandId: null,
@@ -35,7 +35,7 @@ describe('CommandList', () => {
   });
 
   it('renders commands when a skit is selected', () => {
-    (useSkitStore as any).mockReturnValue({
+    (useSkitStore as jest.MockedFunction<typeof useSkitStore>).mockReturnValue({
       skits: {
         'test-skit': {
           meta: {

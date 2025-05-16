@@ -1,13 +1,17 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import { persist } from 'zustand/middleware';
-import { Skit, SkitCommand } from '../types';
+import { Skit, SkitCommand, CommandDefinition } from '../types';
+import { parse } from 'yaml';
+import { reservedCommands } from '../utils/reservedCommands';
 
 interface SkitState {
   skits: Record<string, Skit>;
   currentSkitId: string | null;
   selectedCommandIds: number[]; // 複数選択に対応するため配列に変更
-  commandsYaml: string | null;
+  commandDefinitions: CommandDefinition[];
+  commandsMap: Map<string, CommandDefinition>;
+  commandsYaml: string | null; // YAMLの元データを保持しておく必要があります
   projectPath: string | null;  // Add project path state
   validationErrors: string[];
   history: {
@@ -42,6 +46,8 @@ export const useSkitStore = create<SkitState>()(
     skits: {},
     currentSkitId: null,
     selectedCommandIds: [], // 複数選択に対応するため配列に変更
+    commandDefinitions: [],
+    commandsMap: new Map<string, CommandDefinition>(),
     commandsYaml: null,
     projectPath: null,  // Initialize project path
     validationErrors: [],
@@ -125,10 +131,28 @@ export const useSkitStore = create<SkitState>()(
         const newCommand: SkitCommand = {
           ...command,
           id: maxId + 1,
-          type: command.type,
+          type: command.type as string,
         };
         
-        currentSkit.commands.push(newCommand);
+        const selectedCommandIds = state.selectedCommandIds;
+        if (selectedCommandIds.length > 0) {
+          let lastSelectedIndex = -1;
+          let lastSelectedCommandId: number | null = null;
+          for (const commandId of selectedCommandIds) {
+            const selectedIndex = currentSkit.commands.findIndex(cmd => cmd.id === commandId);
+            if (selectedIndex > lastSelectedIndex) {
+              lastSelectedIndex = selectedIndex;
+              lastSelectedCommandId = commandId;
+            }
+          }
+          if (lastSelectedCommandId !== null && lastSelectedIndex !== -1) {
+            currentSkit.commands.splice(lastSelectedIndex + 1, 0, newCommand);
+          } else {
+            currentSkit.commands.push(newCommand);
+          }
+        } else {
+          currentSkit.commands.push(newCommand);
+        }
         currentSkit.meta.modified = new Date().toISOString();
         state.selectedCommandIds = [newCommand.id];
       });
@@ -316,7 +340,7 @@ export const useSkitStore = create<SkitState>()(
     },
 
     saveSkit: async () => {
-      const { currentSkitId, skits, commandsYaml, projectPath } = useSkitStore.getState();
+      const { currentSkitId, skits, projectPath } = useSkitStore.getState();
 
       if (!currentSkitId) {
         throw new Error('スキットが選択されていません');
@@ -346,11 +370,45 @@ export const useSkitStore = create<SkitState>()(
           });
           throw new Error(`バリデーションエラー: ${validationErrors.join(', ')}`);
         }
-
+        
+        // コマンド定義を含めたYAML文字列を生成する
+        const yaml = await import('yaml').then(module => {
+          // commandsYamlからロードした定義とreservedCommandsを結合
+          const yamlObj = {
+            version: 1,
+            commands: [] as CommandDefinition[]
+          };
+          
+          // まずYAMLからロードした通常のコマンド定義を追加
+          const currentYaml = useSkitStore.getState().commandsYaml;
+          if (currentYaml) {
+            try {
+              const parsed = parse(currentYaml);
+              if (parsed && parsed.commands) {
+                yamlObj.commands = parsed.commands;
+              }
+            } catch (error) {
+              console.error('保存時のYAMLパースエラー:', error);
+            }
+          }
+          
+          // 次に予約済みコマンドを追加（すでに存在する場合は上書き）
+          for (const reservedCmd of reservedCommands) {
+            const existingIndex = yamlObj.commands.findIndex(cmd => cmd.id === reservedCmd.id);
+            if (existingIndex >= 0) {
+              yamlObj.commands[existingIndex] = reservedCmd;
+            } else {
+              yamlObj.commands.push(reservedCmd);
+            }
+          }
+          
+          return module.stringify(yamlObj);
+        });
+        
         const saveErrors = await saveSkitToFile(
           currentSkitId,
           currentSkit,
-          commandsYaml || '',
+          yaml,
           projectPath
         );
 
@@ -416,6 +474,33 @@ export const useSkitStore = create<SkitState>()(
     loadCommandsYaml: (yaml) => {
       set((state) => {
         state.commandsYaml = yaml;
+        
+        try {
+          const parsed = parse(yaml);
+          // YAMLからロードしたコマンド定義
+          const parsedDefinitions = parsed?.commands || [];
+          
+          // reservedCommandsを追加
+          const allDefinitions = [...parsedDefinitions, ...reservedCommands];
+          
+          // コマンド定義をIDでマッピング
+          const commandsMap = new Map<string, CommandDefinition>();
+          allDefinitions.forEach((def: CommandDefinition) => {
+            commandsMap.set(def.id, def);
+          });
+          
+          state.commandDefinitions = allDefinitions;
+          state.commandsMap = commandsMap;
+        } catch (error) {
+          console.error('Failed to parse commands.yaml:', error);
+          // エラー時でもreservedCommandsは追加する
+          state.commandDefinitions = [...reservedCommands];
+          const commandsMap = new Map<string, CommandDefinition>();
+          reservedCommands.forEach((def: CommandDefinition) => {
+            commandsMap.set(def.id, def);
+          });
+          state.commandsMap = commandsMap;
+        }
       });
     },
     
@@ -473,9 +558,7 @@ export const useSkitStore = create<SkitState>()(
         const endCommand = {
           id: maxId + 2,
           type: 'group_end'
-          // Note: commandListLabelFormatなどの情報はCommandList.tsxで
-          // getReservedCommandDefinition()を使って取得するようになりました
-        };
+       };
         
         currentSkit.commands.splice(firstSelectedIndex, 0, startCommand);
         currentSkit.commands.splice(lastSelectedIndex + 2, 0, endCommand);

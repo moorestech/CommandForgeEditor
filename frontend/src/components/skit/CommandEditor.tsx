@@ -1,4 +1,3 @@
-import { useEffect, useState, useMemo } from 'react';
 import { useSkitStore } from '../../store/skitStore';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Label } from '../ui/label';
@@ -6,58 +5,23 @@ import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { CommandDefinition, PropertyDefinition } from '../../types';
-import { parse } from 'yaml';
-import { isReservedCommand, getReservedCommandDefinition } from '../../utils/reservedCommands';
+import { SkitCommand } from '../../types';
 import { formatCommandPreview } from '../../utils/commandFormatting';
 import { ColorPicker } from '../ui/color-picker';
 
 export function CommandEditor() {
-  const { 
-    skits, 
-    currentSkitId, 
-    selectedCommandIds, 
+  const {
+    skits,
+    currentSkitId,
+    selectedCommandIds,
     updateCommand,
-    commandsYaml
+    commandDefinitions,
+    commandsMap
   } = useSkitStore();
-  
-  const [commandDefinitions, setCommandDefinitions] = useState<CommandDefinition[]>([]);
   const currentSkit = currentSkitId ? skits[currentSkitId] : null;
   const selectedCommandId = selectedCommandIds.length > 0 ? selectedCommandIds[0] : null;
   const selectedCommand = currentSkit?.commands.find(cmd => cmd.id === selectedCommandId);
   const commands = currentSkit?.commands || [];
-  
-  const commandsMap = useMemo(() => {
-    if (!commandsYaml) return new Map();
-    try {
-      const parsed = parse(commandsYaml);
-      const definitions = parsed?.commands || [];
-      
-      const map = new Map<string, any>();
-      definitions.forEach((def: any) => {
-        map.set(def.id, def);
-      });
-      
-      return map;
-    } catch (error) {
-      console.error('Failed to parse commands.yaml:', error);
-      return new Map<string, any>();
-    }
-  }, [commandsYaml]);
-  
-  useEffect(() => {
-    if (commandsYaml) {
-      try {
-        const parsed = parse(commandsYaml);
-        if (parsed && parsed.commands) {
-          setCommandDefinitions(parsed.commands);
-        }
-      } catch (error) {
-        console.error('Failed to parse commands.yaml:', error);
-      }
-    }
-  }, [commandsYaml]);
-  
-
   
   if (!selectedCommand) {
     return (
@@ -67,11 +31,7 @@ export function CommandEditor() {
     );
   }
   
-  let commandDef = commandDefinitions.find(def => def.id === selectedCommand.type);
-  
-  if (!commandDef && isReservedCommand(selectedCommand.type)) {
-    commandDef = getReservedCommandDefinition(selectedCommand.type);
-  }
+  const commandDef = commandDefinitions.find(def => def.id === selectedCommand.type);
   
   if (!commandDef) {
     return (
@@ -81,8 +41,10 @@ export function CommandEditor() {
     );
   }
 
-  const handlePropertyChange = (property: string, value: any) => {
-    updateCommand(selectedCommand.id, { [property]: value });
+  const handlePropertyChange = (property: string, value: unknown) => {
+    // 型アノテーションを追加してインデックスシグネチャの互換性を確保
+    const updates: Record<string, unknown> = { [property]: value };
+    updateCommand(selectedCommand.id, updates);
   };
 
   const defaultBgColor = commandDef.defaultBackgroundColor || "#ffffff";
@@ -125,46 +87,49 @@ export function CommandEditor() {
 }
 
 function renderPropertyInput(
-  propName: string, 
-  propDef: PropertyDefinition, 
-  value: any, 
-  onChange: (value: any) => void,
-  commands?: any[], // Add commands parameter
-  commandsMap?: Map<string, any> // Add commandsMap parameter
+  propName: string,
+  propDef: PropertyDefinition,
+  value: unknown,
+  onChange: (value: unknown) => void,
+  commands?: SkitCommand[], // Add commands parameter
+  commandsMap?: Map<string, CommandDefinition> // commandsMapの型を修正
 ) {
   switch (propDef.type) {
-    case 'string':
+    case 'string': {
+      const stringValue = value as string | undefined;
       return propDef.multiline ? (
         <Textarea
           id={propName}
-          value={value || ''}
+          value={stringValue || ''}
           onChange={(e) => onChange(e.target.value)}
           rows={5}
         />
       ) : (
         <Input
           id={propName}
-          value={value || ''}
+          value={stringValue || ''}
           onChange={(e) => onChange(e.target.value)}
         />
       );
-      
-    case 'number':
+    }
+    case 'number': {
+      const numberValue = value as number | undefined;
       return (
         <Input
           id={propName}
           type="number"
-          value={value ?? propDef.default ?? ''}
+          value={numberValue ?? (propDef.default as number) ?? ''}
           onChange={(e) => onChange(Number(e.target.value))}
           min={propDef.constraints?.min}
           max={propDef.constraints?.max}
         />
       );
-      
-    case 'boolean':
+    }
+    case 'boolean': {
+      const booleanValue = value as boolean | undefined;
       return (
         <Select
-          value={value ? 'true' : 'false'}
+          value={booleanValue ? 'true' : 'false'}
           onValueChange={(val) => onChange(val === 'true')}
         >
           <SelectTrigger id={propName}>
@@ -176,11 +141,12 @@ function renderPropertyInput(
           </SelectContent>
         </Select>
       );
-      
-    case 'enum':
+    }
+    case 'enum': {
+      const enumValue = value as string | undefined;
       return (
         <Select
-          value={value || ''}
+          value={enumValue || ''}
           onValueChange={onChange}
         >
           <SelectTrigger id={propName}>
@@ -195,30 +161,32 @@ function renderPropertyInput(
           </SelectContent>
         </Select>
       );
-      
-    case 'asset':
+    }
+    case 'asset': {
+      const assetValue = value as string | undefined;
       return (
         <Input
           id={propName}
-          value={value || ''}
+          value={assetValue || ''}
           onChange={(e) => onChange(e.target.value)}
         />
       );
-      
+    }
     case 'command': {
+      const commandValue = value as number | undefined;
       const commandsList = commands || [];
       console.log('Command Types:', commandsList.map(cmd => cmd.type));
       console.log('Filtering for:', propDef.commandTypes);
-      
+
       const filteredCommands = propDef.commandTypes
         ? commandsList.filter(cmd => propDef.commandTypes?.includes(cmd.type))
         : commandsList;
-        
+
       console.log('Filtered Commands:', filteredCommands.map(cmd => cmd.type));
-        
+
       return (
         <Select
-          value={value?.toString() || ''}
+          value={commandValue?.toString() || ''}
           onValueChange={(val) => onChange(Number(val))}
         >
           <SelectTrigger id={propName}>
@@ -227,21 +195,22 @@ function renderPropertyInput(
           <SelectContent>
             {filteredCommands.map((cmd) => (
               <SelectItem key={cmd.id} value={cmd.id.toString()}>
-                {cmd.id}: {formatCommandPreview(cmd, commandsMap || new Map<string, any>())}
+                {cmd.id}: {formatCommandPreview(cmd, commandsMap || new Map<string, CommandDefinition>())}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
       );
     }
-      
-    default:
+    default: {
+      const defaultValue = value as string | undefined;
       return (
         <Input
           id={propName}
-          value={value || ''}
+          value={defaultValue || ''}
           onChange={(e) => onChange(e.target.value)}
         />
       );
+    }
   }
 }

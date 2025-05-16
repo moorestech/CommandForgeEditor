@@ -1,9 +1,9 @@
 import { readTextFile, writeTextFile, createDir, readDir, exists } from '@tauri-apps/api/fs';
 import { join, resolveResource } from '@tauri-apps/api/path';
 import { open } from '@tauri-apps/api/dialog';
-import { Skit } from '../types';
+import { Skit, CommandDefinition, SkitCommand } from '../types';
 import { validateSkitData, validateCommandsYaml } from './validation';
-import { isReservedCommand, getReservedCommandDefinition } from './reservedCommands';
+// 未使用のimportを削除
 
 /**
  * Opens a folder selection dialog
@@ -36,7 +36,7 @@ export async function selectProjectFolder(): Promise<string | null> {
 export async function loadCommandsYaml(projectPath: string | null = null): Promise<string> {
   try {
     // Web環境の場合はすぐに例外をスロー
-    if (import.meta.env.DEV && typeof window !== 'undefined' && !(window as any).__TAURI__) {
+    if (import.meta.env.DEV && typeof window !== 'undefined' && !((window as unknown) as { __TAURI__: unknown }).__TAURI__) {
       throw new Error('Running in web environment, Tauri API not available');
     }
     
@@ -66,7 +66,7 @@ export async function loadCommandsYaml(projectPath: string | null = null): Promi
 export async function loadSkits(projectPath: string | null = null): Promise<Record<string, Skit>> {
   try {
     // Web環境の場合はすぐに例外をスロー
-    if (import.meta.env.DEV && typeof window !== 'undefined' && !(window as any).__TAURI__) {
+    if (import.meta.env.DEV && typeof window !== 'undefined' && !((window as unknown) as { __TAURI__: unknown }).__TAURI__) {
       throw new Error('Running in web environment, Tauri API not available');
     }
     
@@ -124,9 +124,9 @@ async function loadSkitsFromPath(skitsPath: string): Promise<Record<string, Skit
         const skit = JSON.parse(skitContent);
         
         if (commandsConfig && commandsConfig.commands) {
-          skit.commands = skit.commands.map((command: any) => {
+          skit.commands = skit.commands.map((command: SkitCommand) => {
             if (!command.backgroundColor) {
-              const commandDef = commandsConfig.commands.find((def: any) => def.id === command.type);
+              const commandDef = commandsConfig.commands.find((def: CommandDefinition) => def.id === command.type);
               if (commandDef && commandDef.defaultBackgroundColor) {
                 return { ...command, backgroundColor: commandDef.defaultBackgroundColor };
               }
@@ -162,7 +162,7 @@ export async function saveSkit(
 ): Promise<string[]> {
   try {
     const errors = validateSkitData(skit);
-    
+
     if (commandsYaml) {
       const { config } = validateCommandsYaml(commandsYaml);
       if (config) {
@@ -170,11 +170,11 @@ export async function saveSkit(
         errors.push(...propertyErrors);
       }
     }
-    
+
     if (errors.length > 0) {
       return errors;
     }
-    
+
     const updatedSkit = {
       ...skit,
       meta: {
@@ -182,20 +182,20 @@ export async function saveSkit(
         modified: new Date().toISOString()
       }
     };
-    
+
     let skitsPath;
-    
+
     if (projectPath) {
       skitsPath = await join(projectPath, 'skits');
     } else {
       skitsPath = await resolveResource('skits');
     }
-    
+
     await createDir(skitsPath, { recursive: true });
-    
+
     const skitPath = await join(skitsPath, `${skitId}.json`);
     await writeTextFile(skitPath, JSON.stringify(updatedSkit, null, 2));
-    
+
     return [];
   } catch (error) {
     console.error('Failed to save skit:', error);
@@ -222,10 +222,10 @@ export async function createNewSkit(
     },
     commands: []
   };
-  
+
   const skitId = title.toLowerCase().replace(/\s+/g, '_');
   const errors = await saveSkit(skitId, newSkit, '', projectPath);
-  
+
   return { id: skitId, errors };
 }
 
@@ -235,36 +235,25 @@ export async function createNewSkit(
  * @param commandsConfig The commands configuration
  * @returns Array of validation errors, empty if valid
  */
-function validateCommandProperties(skit: Skit, commandsConfig: any): string[] {
+function validateCommandProperties(skit: Skit, commandsConfig: { commands: CommandDefinition[] }): string[] {
   const errors: string[] = [];
-  
+
   skit.commands.forEach(command => {
-    const commandDef = commandsConfig.commands.find((def: any) => def.id === command.type);
-    
+    const commandDef = commandsConfig.commands.find((def: CommandDefinition) => def.id === command.type);
+
     if (!commandDef) {
-      if (isReservedCommand(command.type)) {
-        const reservedDef = getReservedCommandDefinition(command.type);
-        
-        if (reservedDef && reservedDef.properties) {
-          Object.entries(reservedDef.properties).forEach(([propName, propDef]: [string, any]) => {
-            if (propDef.required && (command[propName] === undefined || command[propName] === '')) {
-              errors.push(`Command ${command.id}: Required property "${propName}" is missing`);
-            }
-          });
-        }
-        return;
+      // commandDefが見つからない場合は、エラーを返します
+      errors.push(`Command ${command.id}: Definition not found`);
+    } else {
+      if (commandDef.properties) {
+        Object.entries(commandDef.properties).forEach(([propName, propDef]) => {
+          if (propDef.required && (command[propName] === undefined || command[propName] === '')) {
+            errors.push(`Command ${command.id}: Required property "${propName}" is missing`);
+          }
+        });
       }
-      
-      errors.push(`Command type "${command.type}" is not defined in commands.yaml`);
-      return;
     }
-    
-    Object.entries(commandDef.properties).forEach(([propName, propDef]: [string, any]) => {
-      if (propDef.required && (command[propName] === undefined || command[propName] === '')) {
-        errors.push(`Command ${command.id}: Required property "${propName}" is missing`);
-      }
-    });
   });
-  
+
   return errors;
 }

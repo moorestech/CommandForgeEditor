@@ -1,12 +1,11 @@
 import { useSkitStore, getGroupCommandIndices, getTopLevelGroups } from '../../store/skitStore';
-import { getReservedCommandDefinition, isReservedCommand } from '../../utils/reservedCommands';
 import { formatCommandPreview, hasCommandFormat } from '../../utils/commandFormatting';
 import { ScrollArea } from '../ui/scroll-area';
 import { useDndSortable } from '../../hooks/useDndSortable';
 import { SortableList } from '../dnd/SortableList';
 import { SortableItem } from '../dnd/SortableItem';
 import { DropZone } from '../dnd/DropZone';
-import { SkitCommand } from '../../types';
+import { SkitCommand, CommandDefinition } from '../../types';
 import {
   ContextMenu,
   ContextMenuContent,
@@ -17,7 +16,6 @@ import {
   ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from '../ui/context-menu';
-import { parse } from 'yaml';
 import { useMemo, useCallback, memo } from 'react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 
@@ -33,23 +31,28 @@ import { ChevronDown, ChevronRight } from 'lucide-react';
  * 6. 表示対象のコマンドのみをレンダリング（非表示コマンドはDOMに含めない）
  */
 export const CommandList = memo(function CommandList() {
-  const { 
-    skits, 
-    currentSkitId, 
-    selectedCommandIds, 
+  const {
+    skits,
+    currentSkitId,
+    selectedCommandIds,
     selectCommand,
     moveCommand,
     moveCommands,
     addCommand,
     removeCommand,
-    commandsYaml,
+    commandDefinitions,
+    commandsMap,
     createGroup,
     ungroupCommands,
     toggleGroupCollapse
   } = useSkitStore();
 
   const currentSkit = currentSkitId ? skits[currentSkitId] : null;
-  const commands = currentSkit?.commands || [];
+  
+  // コマンドリストをuseMemoでメモ化して依存関係の問題を解決
+  const commands = useMemo(() => {
+    return currentSkit?.commands || [];
+  }, [currentSkit]);
   
   // 計算処理をuseCallbackでメモ化して毎回再生成されないようにする
   const calculateNestLevels = useCallback((commands: SkitCommand[]): Map<number, number> => {
@@ -107,39 +110,20 @@ export const CommandList = memo(function CommandList() {
     selectCommand(commandId, isCtrlPressed, isShiftPressed);
   }, [selectCommand]);
 
-  // commandsYamlをパースした結果をメモ化
-  const parsedCommands = useMemo(() => {
-    if (!commandsYaml) return { commandDefinitions: [], commandsMap: new Map() };
-    try {
-      const parsed = parse(commandsYaml);
-      const definitions = parsed?.commands || [];
-      
-      // コマンド定義をIDでマップ化して高速アクセスできるようにする
-      const commandsMap = new Map();
-      definitions.forEach((def: any) => {
-        commandsMap.set(def.id, def);
-      });
-      
-      return { commandDefinitions: definitions, commandsMap };
-    } catch (error) {
-      console.error('Failed to parse commands.yaml:', error);
-      return { commandDefinitions: [], commandsMap: new Map() };
-    }
-  }, [commandsYaml]);
-  
-  const { commandDefinitions, commandsMap } = parsedCommands;
+  // commandDefinitions と commandsMap はstoreから直接取得するようになったため、パース処理は不要
 
   const handleAddCommand = useCallback((commandType: string, targetIndex: number, position: 'above' | 'below') => {
-    const commandDef = commandDefinitions.find((def: any) => def.id === commandType);
+    const commandDef = commandDefinitions.find((def: CommandDefinition) => def.id === commandType);
     if (!commandDef) return;
 
-    const newCommand: any = { 
+    const newCommand: Partial<SkitCommand> = {
+      id: 0, // 実際のIDはaddCommand内で割り当てられる
       type: commandType,
       backgroundColor: commandDef.defaultBackgroundColor || "#ffffff"
     };
     
     Object.entries(commandDef.properties).forEach(([propName, propDefAny]) => {
-      const propDef = propDefAny as any;
+      const propDef = propDefAny;
       if (propDef.default !== undefined) {
         newCommand[propName] = propDef.default;
       } else if (propDef.required) {
@@ -314,7 +298,7 @@ const CommandItem = memo(({
   nestLevel: number;
   handleCommandClick: (id: number, event: React.MouseEvent) => void;
   toggleGroupCollapse: (id: number) => void;
-  commandsMap: Map<string, any>;
+  commandsMap: Map<string, CommandDefinition>;
 }) => {
   const isGroupStart = command.type === 'group_start';
   const isCollapsed = isGroupStart && command.isCollapsed;
@@ -401,7 +385,7 @@ const CommandItem = memo(({
 
   return (
     <div
-      className={`cursor-pointer transition-colors flex items-center py-2 px-2 border-b w-full relative
+      className={`cursor-pointer transition-colors flex items-center py-2 px-2 border-b w-full relative select-none
         ${isSelected
           ? 'bg-blue-500 text-white'
           : textColorClass || 'hover:bg-accent'
@@ -471,7 +455,7 @@ const CommandContextMenu = memo(({
 }: {
   command: SkitCommand;
   index: number;
-  commandDefinitions: any[];
+  commandDefinitions: CommandDefinition[];
   selectedCommandIds: number[];
   removeCommand: (id: number) => void;
   ungroupCommands: (id: number) => void;
@@ -505,7 +489,7 @@ const CommandContextMenu = memo(({
       <ContextMenuSub>
         <ContextMenuSubTrigger>上にコマンドを追加</ContextMenuSubTrigger>
         <ContextMenuSubContent>
-          {commandDefinitions.map((cmdDef: any) => (
+          {commandDefinitions.map((cmdDef: CommandDefinition) => (
             <ContextMenuItem
               key={cmdDef.id}
               onClick={() => handleAddCommand(cmdDef.id, index, 'above')}
@@ -519,7 +503,7 @@ const CommandContextMenu = memo(({
       <ContextMenuSub>
         <ContextMenuSubTrigger>下にコマンドを追加</ContextMenuSubTrigger>
         <ContextMenuSubContent>
-          {commandDefinitions.map((cmdDef: any) => (
+          {commandDefinitions.map((cmdDef: CommandDefinition) => (
             <ContextMenuItem
               key={cmdDef.id}
               onClick={() => handleAddCommand(cmdDef.id, index, 'below')}

@@ -6,7 +6,8 @@ interface UseDndSortableProps<T> {
   getItemId: (item: T) => string | number;
 }
 
-export function useDndSortable<T>({ onReorder: _onReorder }: UseDndSortableProps<T>) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function useDndSortable<T>(_props: UseDndSortableProps<T>) {
   const [activeId, setActiveId] = useState<string | number | null>(null);
 
   const handleDragStart = (id: string | number) => {
