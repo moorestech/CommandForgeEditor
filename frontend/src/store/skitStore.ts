@@ -134,7 +134,25 @@ export const useSkitStore = create<SkitState>()(
           type: command.type,
         };
         
-        currentSkit.commands.push(newCommand);
+        const selectedCommandIds = state.selectedCommandIds;
+        if (selectedCommandIds.length > 0) {
+          let lastSelectedIndex = -1;
+          let lastSelectedCommandId: number | null = null;
+          for (const commandId of selectedCommandIds) {
+            const selectedIndex = currentSkit.commands.findIndex(cmd => cmd.id === commandId);
+            if (selectedIndex > lastSelectedIndex) {
+              lastSelectedIndex = selectedIndex;
+              lastSelectedCommandId = commandId;
+            }
+          }
+          if (lastSelectedCommandId !== null && lastSelectedIndex !== -1) {
+            currentSkit.commands.splice(lastSelectedIndex + 1, 0, newCommand);
+          } else {
+            currentSkit.commands.push(newCommand);
+          }
+        } else {
+          currentSkit.commands.push(newCommand);
+        }
         currentSkit.meta.modified = new Date().toISOString();
         state.selectedCommandIds = [newCommand.id];
       });
