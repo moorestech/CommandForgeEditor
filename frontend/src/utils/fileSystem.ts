@@ -1,8 +1,9 @@
 import { readTextFile, writeTextFile, createDir, readDir, exists } from '@tauri-apps/api/fs';
 import { join, resolveResource } from '@tauri-apps/api/path';
 import { open } from '@tauri-apps/api/dialog';
-import { Skit } from '../types';
+import { Skit, CommandsConfig } from '../types';
 import { validateSkitData, validateCommandsYaml } from './validation';
+import { reservedCommands } from './reservedCommands';
 
 /**
  * Opens a folder selection dialog
@@ -161,7 +162,7 @@ export async function saveSkit(
 ): Promise<string[]> {
   try {
     const errors = validateSkitData(skit);
-    
+
     if (commandsYaml) {
       const { config } = validateCommandsYaml(commandsYaml);
       if (config) {
@@ -169,11 +170,11 @@ export async function saveSkit(
         errors.push(...propertyErrors);
       }
     }
-    
+
     if (errors.length > 0) {
       return errors;
     }
-    
+
     const updatedSkit = {
       ...skit,
       meta: {
@@ -181,20 +182,20 @@ export async function saveSkit(
         modified: new Date().toISOString()
       }
     };
-    
+
     let skitsPath;
-    
+
     if (projectPath) {
       skitsPath = await join(projectPath, 'skits');
     } else {
       skitsPath = await resolveResource('skits');
     }
-    
+
     await createDir(skitsPath, { recursive: true });
-    
+
     const skitPath = await join(skitsPath, `${skitId}.json`);
     await writeTextFile(skitPath, JSON.stringify(updatedSkit, null, 2));
-    
+
     return [];
   } catch (error) {
     console.error('Failed to save skit:', error);
@@ -221,10 +222,10 @@ export async function createNewSkit(
     },
     commands: []
   };
-  
+
   const skitId = title.toLowerCase().replace(/\s+/g, '_');
   const errors = await saveSkit(skitId, newSkit, '', projectPath);
-  
+
   return { id: skitId, errors };
 }
 
