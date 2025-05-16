@@ -10,6 +10,7 @@ export const reservedCommands: CommandDefinition[] = [
     label: 'グループ開始',
     description: 'グループの開始位置',
     commandListLabelFormat: '{groupName}',
+    defaultBackgroundColor: '#b9b9b9',
     properties: {
       groupName: {
         type: 'string',
@@ -27,6 +28,7 @@ export const reservedCommands: CommandDefinition[] = [
     label: 'グループ終了',
     description: 'グループの終了位置',
     commandListLabelFormat: 'グループ終了',
+    defaultBackgroundColor: '#b9b9b9',
     properties: {}
   }
 ];
