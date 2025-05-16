@@ -85,7 +85,7 @@ function App() {
             </ResizablePanel>
           </ResizablePanelGroup>
         </div>
-        <Toaster position="top-right" />
+        <Toaster position="bottom-right" />
       </MainLayout>
     </DndProvider>
   );
