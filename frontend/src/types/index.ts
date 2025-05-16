@@ -41,7 +41,10 @@ export interface SkitCommand {
   id: number;
   type: string;
   backgroundColor?: string; // Background color for the command
-  [key: string]: any; // Additional properties based on command type
+  isCollapsed?: boolean; // For group_start commands
+  groupName?: string; // For group_start commands
+  // 必須プロパティの型も含めたインデックスシグネチャ
+  [key: string]: unknown | string | number | boolean;
 }
 
 export interface Skit {

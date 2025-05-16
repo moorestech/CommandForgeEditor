@@ -1,7 +1,7 @@
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
 import { parse } from 'yaml';
-import { CommandsConfig, Skit } from '../types';
+import { CommandsConfig, Skit, PropertyDefinition } from '../types';
 
 const ajv = new Ajv();
 addFormats(ajv);
@@ -130,7 +130,7 @@ export function validateCommandProperties(
       errors.push(`Command ${command.id}: Definition not found`);
     } else {
       if (commandDef.properties) {
-        Object.entries(commandDef.properties).forEach(([propName, propDef]: [string, any]) => {
+        Object.entries(commandDef.properties).forEach(([propName, propDef]: [string, PropertyDefinition]) => {
           if (propDef.required && (command[propName] === undefined || command[propName] === '')) {
             errors.push(`Command ${command.id}: Required property "${propName}" is missing`);
           }

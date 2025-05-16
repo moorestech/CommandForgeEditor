@@ -1,12 +1,13 @@
-import { SkitCommand } from '../types';
+import { SkitCommand, CommandDefinition } from '../types';
 
 /**
  * Format a command preview using its commandListLabelFormat
  */
-export function formatCommandPreview(command: SkitCommand, commandsMap: Map<string, any>): string {
-  const { type, id: _, ...props } = command;
+export function formatCommandPreview(command: SkitCommand, commandsMap: Map<string, CommandDefinition>): string {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { type, id, ...props } = command;
 
-  let commandDef = commandsMap ? commandsMap.get(type) : undefined;
+  const commandDef = commandsMap ? commandsMap.get(type) : undefined;
 
   if (!commandDef || !commandDef.commandListLabelFormat) {
     const firstPropValue = Object.values(props).find(val =>
@@ -29,10 +30,10 @@ export function formatCommandPreview(command: SkitCommand, commandsMap: Map<stri
 /**
  * Check if a command has a commandListLabelFormat in its definition
  */
-export function hasCommandFormat(command: SkitCommand, commandsMap: Map<string, any>): boolean {
+export function hasCommandFormat(command: SkitCommand, commandsMap: Map<string, CommandDefinition>): boolean {
   const { type } = command;
 
-  let commandDef = commandsMap ? commandsMap.get(type) : undefined;
+  const commandDef = commandsMap ? commandsMap.get(type) : undefined;
 
   return !!commandDef?.commandListLabelFormat;
 }

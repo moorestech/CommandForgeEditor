@@ -131,7 +131,7 @@ export const useSkitStore = create<SkitState>()(
         const newCommand: SkitCommand = {
           ...command,
           id: maxId + 1,
-          type: command.type,
+          type: command.type as string,
         };
         
         const selectedCommandIds = state.selectedCommandIds;
@@ -340,7 +340,7 @@ export const useSkitStore = create<SkitState>()(
     },
 
     saveSkit: async () => {
-      const { currentSkitId, skits, commandDefinitions, projectPath } = useSkitStore.getState();
+      const { currentSkitId, skits, projectPath } = useSkitStore.getState();
 
       if (!currentSkitId) {
         throw new Error('スキットが選択されていません');
@@ -478,10 +478,10 @@ export const useSkitStore = create<SkitState>()(
         try {
           const parsed = parse(yaml);
           // YAMLからロードしたコマンド定義
-          const definitions = parsed?.commands || [];
+          const parsedDefinitions = parsed?.commands || [];
           
           // reservedCommandsを追加
-          const allDefinitions = [...definitions, ...reservedCommands];
+          const allDefinitions = [...parsedDefinitions, ...reservedCommands];
           
           // コマンド定義をIDでマッピング
           const commandsMap = new Map<string, CommandDefinition>();

@@ -48,7 +48,11 @@ export const CommandList = memo(function CommandList() {
   } = useSkitStore();
 
   const currentSkit = currentSkitId ? skits[currentSkitId] : null;
-  const commands = currentSkit?.commands || [];
+  
+  // コマンドリストをuseMemoでメモ化して依存関係の問題を解決
+  const commands = useMemo(() => {
+    return currentSkit?.commands || [];
+  }, [currentSkit]);
   
   // 計算処理をuseCallbackでメモ化して毎回再生成されないようにする
   const calculateNestLevels = useCallback((commands: SkitCommand[]): Map<number, number> => {
@@ -109,16 +113,17 @@ export const CommandList = memo(function CommandList() {
   // commandDefinitions と commandsMap はstoreから直接取得するようになったため、パース処理は不要
 
   const handleAddCommand = useCallback((commandType: string, targetIndex: number, position: 'above' | 'below') => {
-    const commandDef = commandDefinitions.find((def: any) => def.id === commandType);
+    const commandDef = commandDefinitions.find((def: CommandDefinition) => def.id === commandType);
     if (!commandDef) return;
 
-    const newCommand: any = { 
+    const newCommand: Partial<SkitCommand> = {
+      id: 0, // 実際のIDはaddCommand内で割り当てられる
       type: commandType,
       backgroundColor: commandDef.defaultBackgroundColor || "#ffffff"
     };
     
     Object.entries(commandDef.properties).forEach(([propName, propDefAny]) => {
-      const propDef = propDefAny as any;
+      const propDef = propDefAny;
       if (propDef.default !== undefined) {
         newCommand[propName] = propDef.default;
       } else if (propDef.required) {
@@ -484,7 +489,7 @@ const CommandContextMenu = memo(({
       <ContextMenuSub>
         <ContextMenuSubTrigger>上にコマンドを追加</ContextMenuSubTrigger>
         <ContextMenuSubContent>
-          {commandDefinitions.map((cmdDef: any) => (
+          {commandDefinitions.map((cmdDef: CommandDefinition) => (
             <ContextMenuItem
               key={cmdDef.id}
               onClick={() => handleAddCommand(cmdDef.id, index, 'above')}
@@ -498,7 +503,7 @@ const CommandContextMenu = memo(({
       <ContextMenuSub>
         <ContextMenuSubTrigger>下にコマンドを追加</ContextMenuSubTrigger>
         <ContextMenuSubContent>
-          {commandDefinitions.map((cmdDef: any) => (
+          {commandDefinitions.map((cmdDef: CommandDefinition) => (
             <ContextMenuItem
               key={cmdDef.id}
               onClick={() => handleAddCommand(cmdDef.id, index, 'below')}

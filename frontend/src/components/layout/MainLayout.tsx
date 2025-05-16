@@ -2,7 +2,6 @@ import { ReactNode } from 'react';
 import {
   Sidebar,
   SidebarProvider,
-  SidebarTrigger,
   SidebarHeader,
   SidebarContent
 } from '../ui/sidebar';
