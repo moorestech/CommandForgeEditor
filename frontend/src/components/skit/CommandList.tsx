@@ -380,7 +380,7 @@ const CommandItem = memo(({
 
   return (
     <div
-      className={`cursor-pointer transition-colors flex items-center py-2 px-2 border-b w-full relative
+      className={`cursor-pointer transition-colors flex items-center py-2 px-2 border-b w-full relative select-none
         ${isSelected
           ? 'bg-blue-500 text-white'
           : textColorClass || 'hover:bg-accent'
