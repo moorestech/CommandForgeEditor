@@ -3,7 +3,6 @@ import { join, resolveResource } from '@tauri-apps/api/path';
 import { open } from '@tauri-apps/api/dialog';
 import { Skit } from '../types';
 import { validateSkitData, validateCommandsYaml } from './validation';
-import { isReservedCommand, getReservedCommandDefinition } from './reservedCommands';
 
 /**
  * Opens a folder selection dialog
@@ -237,34 +236,23 @@ export async function createNewSkit(
  */
 function validateCommandProperties(skit: Skit, commandsConfig: any): string[] {
   const errors: string[] = [];
-  
+
   skit.commands.forEach(command => {
     const commandDef = commandsConfig.commands.find((def: any) => def.id === command.type);
-    
+
     if (!commandDef) {
-      if (isReservedCommand(command.type)) {
-        const reservedDef = getReservedCommandDefinition(command.type);
-        
-        if (reservedDef && reservedDef.properties) {
-          Object.entries(reservedDef.properties).forEach(([propName, propDef]: [string, any]) => {
-            if (propDef.required && (command[propName] === undefined || command[propName] === '')) {
-              errors.push(`Command ${command.id}: Required property "${propName}" is missing`);
-            }
-          });
-        }
-        return;
+      // commandDefが見つからない場合は、エラーを返します
+      errors.push(`Command ${command.id}: Definition not found`);
+    } else {
+      if (commandDef.properties) {
+        Object.entries(commandDef.properties).forEach(([propName, propDef]: [string, any]) => {
+          if (propDef.required && (command[propName] === undefined || command[propName] === '')) {
+            errors.push(`Command ${command.id}: Required property "${propName}" is missing`);
+          }
+        });
       }
-      
-      errors.push(`Command type "${command.type}" is not defined in commands.yaml`);
-      return;
     }
-    
-    Object.entries(commandDef.properties).forEach(([propName, propDef]: [string, any]) => {
-      if (propDef.required && (command[propName] === undefined || command[propName] === '')) {
-        errors.push(`Command ${command.id}: Required property "${propName}" is missing`);
-      }
-    });
   });
-  
+
   return errors;
 }

@@ -2,7 +2,6 @@ import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
 import { parse } from 'yaml';
 import { CommandsConfig, Skit } from '../types';
-import { isReservedCommand, getReservedCommandDefinition, getCombinedCommandsConfig } from './reservedCommands';
 
 const ajv = new Ajv();
 addFormats(ajv);
@@ -115,56 +114,31 @@ export function validateSkitData(skit: Skit): string[] {
  * @returns Array of validation errors, empty if valid
  */
 export function validateCommandProperties(
-  skit: Skit, 
+  skit: Skit,
   commandsConfig?: CommandsConfig
 ): string[] {
   const errors: string[] = [];
-  
+
   if (!commandsConfig) {
     return errors;
   }
-  
+
   skit.commands.forEach(command => {
     const commandDef = commandsConfig.commands.find(def => def.id === command.type);
-    
+
     if (!commandDef) {
-      if (isReservedCommand(command.type)) {
-        const reservedDef = getReservedCommandDefinition(command.type);
-        
-        if (reservedDef && reservedDef.properties) {
-          Object.entries(reservedDef.properties).forEach(([propName, propDef]: [string, any]) => {
-            if (propDef.required && (command[propName] === undefined || command[propName] === '')) {
-              errors.push(`Command ${command.id}: Required property "${propName}" is missing`);
-            }
-          });
-        }
-        return;
-      }
-      
-      errors.push(`Command type "${command.type}" is not defined in commands.yaml`);
-      return;
-    }
-    
-    Object.entries(commandDef.properties).forEach(([propName, propDef]: [string, any]) => {
-      if (propDef.required && (command[propName] === undefined || command[propName] === '')) {
-        errors.push(`Command ${command.id}: Required property "${propName}" is missing`);
-      }
-      
-      if (propDef.type === 'command' && command[propName] !== undefined && command[propName] !== '') {
-        const commandId = Number(command[propName]);
-        const referredCommand = skit.commands.find(cmd => cmd.id === commandId);
-        
-        if (!referredCommand) {
-          errors.push(`Command ${command.id}: Referenced command ID ${commandId} does not exist in the current skit`);
-        } else if (propDef.commandTypes && propDef.commandTypes.length > 0) {
-          if (!propDef.commandTypes.includes(referredCommand.type)) {
-            errors.push(`Command ${command.id}: Referenced command type "${referredCommand.type}" is not allowed for property "${propName}"`);
+      errors.push(`Command ${command.id}: Definition not found`);
+    } else {
+      if (commandDef.properties) {
+        Object.entries(commandDef.properties).forEach(([propName, propDef]: [string, any]) => {
+          if (propDef.required && (command[propName] === undefined || command[propName] === '')) {
+            errors.push(`Command ${command.id}: Required property "${propName}" is missing`);
           }
-        }
+        });
       }
-    });
+    }
   });
-  
+
   return errors;
 }
 
@@ -173,23 +147,21 @@ export function validateCommandProperties(
  * @param yamlContent The YAML content to validate
  * @returns Object with parsed config and errors
  */
-export function validateCommandsYaml(yamlContent: string): { 
-  config: CommandsConfig | null; 
-  errors: string[] 
+export function validateCommandsYaml(yamlContent: string): {
+  config: CommandsConfig | null;
+  errors: string[]
 } {
   try {
     const parsed = parse(yamlContent) as CommandsConfig;
     const valid = validateCommandsConfig(parsed);
-    
+
     if (valid) {
-      const combinedConfig = getCombinedCommandsConfig(parsed);
-      
-      return { config: combinedConfig, errors: [] };
+      return { config: parsed, errors: [] };
     }
-    
-    return { 
-      config: null, 
-      errors: (validateCommandsConfig.errors || []).map(error => 
+
+    return {
+      config: null,
+      errors: (validateCommandsConfig.errors || []).map(error =>
         `${error.instancePath} ${error.message}`
       )
     };

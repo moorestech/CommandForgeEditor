@@ -1,5 +1,4 @@
 import { useSkitStore, getGroupCommandIndices, getTopLevelGroups } from '../../store/skitStore';
-import { getReservedCommandDefinition, isReservedCommand } from '../../utils/reservedCommands';
 import { formatCommandPreview, hasCommandFormat } from '../../utils/commandFormatting';
 import { ScrollArea } from '../ui/scroll-area';
 import { useDndSortable } from '../../hooks/useDndSortable';
