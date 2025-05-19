@@ -38,3 +38,13 @@ test('Add a command below the selected command', async ({ page }) => {
 
   await expect(page).toHaveScreenshot();
 });
+
+
+test('Add command button', async ({ page }) => {
+  await page.goto('http://localhost:5173/');
+  await page.getByTestId('sortable-item-1').click();
+  await page.getByRole('button', { name: '追加' }).click();
+  await page.getByRole('menuitem', { name: '待機' }).click();
+
+  await expect(page).toHaveScreenshot();
+});
