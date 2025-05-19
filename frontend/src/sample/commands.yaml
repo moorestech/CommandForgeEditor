@@ -32,6 +32,7 @@ commands:
     label: 待機
     description: 指定秒数だけウェイト
     commandListLabelFormat: "WAIT: {seconds}"
+    defaultBackgroundColor: '#57e317'
     properties:
       seconds:
         type: number
