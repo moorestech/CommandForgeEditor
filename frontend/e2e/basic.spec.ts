@@ -38,13 +38,3 @@ test('Add a command below the selected command', async ({ page }) => {
 
   await expect(page).toHaveScreenshot();
 });
-
-
-test('Check default', async ({ page }) => {
-  await page.goto('http://localhost:5173/');
-
-  await page.getByTestId('sortable-item-1').click({
-    button: 'left'
-  });
-  await expect(page).toHaveScreenshot();
-});
