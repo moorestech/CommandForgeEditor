@@ -38,3 +38,10 @@ test('Add a command below the selected command', async ({ page }) => {
 
   await expect(page).toHaveScreenshot();
 });
+
+
+test('Check default', async ({ page }) => {
+  await page.goto('http://localhost:5173/');
+
+  await expect(page).toHaveScreenshot();
+});
