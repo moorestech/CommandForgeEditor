@@ -15,66 +15,86 @@ export function CommandEditor() {
     currentSkitId,
     selectedCommandIds,
     updateCommand,
+    updateCommands,
     commandDefinitions,
     commandsMap
   } = useSkitStore();
   const currentSkit = currentSkitId ? skits[currentSkitId] : null;
-  const selectedCommandId = selectedCommandIds.length > 0 ? selectedCommandIds[0] : null;
-  const selectedCommand = currentSkit?.commands.find(cmd => cmd.id === selectedCommandId);
   const commands = currentSkit?.commands || [];
-  
-  if (!selectedCommand) {
+
+  const selectedCommands = selectedCommandIds
+    .map(id => commands.find(cmd => cmd.id === id))
+    .filter((cmd): cmd is SkitCommand => !!cmd);
+
+  if (selectedCommands.length === 0) {
     return (
       <div className="p-4 text-center text-muted-foreground">
         コマンドが選択されていません
       </div>
     );
   }
-  
-  const commandDef = commandDefinitions.find(def => def.id === selectedCommand.type);
-  
-  if (!commandDef) {
+
+  const primaryCommand = selectedCommands[0];
+  const commandDefs = selectedCommands
+    .map(cmd => commandDefinitions.find(def => def.id === cmd.type))
+    .filter((def): def is CommandDefinition => !!def);
+
+  if (commandDefs.length === 0) {
     return (
       <div className="p-4 text-center text-muted-foreground">
-        コマンド定義が見つかりません: {selectedCommand.type}
+        コマンド定義が見つかりません
       </div>
     );
   }
 
+  const commandDef = commandDefs[0];
+
   const handlePropertyChange = (property: string, value: unknown) => {
-    // 型アノテーションを追加してインデックスシグネチャの互換性を確保
     const updates: Record<string, unknown> = { [property]: value };
-    updateCommand(selectedCommand.id, updates);
+    if (selectedCommands.length > 1) {
+      updateCommands(selectedCommandIds, updates);
+    } else {
+      updateCommand(primaryCommand.id, updates);
+    }
   };
 
   const defaultBgColor = commandDef.defaultBackgroundColor || "#ffffff";
+
+  const commonProperties = Object.entries(commandDefs[0].properties).filter(
+    ([name, def]) =>
+      commandDefs.every(cd => cd.properties[name] && cd.properties[name].type === def.type)
+  );
   
   return (
     <Card className="border-0 shadow-none">
       <CardHeader className="pb-2">
-        <CardTitle>{commandDef.label}</CardTitle>
+        <CardTitle>
+          {selectedCommands.length > 1
+            ? `${selectedCommands.length}個のコマンドを編集`
+            : commandDef.label}
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Background Color Picker */}
         <div className="space-y-2">
           <Label htmlFor="backgroundColor">背景色</Label>
           <ColorPicker
-            value={selectedCommand.backgroundColor || defaultBgColor}
+            value={primaryCommand.backgroundColor || defaultBgColor}
             onChange={(value) => handlePropertyChange("backgroundColor", value)}
           />
         </div>
         
         {/* Command Properties */}
-        {Object.entries(commandDef.properties).map(([propName, propDef]) => (
+        {commonProperties.map(([propName, propDef]) => (
           <div key={propName} className="space-y-2">
             <Label htmlFor={propName}>
               {propName}
               {propDef.required && <span className="text-destructive ml-1">*</span>}
             </Label>
             {renderPropertyInput(
-              propName, 
-              propDef, 
-              selectedCommand[propName], 
+              propName,
+              propDef,
+              primaryCommand[propName],
               (value) => handlePropertyChange(propName, value),
               commands,
               commandsMap
