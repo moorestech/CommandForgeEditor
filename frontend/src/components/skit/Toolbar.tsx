@@ -23,6 +23,7 @@ export function Toolbar() {
     currentSkitId,
     selectedCommandIds,
     addCommand,
+    moveCommand,
     removeCommand,
     duplicateCommand,
     undo,
@@ -67,6 +68,22 @@ export function Toolbar() {
     });
 
     addCommand(newCommand);
+
+    if (selectedCommandIds.length > 0 && currentSkitId) {
+      const lastSelectedId = selectedCommandIds[selectedCommandIds.length - 1];
+      const state = useSkitStore.getState();
+      const currentSkit = state.skits[currentSkitId];
+      if (currentSkit) {
+        const newIndex = currentSkit.commands.length - 1;
+        const targetIndex = currentSkit.commands.findIndex(
+          cmd => cmd.id === lastSelectedId
+        );
+        if (targetIndex !== -1) {
+          moveCommand(newIndex, targetIndex + 1);
+        }
+      }
+    }
+
     toast.success(`${commandDef.label}を追加しました`);
   };
 
