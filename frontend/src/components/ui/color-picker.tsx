@@ -10,14 +10,15 @@ interface ColorPickerProps {
   onChange: (value: string) => void;
   label?: string;
   className?: string;
+  isDifferent?: boolean;
 }
 
-export function ColorPicker({ value, onChange, label, className }: ColorPickerProps) {
-  const [color, setColor] = React.useState(value || "#c9c9c9");
+export function ColorPicker({ value, onChange, label, className, isDifferent }: ColorPickerProps) {
+  const [color, setColor] = React.useState(isDifferent ? "#ffffff" : (value || "#c9c9c9"));
 
   React.useEffect(() => {
-    setColor(value || "#c9c9c9");
-  }, [value]);
+    setColor(isDifferent ? "#ffffff" : (value || "#c9c9c9"));
+  }, [value, isDifferent]);
 
   const handleColorChange = (newColor: string) => {
     setColor(newColor);
@@ -41,9 +42,10 @@ export function ColorPicker({ value, onChange, label, className }: ColorPickerPr
           </PopoverContent>
         </Popover>
         <Input
-          value={color}
+          value={isDifferent ? "-" : color}
           onChange={(e) => handleColorChange(e.target.value)}
           className="w-28"
+          disabled={isDifferent}
         />
       </div>
     </div>

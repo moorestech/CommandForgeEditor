@@ -15,15 +15,22 @@ export function CommandEditor() {
     currentSkitId,
     selectedCommandIds,
     updateCommand,
+    updateMultipleCommands,
     commandDefinitions,
     commandsMap
   } = useSkitStore();
   const currentSkit = currentSkitId ? skits[currentSkitId] : null;
-  const selectedCommandId = selectedCommandIds.length > 0 ? selectedCommandIds[0] : null;
-  const selectedCommand = currentSkit?.commands.find(cmd => cmd.id === selectedCommandId);
   const commands = currentSkit?.commands || [];
   
-  if (!selectedCommand) {
+  console.log("Selected command IDs:", selectedCommandIds);
+  
+  const selectedCommands = selectedCommandIds
+    .map(id => commands.find(cmd => cmd.id === id))
+    .filter(cmd => cmd !== undefined) as SkitCommand[];
+  
+  console.log("Selected commands:", selectedCommands);
+  
+  if (selectedCommands.length === 0) {
     return (
       <div className="p-4 text-center text-muted-foreground">
         コマンドが選択されていません
@@ -31,56 +38,89 @@ export function CommandEditor() {
     );
   }
   
-  const commandDef = commandDefinitions.find(def => def.id === selectedCommand.type);
+  const firstCommand = selectedCommands[0];
+  const commandDef = commandDefinitions.find(def => def.id === firstCommand.type);
   
   if (!commandDef) {
     return (
       <div className="p-4 text-center text-muted-foreground">
-        コマンド定義が見つかりません: {selectedCommand.type}
+        コマンド定義が見つかりません: {firstCommand.type}
       </div>
     );
   }
-
+  
+  const allSameType = selectedCommands.every(cmd => cmd.type === firstCommand.type);
+  
+  if (!allSameType) {
+    return (
+      <div className="p-4 text-center text-muted-foreground">
+        異なるタイプのコマンドが選択されています
+      </div>
+    );
+  }
+  
   const handlePropertyChange = (property: string, value: unknown) => {
-    // 型アノテーションを追加してインデックスシグネチャの互換性を確保
-    const updates: Record<string, unknown> = { [property]: value };
-    updateCommand(selectedCommand.id, updates);
+    if (selectedCommandIds.length > 1) {
+      const updates: Record<string, unknown> = { [property]: value };
+      updateMultipleCommands(selectedCommandIds, updates);
+    } else {
+      const updates: Record<string, unknown> = { [property]: value };
+      updateCommand(firstCommand.id, updates);
+    }
   };
-
+  
+  const allSameBgColor = selectedCommands.every(cmd => 
+    (cmd.backgroundColor || commandDef.defaultBackgroundColor || "#ffffff") === 
+    (firstCommand.backgroundColor || commandDef.defaultBackgroundColor || "#ffffff")
+  );
+  
   const defaultBgColor = commandDef.defaultBackgroundColor || "#ffffff";
   
   return (
     <Card className="border-0 shadow-none">
       <CardHeader className="pb-2">
-        <CardTitle>{commandDef.label}</CardTitle>
+        <CardTitle>
+          {selectedCommandIds.length > 1 
+            ? `${commandDef.label} (${selectedCommandIds.length}個選択中)`
+            : commandDef.label}
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Background Color Picker */}
         <div className="space-y-2">
           <Label htmlFor="backgroundColor">背景色</Label>
           <ColorPicker
-            value={selectedCommand.backgroundColor || defaultBgColor}
+            value={firstCommand.backgroundColor || defaultBgColor}
             onChange={(value) => handlePropertyChange("backgroundColor", value)}
+            isDifferent={!allSameBgColor && selectedCommandIds.length > 1}
           />
         </div>
         
         {/* Command Properties */}
-        {Object.entries(commandDef.properties).map(([propName, propDef]) => (
-          <div key={propName} className="space-y-2">
-            <Label htmlFor={propName}>
-              {propName}
-              {propDef.required && <span className="text-destructive ml-1">*</span>}
-            </Label>
-            {renderPropertyInput(
-              propName, 
-              propDef, 
-              selectedCommand[propName], 
-              (value) => handlePropertyChange(propName, value),
-              commands,
-              commandsMap
-            )}
-          </div>
-        ))}
+        {Object.entries(commandDef.properties).map(([propName, propDef]) => {
+          const propValues = selectedCommands.map(cmd => cmd[propName]);
+          const allSameValue = propValues.every(val => 
+            JSON.stringify(val) === JSON.stringify(propValues[0])
+          );
+          
+          return (
+            <div key={propName} className="space-y-2">
+              <Label htmlFor={propName}>
+                {propName}
+                {propDef.required && <span className="text-destructive ml-1">*</span>}
+              </Label>
+              {renderPropertyInput(
+                propName, 
+                propDef, 
+                allSameValue || selectedCommandIds.length === 1 ? firstCommand[propName] : null, 
+                (value) => handlePropertyChange(propName, value),
+                commands,
+                commandsMap,
+                !allSameValue && selectedCommandIds.length > 1
+              )}
+            </div>
+          );
+        })}
       </CardContent>
     </Card>
   );
@@ -92,7 +132,8 @@ function renderPropertyInput(
   value: unknown,
   onChange: (value: unknown) => void,
   commands?: SkitCommand[], // Add commands parameter
-  commandsMap?: Map<string, CommandDefinition> // commandsMapの型を修正
+  commandsMap?: Map<string, CommandDefinition>, // commandsMapの型を修正
+  isDifferent?: boolean // 値が異なる場合はtrueになる
 ) {
   switch (propDef.type) {
     case 'string': {
@@ -100,15 +141,17 @@ function renderPropertyInput(
       return propDef.multiline ? (
         <Textarea
           id={propName}
-          value={stringValue || ''}
+          value={isDifferent ? "-" : (stringValue || '')}
           onChange={(e) => onChange(e.target.value)}
           rows={5}
+          disabled={isDifferent}
         />
       ) : (
         <Input
           id={propName}
-          value={stringValue || ''}
+          value={isDifferent ? "-" : (stringValue || '')}
           onChange={(e) => onChange(e.target.value)}
+          disabled={isDifferent}
         />
       );
     }
@@ -118,10 +161,11 @@ function renderPropertyInput(
         <Input
           id={propName}
           type="number"
-          value={numberValue ?? (propDef.default as number) ?? ''}
+          value={isDifferent ? "-" : (numberValue ?? (propDef.default as number) ?? '')}
           onChange={(e) => onChange(Number(e.target.value))}
           min={propDef.constraints?.min}
           max={propDef.constraints?.max}
+          disabled={isDifferent}
         />
       );
     }
@@ -129,11 +173,12 @@ function renderPropertyInput(
       const booleanValue = value as boolean | undefined;
       return (
         <Select
-          value={booleanValue ? 'true' : 'false'}
+          value={isDifferent ? "-" : (booleanValue ? 'true' : 'false')}
           onValueChange={(val) => onChange(val === 'true')}
+          disabled={isDifferent}
         >
           <SelectTrigger id={propName}>
-            <SelectValue placeholder="選択してください" />
+            <SelectValue placeholder={isDifferent ? "-" : "選択してください"} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="true">はい</SelectItem>
@@ -146,11 +191,12 @@ function renderPropertyInput(
       const enumValue = value as string | undefined;
       return (
         <Select
-          value={enumValue || ''}
+          value={isDifferent ? "-" : (enumValue || '')}
           onValueChange={onChange}
+          disabled={isDifferent}
         >
           <SelectTrigger id={propName}>
-            <SelectValue placeholder="選択してください" />
+            <SelectValue placeholder={isDifferent ? "-" : "選択してください"} />
           </SelectTrigger>
           <SelectContent>
             {propDef.options?.map((option) => (
@@ -167,30 +213,28 @@ function renderPropertyInput(
       return (
         <Input
           id={propName}
-          value={assetValue || ''}
+          value={isDifferent ? "-" : (assetValue || '')}
           onChange={(e) => onChange(e.target.value)}
+          disabled={isDifferent}
         />
       );
     }
     case 'command': {
       const commandValue = value as number | undefined;
       const commandsList = commands || [];
-      console.log('Command Types:', commandsList.map(cmd => cmd.type));
-      console.log('Filtering for:', propDef.commandTypes);
 
       const filteredCommands = propDef.commandTypes
         ? commandsList.filter(cmd => propDef.commandTypes?.includes(cmd.type))
         : commandsList;
 
-      console.log('Filtered Commands:', filteredCommands.map(cmd => cmd.type));
-
       return (
         <Select
-          value={commandValue?.toString() || ''}
+          value={isDifferent ? "-" : (commandValue?.toString() || '')}
           onValueChange={(val) => onChange(Number(val))}
+          disabled={isDifferent}
         >
           <SelectTrigger id={propName}>
-            <SelectValue placeholder="コマンドを選択" />
+            <SelectValue placeholder={isDifferent ? "-" : "コマンドを選択"} />
           </SelectTrigger>
           <SelectContent>
             {filteredCommands.map((cmd) => (
@@ -207,8 +251,9 @@ function renderPropertyInput(
       return (
         <Input
           id={propName}
-          value={defaultValue || ''}
+          value={isDifferent ? "-" : (defaultValue || '')}
           onChange={(e) => onChange(e.target.value)}
+          disabled={isDifferent}
         />
       );
     }
