@@ -19,68 +19,97 @@ export function CommandEditor() {
     commandsMap
   } = useSkitStore();
   const currentSkit = currentSkitId ? skits[currentSkitId] : null;
-  const selectedCommandId = selectedCommandIds.length > 0 ? selectedCommandIds[0] : null;
-  const selectedCommand = currentSkit?.commands.find(cmd => cmd.id === selectedCommandId);
+  const selectedCommands = currentSkit
+    ? currentSkit.commands.filter(cmd => selectedCommandIds.includes(cmd.id))
+    : [];
   const commands = currentSkit?.commands || [];
-  
-  if (!selectedCommand) {
+
+  if (selectedCommands.length === 0) {
     return (
       <div className="p-4 text-center text-muted-foreground">
         コマンドが選択されていません
       </div>
     );
   }
-  
-  const commandDef = commandDefinitions.find(def => def.id === selectedCommand.type);
-  
-  if (!commandDef) {
+
+  const firstCommand = selectedCommands[0];
+  const firstCommandDef = commandDefinitions.find(def => def.id === firstCommand.type);
+  if (!firstCommandDef) {
     return (
       <div className="p-4 text-center text-muted-foreground">
-        コマンド定義が見つかりません: {selectedCommand.type}
+        コマンド定義が見つかりません: {firstCommand.type}
+      </div>
+    );
+  }
+
+  // get common property definitions
+  const otherDefs = selectedCommands.slice(1).map(cmd => commandDefinitions.find(def => def.id === cmd.type));
+  const allDefs = [firstCommandDef, ...otherDefs.filter((d): d is CommandDefinition => d !== undefined)];
+  const commonProperties = Object.entries(firstCommandDef.properties).filter(([name, def]) =>
+    allDefs.every(d => d.properties[name] && d.properties[name].type === def.type)
+  );
+
+  
+  if (!firstCommandDef) {
+    return (
+      <div className="p-4 text-center text-muted-foreground">
+        コマンド定義が見つかりません: {firstCommand.type}
       </div>
     );
   }
 
   const handlePropertyChange = (property: string, value: unknown) => {
-    // 型アノテーションを追加してインデックスシグネチャの互換性を確保
     const updates: Record<string, unknown> = { [property]: value };
-    updateCommand(selectedCommand.id, updates);
+    selectedCommands.forEach(cmd => {
+      updateCommand(cmd.id, updates);
+    });
   };
 
-  const defaultBgColor = commandDef.defaultBackgroundColor || "#ffffff";
-  
+  const backgroundColors = selectedCommands.map(cmd => cmd.backgroundColor || (commandsMap.get(cmd.type)?.defaultBackgroundColor ?? "#ffffff"));
+  const isBgMixed = !backgroundColors.every(c => c === backgroundColors[0]);
+  const bgColorValue = isBgMixed ? "#ffffff" : backgroundColors[0];
+
   return (
     <Card className="border-0 shadow-none">
       <CardHeader className="pb-2">
-        <CardTitle>{commandDef.label}</CardTitle>
+        <CardTitle>
+          {selectedCommands.length > 1 ? `${selectedCommands.length}個のコマンド` : firstCommandDef.label}
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Background Color Picker */}
         <div className="space-y-2">
           <Label htmlFor="backgroundColor">背景色</Label>
           <ColorPicker
-            value={selectedCommand.backgroundColor || defaultBgColor}
+            value={bgColorValue}
             onChange={(value) => handlePropertyChange("backgroundColor", value)}
+            placeholder={isBgMixed ? '-' : undefined}
           />
         </div>
-        
+
         {/* Command Properties */}
-        {Object.entries(commandDef.properties).map(([propName, propDef]) => (
-          <div key={propName} className="space-y-2">
-            <Label htmlFor={propName}>
-              {propName}
-              {propDef.required && <span className="text-destructive ml-1">*</span>}
-            </Label>
-            {renderPropertyInput(
-              propName, 
-              propDef, 
-              selectedCommand[propName], 
-              (value) => handlePropertyChange(propName, value),
-              commands,
-              commandsMap
-            )}
-          </div>
-        ))}
+        {commonProperties.map(([propName, propDef]) => {
+          const values = selectedCommands.map(cmd => cmd[propName]);
+          const isMixed = !values.every(v => v === values[0]);
+          const value = isMixed ? undefined : values[0];
+          return (
+            <div key={propName} className="space-y-2">
+              <Label htmlFor={propName}>
+                {propName}
+                {propDef.required && <span className="text-destructive ml-1">*</span>}
+              </Label>
+              {renderPropertyInput(
+                propName,
+                propDef,
+                value,
+                (val) => handlePropertyChange(propName, val),
+                commands,
+                commandsMap,
+                isMixed
+              )}
+            </div>
+          );
+        })}
       </CardContent>
     </Card>
   );
@@ -91,8 +120,9 @@ function renderPropertyInput(
   propDef: PropertyDefinition,
   value: unknown,
   onChange: (value: unknown) => void,
-  commands?: SkitCommand[], // Add commands parameter
-  commandsMap?: Map<string, CommandDefinition> // commandsMapの型を修正
+  commands?: SkitCommand[],
+  commandsMap?: Map<string, CommandDefinition>,
+  isMixed?: boolean
 ) {
   switch (propDef.type) {
     case 'string': {
@@ -100,15 +130,17 @@ function renderPropertyInput(
       return propDef.multiline ? (
         <Textarea
           id={propName}
-          value={stringValue || ''}
+          value={isMixed ? '' : stringValue || ''}
           onChange={(e) => onChange(e.target.value)}
+          placeholder={isMixed ? '-' : undefined}
           rows={5}
         />
       ) : (
         <Input
           id={propName}
-          value={stringValue || ''}
+          value={isMixed ? '' : stringValue || ''}
           onChange={(e) => onChange(e.target.value)}
+          placeholder={isMixed ? '-' : undefined}
         />
       );
     }
@@ -118,8 +150,9 @@ function renderPropertyInput(
         <Input
           id={propName}
           type="number"
-          value={numberValue ?? (propDef.default as number) ?? ''}
+          value={isMixed ? '' : numberValue ?? (propDef.default as number) ?? ''}
           onChange={(e) => onChange(Number(e.target.value))}
+          placeholder={isMixed ? '-' : undefined}
           min={propDef.constraints?.min}
           max={propDef.constraints?.max}
         />
@@ -129,11 +162,11 @@ function renderPropertyInput(
       const booleanValue = value as boolean | undefined;
       return (
         <Select
-          value={booleanValue ? 'true' : 'false'}
+          value={isMixed ? '' : booleanValue ? 'true' : 'false'}
           onValueChange={(val) => onChange(val === 'true')}
         >
           <SelectTrigger id={propName}>
-            <SelectValue placeholder="選択してください" />
+            <SelectValue placeholder={isMixed ? '-' : '選択してください'} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="true">はい</SelectItem>
@@ -146,11 +179,11 @@ function renderPropertyInput(
       const enumValue = value as string | undefined;
       return (
         <Select
-          value={enumValue || ''}
+          value={isMixed ? '' : enumValue || ''}
           onValueChange={onChange}
         >
           <SelectTrigger id={propName}>
-            <SelectValue placeholder="選択してください" />
+            <SelectValue placeholder={isMixed ? '-' : '選択してください'} />
           </SelectTrigger>
           <SelectContent>
             {propDef.options?.map((option) => (
@@ -167,30 +200,28 @@ function renderPropertyInput(
       return (
         <Input
           id={propName}
-          value={assetValue || ''}
+          value={isMixed ? '' : assetValue || ''}
           onChange={(e) => onChange(e.target.value)}
+          placeholder={isMixed ? '-' : undefined}
         />
       );
     }
     case 'command': {
       const commandValue = value as number | undefined;
       const commandsList = commands || [];
-      console.log('Command Types:', commandsList.map(cmd => cmd.type));
-      console.log('Filtering for:', propDef.commandTypes);
 
       const filteredCommands = propDef.commandTypes
         ? commandsList.filter(cmd => propDef.commandTypes?.includes(cmd.type))
         : commandsList;
 
-      console.log('Filtered Commands:', filteredCommands.map(cmd => cmd.type));
 
       return (
         <Select
-          value={commandValue?.toString() || ''}
+          value={isMixed ? '' : commandValue?.toString() || ''}
           onValueChange={(val) => onChange(Number(val))}
         >
           <SelectTrigger id={propName}>
-            <SelectValue placeholder="コマンドを選択" />
+            <SelectValue placeholder={isMixed ? '-' : 'コマンドを選択'} />
           </SelectTrigger>
           <SelectContent>
             {filteredCommands.map((cmd) => (
@@ -207,8 +238,9 @@ function renderPropertyInput(
       return (
         <Input
           id={propName}
-          value={defaultValue || ''}
+          value={isMixed ? '' : defaultValue || ''}
           onChange={(e) => onChange(e.target.value)}
+          placeholder={isMixed ? '-' : undefined}
         />
       );
     }
