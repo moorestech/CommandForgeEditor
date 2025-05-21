@@ -10,9 +10,11 @@ interface ColorPickerProps {
   onChange: (value: string) => void;
   label?: string;
   className?: string;
+  placeholder?: string;
+  isMixed?: boolean;
 }
 
-export function ColorPicker({ value, onChange, label, className }: ColorPickerProps) {
+export function ColorPicker({ value, onChange, label, className, placeholder, isMixed }: ColorPickerProps) {
   const [color, setColor] = React.useState(value || "#c9c9c9");
 
   React.useEffect(() => {
@@ -23,6 +25,8 @@ export function ColorPicker({ value, onChange, label, className }: ColorPickerPr
     setColor(newColor);
     onChange(newColor);
   };
+
+  const inputValue = isMixed ? '' : color;
 
   return (
     <div className={cn("flex flex-col space-y-1.5", className)}>
@@ -41,8 +45,9 @@ export function ColorPicker({ value, onChange, label, className }: ColorPickerPr
           </PopoverContent>
         </Popover>
         <Input
-          value={color}
+          value={inputValue}
           onChange={(e) => handleColorChange(e.target.value)}
+          placeholder={placeholder}
           className="w-28"
         />
       </div>
