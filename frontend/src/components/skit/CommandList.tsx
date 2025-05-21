@@ -16,7 +16,7 @@ import {
   ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from '../ui/context-menu';
-import { useMemo, useCallback, memo } from 'react';
+import { useMemo, useCallback, memo, useState } from 'react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 
 /**
@@ -103,12 +103,15 @@ export const CommandList = memo(function CommandList() {
     return false;
   }, [commands]);
   
+  const [simulateCtrlKey, setSimulateCtrlKey] = useState(false);
+  
   const handleCommandClick = useCallback((commandId: number, event: React.MouseEvent) => {
-    const isCtrlPressed = event.ctrlKey || event.metaKey; // metaKeyはMac用
+    const isCtrlPressed = simulateCtrlKey || event.ctrlKey || event.metaKey; // metaKeyはMac用
     const isShiftPressed = event.shiftKey;
     
+    console.log("Command click:", { commandId, isCtrlPressed, isShiftPressed, simulateCtrlKey });
     selectCommand(commandId, isCtrlPressed, isShiftPressed);
-  }, [selectCommand]);
+  }, [selectCommand, simulateCtrlKey]);
 
   // commandDefinitions と commandsMap はstoreから直接取得するようになったため、パース処理は不要
 
@@ -186,6 +189,58 @@ export const CommandList = memo(function CommandList() {
 
   return (
     <ScrollArea className="h-full relative">
+      {/* Test control for multi-select */}
+      <div className="p-2 bg-gray-100 flex items-center space-x-4">
+        <label className="flex items-center space-x-2 text-sm">
+          <input 
+            type="checkbox" 
+            checked={simulateCtrlKey} 
+            onChange={(e) => setSimulateCtrlKey(e.target.checked)}
+            className="h-4 w-4"
+          />
+          <span>マルチ選択モード (Ctrl キーシミュレーション)</span>
+        </label>
+        
+        {/* Direct selection buttons for testing */}
+        <div className="flex space-x-2">
+          <button 
+            className="px-2 py-1 text-xs bg-blue-100 hover:bg-blue-200 rounded"
+            onClick={() => {
+              console.log("Direct select command 1", { multiSelect: simulateCtrlKey });
+              selectCommand(1, simulateCtrlKey, false);
+            }}
+          >
+            Select #1
+          </button>
+          <button 
+            className="px-2 py-1 text-xs bg-blue-100 hover:bg-blue-200 rounded"
+            onClick={() => {
+              console.log("Direct select command 2", { multiSelect: simulateCtrlKey });
+              selectCommand(2, simulateCtrlKey, false);
+            }}
+          >
+            Select #2
+          </button>
+          <button 
+            className="px-2 py-1 text-xs bg-blue-100 hover:bg-blue-200 rounded"
+            onClick={() => {
+              console.log("Direct select command 3", { multiSelect: simulateCtrlKey });
+              selectCommand(3, simulateCtrlKey, false);
+            }}
+          >
+            Select #3
+          </button>
+          <button 
+            className="px-2 py-1 text-xs bg-red-100 hover:bg-red-200 rounded ml-4"
+            onClick={() => {
+              console.log("Reset selection");
+              selectCommand(null);
+            }}
+          >
+            Reset
+          </button>
+        </div>
+      </div>
       <DropZone id="command-list" className="p-0 h-full">
         <div className="command-list-container">
           <SortableList
