@@ -10,10 +10,9 @@ interface ColorPickerProps {
   onChange: (value: string) => void;
   label?: string;
   className?: string;
-  placeholder?: string;
 }
 
-export function ColorPicker({ value, onChange, label, className, placeholder }: ColorPickerProps) {
+export function ColorPicker({ value, onChange, label, className }: ColorPickerProps) {
   const [color, setColor] = React.useState(value || "#c9c9c9");
 
   React.useEffect(() => {
@@ -45,7 +44,6 @@ export function ColorPicker({ value, onChange, label, className, placeholder }: 
           value={color}
           onChange={(e) => handleColorChange(e.target.value)}
           className="w-28"
-          placeholder={placeholder}
         />
       </div>
     </div>

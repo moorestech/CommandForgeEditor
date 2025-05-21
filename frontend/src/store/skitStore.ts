@@ -24,7 +24,6 @@ interface SkitState {
   selectCommand: (commandId: number | null, multiSelect?: boolean, rangeSelect?: boolean) => void;
   addCommand: (command: Omit<SkitCommand, 'id'>) => void;
   updateCommand: (commandId: number, updates: Partial<SkitCommand>) => void;
-  updateCommands: (commandIds: number[], updates: Partial<SkitCommand>) => void;
   removeCommand: (commandId: number) => void;
   moveCommand: (fromIndex: number, toIndex: number) => void;
   moveCommands: (fromIndices: number[], toIndex: number) => void;
@@ -162,30 +161,6 @@ export const useSkitStore = create<SkitState>()(
           ...updates,
         };
         
-        currentSkit.meta.modified = new Date().toISOString();
-      });
-    },
-
-    updateCommands: (commandIds, updates) => {
-      set((state) => {
-        if (!state.currentSkitId) return;
-
-        const currentSkit = state.skits[state.currentSkitId];
-        if (!currentSkit) return;
-
-        state.history.past.push(JSON.parse(JSON.stringify(currentSkit)));
-        state.history.future = [];
-
-        commandIds.forEach((id) => {
-          const idx = currentSkit.commands.findIndex(cmd => cmd.id === id);
-          if (idx !== -1) {
-            currentSkit.commands[idx] = {
-              ...currentSkit.commands[idx],
-              ...updates,
-            };
-          }
-        });
-
         currentSkit.meta.modified = new Date().toISOString();
       });
     },
