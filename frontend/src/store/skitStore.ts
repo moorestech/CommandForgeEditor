@@ -24,7 +24,6 @@ interface SkitState {
   selectCommand: (commandId: number | null, multiSelect?: boolean, rangeSelect?: boolean) => void;
   addCommand: (command: Omit<SkitCommand, 'id'>) => void;
   updateCommand: (commandId: number, updates: Partial<SkitCommand>) => void;
-  updateMultipleCommands: (commandIds: number[], updates: Partial<SkitCommand>) => void;
   removeCommand: (commandId: number) => void;
   moveCommand: (fromIndex: number, toIndex: number) => void;
   moveCommands: (fromIndices: number[], toIndex: number) => void;
@@ -75,24 +74,13 @@ export const useSkitStore = create<SkitState>()(
     },
 
     selectCommand: (commandId, multiSelect = false, rangeSelect = false) => {
-      console.log("selectCommand called with:", { commandId, multiSelect, rangeSelect });
-      
       set((state) => {
-        if (!state.currentSkitId) {
-          console.log("No current skit ID");
-          return;
-        }
+        if (!state.currentSkitId) return;
         const currentSkit = state.skits[state.currentSkitId];
-        if (!currentSkit) {
-          console.log("Current skit not found");
-          return;
-        }
-
-        console.log("Current state.selectedCommandIds:", [...state.selectedCommandIds]);
+        if (!currentSkit) return;
 
         if (commandId === null) {
           state.selectedCommandIds = [];
-          console.log("Reset selection");
           return;
         }
 
@@ -100,12 +88,9 @@ export const useSkitStore = create<SkitState>()(
           const index = state.selectedCommandIds.indexOf(commandId);
           if (index === -1) {
             state.selectedCommandIds.push(commandId);
-            console.log(`Added command ${commandId} to selection`);
           } else {
             state.selectedCommandIds.splice(index, 1);
-            console.log(`Removed command ${commandId} from selection`);
           }
-          console.log("After multiSelect update:", [...state.selectedCommandIds]);
         } else if (rangeSelect && state.selectedCommandIds.length > 0) {
           const lastSelectedId = state.selectedCommandIds[state.selectedCommandIds.length - 1];
           const commands = currentSkit.commands;
@@ -175,33 +160,6 @@ export const useSkitStore = create<SkitState>()(
           ...currentSkit.commands[commandIndex],
           ...updates,
         };
-        
-        currentSkit.meta.modified = new Date().toISOString();
-      });
-    },
-    
-    updateMultipleCommands: (commandIds, updates) => {
-      set((state) => {
-        if (!state.currentSkitId) return;
-        
-        const currentSkit = state.skits[state.currentSkitId];
-        if (!currentSkit) return;
-        
-        state.history.past.push(JSON.parse(JSON.stringify(currentSkit)));
-        state.history.future = [];
-        
-        commandIds.forEach(commandId => {
-          const commandIndex = currentSkit.commands.findIndex(
-            (cmd) => cmd.id === commandId
-          );
-          
-          if (commandIndex === -1) return;
-          
-          currentSkit.commands[commandIndex] = {
-            ...currentSkit.commands[commandIndex],
-            ...updates,
-          };
-        });
         
         currentSkit.meta.modified = new Date().toISOString();
       });
