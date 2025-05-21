@@ -49,15 +49,8 @@ export function CommandEditor() {
     );
   }
   
-  const allSameType = selectedCommands.every(cmd => cmd.type === firstCommand.type);
-  
-  if (!allSameType) {
-    return (
-      <div className="p-4 text-center text-muted-foreground">
-        異なるタイプのコマンドが選択されています
-      </div>
-    );
-  }
+  const commandTypes = selectedCommands.map(cmd => cmd.type);
+  const uniqueCommandTypes = [...new Set(commandTypes)];
   
   const handlePropertyChange = (property: string, value: unknown) => {
     if (selectedCommandIds.length > 1) {
@@ -81,7 +74,12 @@ export function CommandEditor() {
       <CardHeader className="pb-2">
         <CardTitle>
           {selectedCommandIds.length > 1 
-            ? `${commandDef.label} (${selectedCommandIds.length}個選択中)`
+            ? uniqueCommandTypes.length > 1
+              ? `${uniqueCommandTypes.map(type => {
+                  const def = commandDefinitions.find(def => def.id === type);
+                  return def?.label || type;
+                }).join(', ')} (${selectedCommandIds.length}個選択中)`
+              : `${commandDef.label} (${selectedCommandIds.length}個選択中)`
             : commandDef.label}
         </CardTitle>
       </CardHeader>
@@ -97,30 +95,73 @@ export function CommandEditor() {
         </div>
         
         {/* Command Properties */}
-        {Object.entries(commandDef.properties).map(([propName, propDef]) => {
-          const propValues = selectedCommands.map(cmd => cmd[propName]);
-          const allSameValue = propValues.every(val => 
-            JSON.stringify(val) === JSON.stringify(propValues[0])
-          );
-          
-          return (
-            <div key={propName} className="space-y-2">
-              <Label htmlFor={propName}>
-                {propName}
-                {propDef.required && <span className="text-destructive ml-1">*</span>}
-              </Label>
-              {renderPropertyInput(
-                propName, 
-                propDef, 
-                allSameValue || selectedCommandIds.length === 1 ? firstCommand[propName] : null, 
-                (value) => handlePropertyChange(propName, value),
-                commands,
-                commandsMap,
-                !allSameValue && selectedCommandIds.length > 1
-              )}
-            </div>
-          );
-        })}
+        {uniqueCommandTypes.length > 1 ? (
+          (() => {
+            const commandDefs = uniqueCommandTypes.map(type => 
+              commandDefinitions.find(def => def.id === type)
+            ).filter(def => def !== undefined) as CommandDefinition[];
+            
+            const commonPropNames = commandDefs.length > 0 
+              ? Object.keys(commandDefs[0].properties).filter(propName => 
+                  commandDefs.every(def => 
+                    def.properties[propName] && 
+                    def.properties[propName].type === commandDefs[0].properties[propName].type
+                  )
+                )
+              : [];
+            
+            return commonPropNames.map(propName => {
+              const propDef = commandDefs[0].properties[propName];
+              const propValues = selectedCommands.map(cmd => cmd[propName]);
+              const allSameValue = propValues.every(val => 
+                JSON.stringify(val) === JSON.stringify(propValues[0])
+              );
+              
+              return (
+                <div key={propName} className="space-y-2">
+                  <Label htmlFor={propName}>
+                    {propName}
+                    {propDef.required && <span className="text-destructive ml-1">*</span>}
+                  </Label>
+                  {renderPropertyInput(
+                    propName, 
+                    propDef, 
+                    allSameValue || selectedCommandIds.length === 1 ? firstCommand[propName] : null, 
+                    (value) => handlePropertyChange(propName, value),
+                    commands,
+                    commandsMap,
+                    !allSameValue && selectedCommandIds.length > 1
+                  )}
+                </div>
+              );
+            });
+          })()
+        ) : (
+          Object.entries(commandDef.properties).map(([propName, propDef]) => {
+            const propValues = selectedCommands.map(cmd => cmd[propName]);
+            const allSameValue = propValues.every(val => 
+              JSON.stringify(val) === JSON.stringify(propValues[0])
+            );
+            
+            return (
+              <div key={propName} className="space-y-2">
+                <Label htmlFor={propName}>
+                  {propName}
+                  {propDef.required && <span className="text-destructive ml-1">*</span>}
+                </Label>
+                {renderPropertyInput(
+                  propName, 
+                  propDef, 
+                  allSameValue || selectedCommandIds.length === 1 ? firstCommand[propName] : null, 
+                  (value) => handlePropertyChange(propName, value),
+                  commands,
+                  commandsMap,
+                  !allSameValue && selectedCommandIds.length > 1
+                )}
+              </div>
+            );
+          })
+        )}
       </CardContent>
     </Card>
   );
