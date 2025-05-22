@@ -41,6 +41,7 @@ export const CommandList = memo(function CommandList() {
     moveCommands,
     addCommand,
     removeCommand,
+    removeCommands,
     commandDefinitions: storeCommandDefinitions,
     commandsMap: storeCommandsMap,
     createGroup,
@@ -272,6 +273,7 @@ export const CommandList = memo(function CommandList() {
                   commandDefinitions={commandDefinitions}
                   selectedCommandIds={selectedIds}
                   removeCommand={removeCommand}
+                  removeCommands={removeCommands}
                   ungroupCommands={ungroupCommands}
                   createGroup={createGroup}
                   handleAddCommand={handleAddCommand}
@@ -455,6 +457,7 @@ const CommandContextMenu = memo(({
   commandDefinitions,
   selectedCommandIds = [],
   removeCommand,
+  removeCommands,
   ungroupCommands,
   createGroup,
   handleAddCommand
@@ -464,6 +467,7 @@ const CommandContextMenu = memo(({
   commandDefinitions: CommandDefinition[];
   selectedCommandIds?: number[];
   removeCommand: (id: number) => void;
+  removeCommands: (ids: number[]) => void;
   ungroupCommands: (id: number) => void;
   createGroup: () => void;
   handleAddCommand: (commandType: string, targetIndex: number, position: 'above' | 'below') => void;
@@ -472,7 +476,13 @@ const CommandContextMenu = memo(({
   
   return (
     <ContextMenuContent>
-      <ContextMenuItem onClick={() => removeCommand(command.id)}>
+      <ContextMenuItem
+        onClick={() =>
+          selectedCommandIds.length > 1
+            ? removeCommands(selectedCommandIds)
+            : removeCommand(command.id)
+        }
+      >
         削除
       </ContextMenuItem>
       
