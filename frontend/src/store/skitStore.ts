@@ -722,7 +722,7 @@ export const useSkitStore = create<SkitState>()(
       });
     },
     };
-  })),
+  }),
   {
     name: 'skit-editor-storage',
     partialize: (state) => ({ 

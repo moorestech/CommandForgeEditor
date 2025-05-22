@@ -31,6 +31,7 @@ import { ChevronDown, ChevronRight } from 'lucide-react';
  * 6. 表示対象のコマンドのみをレンダリング（非表示コマンドはDOMに含めない）
  */
 export const CommandList = memo(function CommandList() {
+  const store = useSkitStore();
   const {
     skits,
     currentSkitId,
@@ -40,12 +41,17 @@ export const CommandList = memo(function CommandList() {
     moveCommands,
     addCommand,
     removeCommand,
-    commandDefinitions,
-    commandsMap,
+    commandDefinitions: storeCommandDefinitions,
+    commandsMap: storeCommandsMap,
     createGroup,
     ungroupCommands,
-    toggleGroupCollapse
-  } = useSkitStore();
+    toggleGroupCollapse,
+  } = store;
+
+  const legacySelectedCommandId = (store as { selectedCommandId?: number }).selectedCommandId;
+  const selectedIds = selectedCommandIds ?? (legacySelectedCommandId != null ? [legacySelectedCommandId] : []);
+  const commandDefinitions = storeCommandDefinitions ?? [];
+  const commandsMap = storeCommandsMap ?? new Map<string, CommandDefinition>();
 
   const currentSkit = currentSkitId ? skits[currentSkitId] : null;
   
@@ -207,10 +213,10 @@ export const CommandList = memo(function CommandList() {
                 // ドラッグされたのがグループ開始コマンドなら、選択状態に関わらずグループ全体を移動
                 const groupIndices = getGroupCommandIndices(commands, originalFromIndex);
                 moveCommands(groupIndices, originalToIndex);
-              } else if (selectedCommandIds.includes(cmd1.id) && selectedCommandIds.length > 1) {
+              } else if (selectedIds.includes(cmd1.id) && selectedIds.length > 1) {
                 // ドラッグされたコマンドが選択されており、かつ複数選択されている場合
                 // (ただし、group_start のケースは上で処理済みなので、ここは通常の複数コマンド移動)
-                const selectedIndices = selectedCommandIds
+                const selectedIndices = selectedIds
                   .map(id => commands.findIndex(cmd => cmd.id === id))
                   .filter(index => index !== -1);
                 
@@ -251,7 +257,7 @@ export const CommandList = memo(function CommandList() {
                    <CommandItem
                      command={command}
                      index={index}
-                     isSelected={selectedCommandIds.includes(command.id)}
+                     isSelected={selectedIds.includes(command.id)}
                      isActive={activeId === command.id}
                      nestLevel={nestLevels.get(command.id) || 0}
                      handleCommandClick={handleCommandClick}
@@ -264,7 +270,7 @@ export const CommandList = memo(function CommandList() {
                   command={command}
                   index={index}
                   commandDefinitions={commandDefinitions}
-                  selectedCommandIds={selectedCommandIds}
+                  selectedCommandIds={selectedIds}
                   removeCommand={removeCommand}
                   ungroupCommands={ungroupCommands}
                   createGroup={createGroup}
@@ -358,7 +364,7 @@ const CommandItem = memo(({
   }, [nestLevel, command.type]);
 
   // Get command definition to check for defaultBackgroundColor
-  const commandDef = commandsMap.get(command.type);
+  const commandDef = commandsMap?.get(command.type);
   const defaultBgColor = commandDef?.defaultBackgroundColor || "#ffffff";
   
   const bgColor = command.backgroundColor || defaultBgColor;
@@ -443,11 +449,11 @@ const CommandItem = memo(({
  */
 
 // コンテキストメニューをメモ化コンポーネントとして分離
-const CommandContextMenu = memo(({
+const CommandContextMenu = memo(({ 
   command,
   index,
   commandDefinitions,
-  selectedCommandIds,
+  selectedCommandIds = [],
   removeCommand,
   ungroupCommands,
   createGroup,
@@ -456,7 +462,7 @@ const CommandContextMenu = memo(({
   command: SkitCommand;
   index: number;
   commandDefinitions: CommandDefinition[];
-  selectedCommandIds: number[];
+  selectedCommandIds?: number[];
   removeCommand: (id: number) => void;
   ungroupCommands: (id: number) => void;
   createGroup: () => void;
