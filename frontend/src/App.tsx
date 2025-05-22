@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { MainLayout } from './components/layout/MainLayout';
 import { CommandList } from './components/skit/CommandList';
 import { CommandEditor } from './components/skit/CommandEditor';
@@ -24,6 +25,7 @@ import './App.css';
 
 function App() {
   const { loadCommandsYaml, loadSkits, projectPath } = useSkitStore();
+  useKeyboardShortcuts();
 
   useEffect(() => {
     const loadInitialData = async () => {
