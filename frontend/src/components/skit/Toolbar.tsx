@@ -1,8 +1,16 @@
 import { useSkitStore } from '../../store/skitStore';
 import { Button } from '../ui/button';
 import {
-  Plus, Copy, Trash, Undo, Redo, Save,
-  ChevronDown, FolderOpen
+  Plus,
+  Copy,
+  Trash,
+  Undo,
+  Redo,
+  Save,
+  ChevronDown,
+  FolderOpen,
+  ClipboardPaste,
+  Scissors
 } from 'lucide-react';
 import { SidebarTrigger } from '../ui/sidebar';
 import { 
@@ -25,7 +33,10 @@ export function Toolbar() {
     addCommand,
     moveCommand,
     removeCommand,
-    duplicateCommand,
+    removeCommands,
+    copySelectedCommands,
+    cutSelectedCommands,
+    pasteCommandsFromClipboard,
     undo,
     redo,
     saveSkit,
@@ -158,23 +169,42 @@ export function Toolbar() {
         </DropdownMenu>
 
         <DropZone id="copy-zone" className="inline-flex">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             size="sm"
             disabled={!isCommandSelected}
-            onClick={() => selectedCommandIds.length > 0 && duplicateCommand(selectedCommandIds[0])}
+            onClick={() => copySelectedCommands()}
           >
             <Copy className="h-4 w-4 mr-1" />
-            複製
+            コピー
           </Button>
         </DropZone>
+
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={!isCommandSelected}
+          onClick={() => cutSelectedCommands()}
+        >
+          <Scissors className="h-4 w-4 mr-1" />
+          切り取り
+        </Button>
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => pasteCommandsFromClipboard()}
+        >
+          <ClipboardPaste className="h-4 w-4 mr-1" />
+          貼り付け
+        </Button>
 
         <DropZone id="trash-zone" className="inline-flex">
           <Button 
             variant="outline" 
             size="sm"
             disabled={!isCommandSelected}
-            onClick={() => selectedCommandIds.length > 0 && removeCommand(selectedCommandIds[0])}
+            onClick={() => selectedCommandIds.length > 0 && removeCommands(selectedCommandIds)}
           >
             <Trash className="h-4 w-4 mr-1" />
             削除

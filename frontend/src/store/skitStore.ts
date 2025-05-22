@@ -25,6 +25,7 @@ interface SkitState {
   addCommand: (command: Omit<SkitCommand, 'id'>) => void;
   updateCommand: (commandId: number, updates: Partial<SkitCommand>) => void;
   removeCommand: (commandId: number) => void;
+  removeCommands: (commandIds: number[]) => void;
   moveCommand: (fromIndex: number, toIndex: number) => void;
   moveCommands: (fromIndices: number[], toIndex: number) => void;
   duplicateCommand: (commandId: number) => void;
@@ -38,11 +39,57 @@ interface SkitState {
   ungroupCommands: (groupStartId: number) => void;
   toggleGroupCollapse: (groupStartId: number) => void;
   renameGroup: (groupStartId: number, newName: string) => void;
+  copySelectedCommands: () => Promise<void>;
+  cutSelectedCommands: () => Promise<void>;
+  pasteCommandsFromClipboard: () => Promise<void>;
 }
 
 export const useSkitStore = create<SkitState>()(
   persist(
-    immer((set) => ({
+    immer((set, get) => {
+    const copyOrCutCommands = async (remove: boolean) => {
+      const { currentSkitId, skits, selectedCommandIds } = get();
+      if (!currentSkitId) return;
+      const currentSkit = skits[currentSkitId];
+      if (!currentSkit) return;
+
+      let ids = [...selectedCommandIds];
+      if (ids.length === 1) {
+        const index = currentSkit.commands.findIndex(cmd => cmd.id === ids[0]);
+        if (index !== -1 && currentSkit.commands[index].type === 'group_start') {
+          const groupIndices = getGroupCommandIndices(currentSkit.commands, index);
+          ids = groupIndices.map(i => currentSkit.commands[i].id);
+        }
+      }
+
+      const commands = ids
+        .map(id => currentSkit.commands.find(cmd => cmd.id === id))
+        .filter((cmd): cmd is SkitCommand => !!cmd);
+
+      if (commands.length === 0) return;
+
+      await navigator.clipboard.writeText(JSON.stringify(commands));
+
+      if (remove) {
+        set(state => {
+          if (!state.currentSkitId) return;
+          const skit = state.skits[state.currentSkitId];
+          if (!skit) return;
+
+          state.history.past.push(JSON.parse(JSON.stringify(skit)));
+          state.history.future = [];
+
+          skit.commands = skit.commands.filter(
+            cmd => !ids.includes(cmd.id)
+          );
+
+          skit.meta.modified = new Date().toISOString();
+          state.selectedCommandIds = [];
+        });
+      }
+    };
+
+    return {
     skits: {},
     currentSkitId: null,
     selectedCommandIds: [], // 複数選択に対応するため配列に変更
@@ -166,22 +213,35 @@ export const useSkitStore = create<SkitState>()(
     },
 
     removeCommand: (commandId) => {
+      get().removeCommands([commandId]);
+    },
+
+    removeCommands: (commandIds) => {
       set((state) => {
         if (!state.currentSkitId) return;
-        
+
         const currentSkit = state.skits[state.currentSkitId];
         if (!currentSkit) return;
-        
+
+        let ids = [...commandIds];
+        if (ids.length === 1) {
+          const index = currentSkit.commands.findIndex(cmd => cmd.id === ids[0]);
+          if (index !== -1 && currentSkit.commands[index].type === 'group_start') {
+            const groupIndices = getGroupCommandIndices(currentSkit.commands, index);
+            ids = groupIndices.map(i => currentSkit.commands[i].id);
+          }
+        }
+
         state.history.past.push(JSON.parse(JSON.stringify(currentSkit)));
         state.history.future = [];
-        
+
         currentSkit.commands = currentSkit.commands.filter(
-          (cmd) => cmd.id !== commandId
+          (cmd) => !ids.includes(cmd.id)
         );
-        
+
         currentSkit.meta.modified = new Date().toISOString();
-        
-        state.selectedCommandIds = state.selectedCommandIds.filter(id => id !== commandId);
+
+        state.selectedCommandIds = state.selectedCommandIds.filter(id => !ids.includes(id));
       });
     },
 
@@ -611,7 +671,7 @@ export const useSkitStore = create<SkitState>()(
     renameGroup: (groupStartId, newName) => {
       set((state) => {
         if (!state.currentSkitId) return;
-        
+
         const currentSkit = state.skits[state.currentSkitId];
         if (!currentSkit) return;
         
@@ -629,7 +689,63 @@ export const useSkitStore = create<SkitState>()(
         currentSkit.meta.modified = new Date().toISOString();
       });
     },
-  })),
+
+
+    copySelectedCommands: async () => {
+      await copyOrCutCommands(false);
+    },
+
+    cutSelectedCommands: async () => {
+      await copyOrCutCommands(true);
+    },
+
+    pasteCommandsFromClipboard: async () => {
+      const text = await navigator.clipboard.readText();
+      let commands: SkitCommand[];
+      try {
+        commands = JSON.parse(text) as SkitCommand[];
+      } catch {
+        return;
+      }
+
+      if (!Array.isArray(commands) || commands.length === 0) {
+        return;
+      }
+
+      set((state) => {
+        if (!state.currentSkitId) return;
+        const currentSkit = state.skits[state.currentSkitId];
+        if (!currentSkit) return;
+
+        state.history.past.push(JSON.parse(JSON.stringify(currentSkit)));
+        state.history.future = [];
+
+        const maxId = currentSkit.commands.reduce(
+          (max, cmd) => Math.max(max, cmd.id),
+          0
+        );
+
+        const newCommands = commands.map((cmd, index) => ({
+          ...JSON.parse(JSON.stringify(cmd)),
+          id: maxId + index + 1,
+        }));
+
+        let insertIndex = currentSkit.commands.length;
+        if (state.selectedCommandIds.length > 0) {
+          const lastSelectedId = state.selectedCommandIds[state.selectedCommandIds.length - 1];
+          const pos = currentSkit.commands.findIndex((cmd) => cmd.id === lastSelectedId);
+          if (pos !== -1) {
+            insertIndex = pos + 1;
+          }
+        }
+
+        currentSkit.commands.splice(insertIndex, 0, ...newCommands);
+        currentSkit.meta.modified = new Date().toISOString();
+        state.selectedCommandIds = newCommands.map((cmd) => cmd.id);
+      });
+    },
+    };
+  }),
   {
     name: 'skit-editor-storage',
     partialize: (state) => ({ 
