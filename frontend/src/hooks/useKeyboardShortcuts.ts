@@ -4,7 +4,7 @@ import { useSkitStore } from '../store/skitStore';
 export function useKeyboardShortcuts() {
   const {
     selectedCommandIds,
-    removeCommand,
+    removeCommands,
     duplicateCommand,
     copySelectedCommands,
     cutSelectedCommands,
@@ -36,7 +36,7 @@ export function useKeyboardShortcuts() {
       if (key === 'delete' || key === 'backspace') {
         if (selectedCommandIds.length > 0) {
           event.preventDefault();
-          removeCommand(selectedCommandIds[0]);
+          removeCommands(selectedCommandIds);
         }
       }
 
@@ -62,7 +62,7 @@ export function useKeyboardShortcuts() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [
     selectedCommandIds,
-    removeCommand,
+    removeCommands,
     duplicateCommand,
     copySelectedCommands,
     cutSelectedCommands,

@@ -33,6 +33,7 @@ export function Toolbar() {
     addCommand,
     moveCommand,
     removeCommand,
+    removeCommands,
     copySelectedCommands,
     cutSelectedCommands,
     pasteCommandsFromClipboard,
@@ -203,7 +204,7 @@ export function Toolbar() {
             variant="outline" 
             size="sm"
             disabled={!isCommandSelected}
-            onClick={() => selectedCommandIds.length > 0 && removeCommand(selectedCommandIds[0])}
+            onClick={() => selectedCommandIds.length > 0 && removeCommands(selectedCommandIds)}
           >
             <Trash className="h-4 w-4 mr-1" />
             削除

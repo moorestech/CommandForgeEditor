@@ -25,6 +25,7 @@ interface SkitState {
   addCommand: (command: Omit<SkitCommand, 'id'>) => void;
   updateCommand: (commandId: number, updates: Partial<SkitCommand>) => void;
   removeCommand: (commandId: number) => void;
+  removeCommands: (commandIds: number[]) => void;
   moveCommand: (fromIndex: number, toIndex: number) => void;
   moveCommands: (fromIndices: number[], toIndex: number) => void;
   duplicateCommand: (commandId: number) => void;
@@ -52,7 +53,16 @@ export const useSkitStore = create<SkitState>()(
       const currentSkit = skits[currentSkitId];
       if (!currentSkit) return;
 
-      const commands = selectedCommandIds
+      let ids = [...selectedCommandIds];
+      if (ids.length === 1) {
+        const index = currentSkit.commands.findIndex(cmd => cmd.id === ids[0]);
+        if (index !== -1 && currentSkit.commands[index].type === 'group_start') {
+          const groupIndices = getGroupCommandIndices(currentSkit.commands, index);
+          ids = groupIndices.map(i => currentSkit.commands[i].id);
+        }
+      }
+
+      const commands = ids
         .map(id => currentSkit.commands.find(cmd => cmd.id === id))
         .filter((cmd): cmd is SkitCommand => !!cmd);
 
@@ -70,7 +80,7 @@ export const useSkitStore = create<SkitState>()(
           state.history.future = [];
 
           skit.commands = skit.commands.filter(
-            cmd => !state.selectedCommandIds.includes(cmd.id)
+            cmd => !ids.includes(cmd.id)
           );
 
           skit.meta.modified = new Date().toISOString();
@@ -203,22 +213,35 @@ export const useSkitStore = create<SkitState>()(
     },
 
     removeCommand: (commandId) => {
+      get().removeCommands([commandId]);
+    },
+
+    removeCommands: (commandIds) => {
       set((state) => {
         if (!state.currentSkitId) return;
-        
+
         const currentSkit = state.skits[state.currentSkitId];
         if (!currentSkit) return;
-        
+
+        let ids = [...commandIds];
+        if (ids.length === 1) {
+          const index = currentSkit.commands.findIndex(cmd => cmd.id === ids[0]);
+          if (index !== -1 && currentSkit.commands[index].type === 'group_start') {
+            const groupIndices = getGroupCommandIndices(currentSkit.commands, index);
+            ids = groupIndices.map(i => currentSkit.commands[i].id);
+          }
+        }
+
         state.history.past.push(JSON.parse(JSON.stringify(currentSkit)));
         state.history.future = [];
-        
+
         currentSkit.commands = currentSkit.commands.filter(
-          (cmd) => cmd.id !== commandId
+          (cmd) => !ids.includes(cmd.id)
         );
-        
+
         currentSkit.meta.modified = new Date().toISOString();
-        
-        state.selectedCommandIds = state.selectedCommandIds.filter(id => id !== commandId);
+
+        state.selectedCommandIds = state.selectedCommandIds.filter(id => !ids.includes(id));
       });
     },
 
