@@ -1,4 +1,4 @@
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/moorestech/moores-command-editor)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/moorestech/CommandForge)
 
 # スキット編集ツール
 
