@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
-import { persist } from 'zustand/middleware';
 import { Skit, SkitCommand, CommandDefinition } from '../types';
 import { parse } from 'yaml';
 import { reservedCommands } from '../utils/reservedCommands';
@@ -45,8 +44,7 @@ interface SkitState {
 }
 
 export const useSkitStore = create<SkitState>()(
-  persist(
-    immer((set, get) => {
+  immer((set, get) => {
     const copyOrCutCommands = async (remove: boolean) => {
       const { currentSkitId, skits, selectedCommandIds } = get();
       if (!currentSkitId) return;
@@ -745,14 +743,8 @@ export const useSkitStore = create<SkitState>()(
       });
     },
     };
-  }),
-  {
-    name: 'skit-editor-storage',
-    partialize: (state) => ({ 
-      projectPath: state.projectPath 
-    }),
-  }
-));
+  })
+);
 
 export const getGroupCommandIndices = (commands: SkitCommand[], groupStartIndex: number): number[] => {
   const indices: number[] = [groupStartIndex];
