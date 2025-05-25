@@ -14,6 +14,15 @@ commands:
         multiline: true
         required: true
 
+  - id: characterPosition
+    label: カメラ位置
+    description: カメラ位置
+    commandListLabelFormat: "カメラ移動 {position}"
+    properties:
+      position:
+        type: vector3Int
+        required: true
+
   - id: emote
     label: エモート
     description: 立ち絵・表情切替
