@@ -1,10 +1,21 @@
 
-export type PropertyType = 'string' | 'number' | 'boolean' | 'enum' | 'asset' | 'command';
+export type PropertyType =
+  | 'string'
+  | 'number'
+  | 'boolean'
+  | 'enum'
+  | 'asset'
+  | 'command'
+  | 'vector2'
+  | 'vector3'
+  | 'vector4'
+  | 'vector2Int'
+  | 'vector3Int';
 
 export interface PropertyDefinition {
   type: PropertyType;
   required?: boolean;
-  default?: string | number | boolean;
+  default?: string | number | boolean | number[];
   multiline?: boolean;
   options?: string[];
   optionsFrom?: string;
@@ -44,7 +55,7 @@ export interface SkitCommand {
   isCollapsed?: boolean; // For group_start commands
   groupName?: string; // For group_start commands
   // 必須プロパティの型も含めたインデックスシグネチャ
-  [key: string]: unknown | string | number | boolean;
+  [key: string]: unknown | string | number | boolean | number[];
 }
 
 export interface Skit {
