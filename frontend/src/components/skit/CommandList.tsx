@@ -5,7 +5,7 @@ import { useDndSortable } from '../../hooks/useDndSortable';
 import { SortableList } from '../dnd/SortableList';
 import { SortableItem } from '../dnd/SortableItem';
 import { DropZone } from '../dnd/DropZone';
-import { SkitCommand, CommandDefinition } from '../../types';
+import { SkitCommand, CommandDefinition, PropertyDefinition } from '../../types';
 import {
   ContextMenu,
   ContextMenuContent,
@@ -129,10 +129,16 @@ export const CommandList = memo(function CommandList() {
       backgroundColor: commandDef.defaultBackgroundColor || "#ffffff"
     };
     
-    Object.entries(commandDef.properties).forEach(([propName, propDefAny]) => {
-      const propDef = propDefAny;
+    Object.entries(commandDef.properties).forEach(([propName, def]) => {
+      const propDef = def as PropertyDefinition;
       if (propDef.default !== undefined) {
         newCommand[propName] = propDef.default;
+      } else if (propDef.type === 'vector2' || propDef.type === 'vector2Int') {
+        newCommand[propName] = [0, 0];
+      } else if (propDef.type === 'vector3' || propDef.type === 'vector3Int') {
+        newCommand[propName] = [0, 0, 0];
+      } else if (propDef.type === 'vector4') {
+        newCommand[propName] = [0, 0, 0, 0];
       } else if (propDef.required) {
         switch (propDef.type) {
           case 'string':
