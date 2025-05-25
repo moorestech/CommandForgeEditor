@@ -150,6 +150,17 @@ export const CommandList = memo(function CommandList() {
           case 'asset':
             newCommand[propName] = '';
             break;
+          case 'vector2':
+          case 'vector2Int':
+            newCommand[propName] = [0, 0];
+            break;
+          case 'vector3':
+          case 'vector3Int':
+            newCommand[propName] = [0, 0, 0];
+            break;
+          case 'vector4':
+            newCommand[propName] = [0, 0, 0, 0];
+            break;
         }
       }
     });
