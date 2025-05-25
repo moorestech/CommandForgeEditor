@@ -8,6 +8,7 @@ import { CommandDefinition, PropertyDefinition } from '../../types';
 import { SkitCommand } from '../../types';
 import { formatCommandPreview } from '../../utils/commandFormatting';
 import { ColorPicker } from '../ui/color-picker';
+import { VectorInput } from '../ui/vector-input';
 
 export function CommandEditor() {
   const {
@@ -209,6 +210,28 @@ function renderPropertyInput(
           value={isMixed ? '' : assetValue || ''}
           onChange={(e) => onChange(e.target.value)}
           placeholder={isMixed ? '-' : undefined}
+        />
+      );
+    }
+    case 'vector2':
+    case 'vector3':
+    case 'vector4':
+    case 'vector2Int':
+    case 'vector3Int': {
+      const dimension =
+        propDef.type === 'vector2' || propDef.type === 'vector2Int'
+          ? 2
+          : propDef.type === 'vector3' || propDef.type === 'vector3Int'
+          ? 3
+          : 4;
+      const integer = propDef.type === 'vector2Int' || propDef.type === 'vector3Int';
+      return (
+        <VectorInput
+          value={value as number[] | undefined}
+          dimension={dimension as 2 | 3 | 4}
+          integer={integer}
+          onChange={onChange as (val: number[]) => void}
+          isMixed={isMixed}
         />
       );
     }

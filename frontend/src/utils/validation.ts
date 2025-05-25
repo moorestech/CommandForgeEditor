@@ -56,7 +56,19 @@ const commandsConfigSchema = {
               properties: {
                 type: { 
                   type: 'string',
-                  enum: ['string', 'number', 'boolean', 'enum', 'asset', 'command']
+                  enum: [
+                    'string',
+                    'number',
+                    'boolean',
+                    'enum',
+                    'asset',
+                    'command',
+                    'vector2',
+                    'vector3',
+                    'vector4',
+                    'vector2Int',
+                    'vector3Int'
+                  ]
                 },
                 required: { type: 'boolean' },
                 default: { },
