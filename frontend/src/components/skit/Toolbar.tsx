@@ -32,7 +32,6 @@ export function Toolbar() {
     selectedCommandIds,
     addCommand,
     moveCommand,
-    removeCommand,
     removeCommands,
     copySelectedCommands,
     cutSelectedCommands,

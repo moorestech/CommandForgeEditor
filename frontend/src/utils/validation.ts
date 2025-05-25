@@ -1,4 +1,5 @@
 import Ajv from 'ajv';
+import type { ErrorObject } from 'ajv';
 import addFormats from 'ajv-formats';
 import { parse } from 'yaml';
 import { CommandsConfig, Skit, PropertyDefinition } from '../types';
@@ -102,7 +103,7 @@ export function validateSkitData(skit: Skit): string[] {
     return [];
   }
   
-  return (validateSkit.errors || []).map(error => 
+  return (validateSkit.errors || []).map((error: ErrorObject) =>
     `${error.instancePath} ${error.message}`
   );
 }
@@ -161,7 +162,7 @@ export function validateCommandsYaml(yamlContent: string): {
 
     return {
       config: null,
-      errors: (validateCommandsConfig.errors || []).map(error =>
+      errors: (validateCommandsConfig.errors || []).map((error: ErrorObject) =>
         `${error.instancePath} ${error.message}`
       )
     };
