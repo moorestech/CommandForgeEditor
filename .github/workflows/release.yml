@@ -13,6 +13,8 @@ jobs:
   build:
     permissions:
       contents: write
+      actions: read
+      packages: write
     strategy:
       fail-fast: false
       matrix:
@@ -57,7 +59,7 @@ jobs:
         run: npm ci
 
       - name: Build the app
-        uses: tauri-apps/tauri-action@v0
+        uses: tauri-apps/tauri-action@v0.5
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         with:
@@ -67,4 +69,5 @@ jobs:
           releaseBody: 'See the assets to download and install this version.'
           releaseDraft: true
           prerelease: false
+          includeUpdaterJson: false
           args: ${{ matrix.args }}
