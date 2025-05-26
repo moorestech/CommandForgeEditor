@@ -221,6 +221,7 @@ export const CommandList = memo(function CommandList() {
             onDragEnd={handleDragEnd}
           >
           {visibleCommands.map((command, index) => {
+            const originalIndex = commandToIndexMap.get(command.id) ?? index;
 
             return (
               <ContextMenu key={command.id}>
@@ -228,7 +229,7 @@ export const CommandList = memo(function CommandList() {
                  <SortableItem id={command.id}>
                    <CommandItem
                      command={command}
-                     index={index}
+                     index={originalIndex}
                      isSelected={selectedIds.includes(command.id)}
                      isActive={activeId === command.id}
                      nestLevel={nestLevels.get(command.id) || 0}
@@ -240,7 +241,7 @@ export const CommandList = memo(function CommandList() {
                 </ContextMenuTrigger>
                 <CommandContextMenu
                   command={command}
-                  index={index}
+                  index={originalIndex}
                   commandDefinitions={commandDefinitions}
                   selectedCommandIds={selectedIds}
                   removeCommand={removeCommand}
@@ -260,7 +261,7 @@ export const CommandList = memo(function CommandList() {
 });
 
 // メモ化コンポーネント
-const CommandItem = memo(({
+const CommandItem = memo(({ 
   command,
   index,
   isSelected,
@@ -271,7 +272,7 @@ const CommandItem = memo(({
   commandsMap
 }: {
   command: SkitCommand;
-  index: number;
+  index: number; // zero-based index in the full command array
   isSelected: boolean;
   isActive: boolean;
   nestLevel: number;
@@ -434,7 +435,7 @@ const CommandContextMenu = memo(({
   handleAddCommand
 }: {
   command: SkitCommand;
-  index: number;
+  index: number; // zero-based index in the full command array
   commandDefinitions: CommandDefinition[];
   selectedCommandIds?: number[];
   removeCommand: (id: number) => void;
