@@ -18,7 +18,7 @@ vi.mock('../dnd/DropZone', () => ({
 
 describe('Toolbar', () => {
   it('renders disabled buttons when no skit is selected', () => {
-    (useSkitStore as jest.MockedFunction<typeof useSkitStore>).mockReturnValue({
+    (useSkitStore as any).mockReturnValue({
       currentSkitId: null,
       selectedCommandIds: [],
       addCommand: vi.fn(),
@@ -65,7 +65,7 @@ describe('Toolbar', () => {
     const commandsMap = new Map();
     commandsMap.set("text", testCommands[0]);
     
-    (useSkitStore as jest.MockedFunction<typeof useSkitStore>).mockReturnValue({
+    (useSkitStore as any).mockReturnValue({
       currentSkitId: 'test-skit',
       selectedCommandIds: [],
       addCommand: vi.fn(),

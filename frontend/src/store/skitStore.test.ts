@@ -19,7 +19,7 @@ describe('skitStore', () => {
       useSkitStore.setState({
         skits: {},
         currentSkitId: null,
-        selectedCommandId: null,
+        selectedCommandIds: [],
         commandsYaml: null,
         validationErrors: [],
         history: {

@@ -1,6 +1,4 @@
-import React from 'react';
 import { Input } from './input';
-import { cn } from '@/lib/utils';
 
 interface VectorInputProps {
   value: number[] | undefined;
