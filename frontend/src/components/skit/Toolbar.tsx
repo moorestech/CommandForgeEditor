@@ -19,9 +19,9 @@ import {
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from '../ui/dropdown-menu';
-import { CommandDefinition, PropertyDefinition } from '../../types';
-// 未使用のインポートを削除
+import { CommandDefinition } from '../../types';
 import { toast } from 'sonner';
+import { createCommandWithDefaults } from '../../utils/commandDefaults';
 import { DraggableCommand } from '../dnd/DraggableCommand';
 import { DropZone } from '../dnd/DropZone';
 import { selectProjectFolder } from '../../utils/fileSystem';
@@ -51,33 +51,7 @@ export function Toolbar() {
     const commandDef = commandDefinitions.find((def: CommandDefinition) => def.id === commandType);
     if (!commandDef) return;
 
-    const newCommand: Record<string, unknown> = { type: commandType };
-    
-    Object.entries(commandDef.properties).forEach(([propName, propDefAny]) => {
-      const propDef = propDefAny as PropertyDefinition;
-      if (propDef.default !== undefined) {
-        newCommand[propName] = propDef.default;
-      } else if (propDef.required) {
-        switch (propDef.type) {
-          case 'string':
-            newCommand[propName] = '';
-            break;
-          case 'number':
-            newCommand[propName] = 0;
-            break;
-          case 'boolean':
-            newCommand[propName] = false;
-            break;
-          case 'enum':
-            newCommand[propName] = propDef.options?.[0] || '';
-            break;
-          case 'asset':
-            newCommand[propName] = '';
-            break;
-        }
-      }
-    });
-
+    const newCommand = createCommandWithDefaults(commandDef);
     addCommand(newCommand);
 
     if (selectedCommandIds.length > 0 && currentSkitId) {
