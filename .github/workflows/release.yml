@@ -70,3 +70,27 @@ jobs:
           prerelease: false
           includeUpdaterJson: false
           args: ${{ matrix.args }}
+
+      - uses: cli/cli@v2
+
+      - name: Rename release asset
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN || github.token }}
+        run: |
+          tag="${{ github.ref_name }}"
+          platform="${{ matrix.platform }}"
+          if [ "$platform" = "macos-latest" ]; then
+            ext="dmg"
+          elif [ "$platform" = "ubuntu-22.04" ]; then
+            ext="AppImage"
+          else
+            ext="msi"
+          fi
+          asset=$(gh release view "$tag" --json assets -q ".assets[].name | select(endswith('.${ext}'))")
+          if [ -n "$asset" ]; then
+            gh release download "$tag" -p "$asset"
+            gh release delete-asset "$tag" "$asset" -y
+            new="CommandForgeEditor-${tag}-${platform}.${ext}"
+            mv "$asset" "$new"
+            gh release upload "$tag" "$new" --clobber
+          fi
