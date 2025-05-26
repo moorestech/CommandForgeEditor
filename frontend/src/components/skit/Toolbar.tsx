@@ -57,6 +57,18 @@ export function Toolbar() {
       const propDef = propDefAny as PropertyDefinition;
       if (propDef.default !== undefined) {
         newCommand[propName] = propDef.default;
+      } else if (
+        propDef.type === 'vector2' ||
+        propDef.type === 'vector2Int'
+      ) {
+        newCommand[propName] = [0, 0];
+      } else if (
+        propDef.type === 'vector3' ||
+        propDef.type === 'vector3Int'
+      ) {
+        newCommand[propName] = [0, 0, 0];
+      } else if (propDef.type === 'vector4') {
+        newCommand[propName] = [0, 0, 0, 0];
       } else if (propDef.required) {
         switch (propDef.type) {
           case 'string':
