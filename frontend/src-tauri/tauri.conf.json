@@ -7,7 +7,7 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "スキット編集ツール",
+    "productName": "CommandForgeEditor",
     "version": "0.1.0"
   },
   "tauri": {
@@ -82,7 +82,7 @@
         "fullscreen": false,
         "height": 800,
         "resizable": true,
-        "title": "スキット編集ツール",
+        "title": "CommandForgeEditor",
         "width": 1200
       }
     ]

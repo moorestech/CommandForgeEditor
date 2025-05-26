@@ -1,6 +1,6 @@
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/moorestech/CommandForgeEditor)
 
-# スキット編集ツール
+# CommandForgeEditor
 
 ゲーム用の「シナリオ + 演出」スクリプト（＝ **スキット**）を、ノーコードで作成・管理できるデスクトップアプリです。
 
