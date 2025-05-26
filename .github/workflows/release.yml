@@ -2,70 +2,69 @@ name: Release
 
 on:
   push:
-    tags:
-      - 'v*'
+    tags: ['v*']
   workflow_dispatch:
 
+# ★ すべてのジョブに最低限必要な権限だけ付与
 permissions:
-  contents: write
+  contents: write      # Release を作るので write
+  actions: read        # Action をダウンロードするので必須
+  id-token: write      # OIDC 連携する Action 用 (将来のため)
 
 jobs:
   build:
-    permissions:
+    runs-on: ${{ matrix.platform }}
+    permissions:        # さらに追加が必要なものだけ上書き
       contents: write
       actions: read
-      packages: write
+      packages: write   # crates.io などへの publish がある場合
+
     strategy:
       fail-fast: false
       matrix:
         include:
-          - platform: 'macos-latest'
+          - platform: macos-latest
             args: '--target universal-apple-darwin'
-          - platform: 'ubuntu-22.04'
+          - platform: ubuntu-22.04
             args: ''
-          - platform: 'windows-latest'
+          - platform: windows-latest
             args: ''
 
-    runs-on: ${{ matrix.platform }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4          # v4.4.0 時点が最新
 
-      - name: Install dependencies (ubuntu only)
+      - name: Install Linux deps
         if: matrix.platform == 'ubuntu-22.04'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev \
+            libappindicator3-dev librsvg2-dev patchelf
 
-      - name: Rust setup
-        uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
-      - name: Rust cache
-        uses: swatinem/rust-cache@v2
-        with:
-          workspaces: './frontend/src-tauri -> target'
+      - uses: swatinem/rust-cache@v2
 
-      - name: Sync node version and setup cache
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 'lts/*'
+          node-version: lts/*
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Install frontend dependencies
+      - name: Install frontend deps
         working-directory: frontend
         run: npm ci
 
-      - name: Build the app
-        uses: tauri-apps/tauri-action@v0.5.4
+      - name: Build & draft release
+        uses: tauri-apps/tauri-action@v0.5.20   # 2025-03-02 現在の最新パッチ 
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          # GH_TOKEN が無い場合は GitHub が自動発行するデフォルトトークンを使う
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN || github.token }}
         with:
           projectPath: frontend
           tagName: ${{ github.ref_name }}
-          releaseName: 'CommandForgeEditor v__VERSION__'
+          releaseName: CommandForgeEditor ${{ github.ref_name }}
           releaseBody: 'See the assets to download and install this version.'
           releaseDraft: true
           prerelease: false
