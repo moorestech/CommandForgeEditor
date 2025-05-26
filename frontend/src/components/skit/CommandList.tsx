@@ -6,6 +6,7 @@ import { SortableList } from '../dnd/SortableList';
 import { SortableItem } from '../dnd/SortableItem';
 import { DropZone } from '../dnd/DropZone';
 import { SkitCommand, CommandDefinition } from '../../types';
+import { createCommandWithDefaults } from '../../utils/commandDefaults';
 import {
   ContextMenu,
   ContextMenuContent,
@@ -123,37 +124,7 @@ export const CommandList = memo(function CommandList() {
     const commandDef = commandDefinitions.find((def: CommandDefinition) => def.id === commandType);
     if (!commandDef) return;
 
-    const newCommand: Partial<SkitCommand> = {
-      id: 0, // 実際のIDはaddCommand内で割り当てられる
-      type: commandType,
-      backgroundColor: commandDef.defaultBackgroundColor || "#ffffff"
-    };
-    
-    Object.entries(commandDef.properties).forEach(([propName, propDefAny]) => {
-      const propDef = propDefAny;
-      if (propDef.default !== undefined) {
-        newCommand[propName] = propDef.default;
-      } else if (propDef.required) {
-        switch (propDef.type) {
-          case 'string':
-            newCommand[propName] = '';
-            break;
-          case 'number':
-            newCommand[propName] = 0;
-            break;
-          case 'boolean':
-            newCommand[propName] = false;
-            break;
-          case 'enum':
-            newCommand[propName] = propDef.options?.[0] || '';
-            break;
-          case 'asset':
-            newCommand[propName] = '';
-            break;
-        }
-      }
-    });
-
+    const newCommand = createCommandWithDefaults(commandDef);
     addCommand(newCommand);
     
     const newCommandIndex = commands.length;
