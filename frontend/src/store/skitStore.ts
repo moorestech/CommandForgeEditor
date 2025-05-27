@@ -777,6 +777,22 @@ export const getGroupCommandIndices = (commands: SkitCommand[], groupStartIndex:
   return indices;
 };
 
+export const findGroupStartIndex = (commands: SkitCommand[], groupEndIndex: number): number | null => {
+  let nestLevel = 0;
+  for (let i = groupEndIndex - 1; i >= 0; i--) {
+    const cmd = commands[i];
+    if (cmd.type === 'group_end') {
+      nestLevel++;
+    } else if (cmd.type === 'group_start') {
+      if (nestLevel === 0) {
+        return i;
+      }
+      nestLevel--;
+    }
+  }
+  return null;
+};
+
 export const getTopLevelGroups = (commands: SkitCommand[], selectedIndices: number[]): number[] => {
   return selectedIndices.filter(index => {
     const cmd = commands[index];

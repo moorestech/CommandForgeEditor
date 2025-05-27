@@ -1,4 +1,4 @@
-import { useSkitStore, getGroupCommandIndices, getTopLevelGroups } from '../../store/skitStore';
+import { useSkitStore, getGroupCommandIndices, getTopLevelGroups, findGroupStartIndex } from '../../store/skitStore';
 import { formatCommandPreview, hasCommandFormat } from '../../utils/commandFormatting';
 import { ScrollArea } from '../ui/scroll-area';
 import { useDndSortable } from '../../hooks/useDndSortable';
@@ -170,15 +170,25 @@ export const CommandList = memo(function CommandList() {
             items={visibleCommands}
             getItemId={(command) => command.id}
             onReorder={(fromIndex, toIndex) => {
-              // 表示用インデックスから元のコマンド配列のインデックスへ変換
-              const cmd1 = visibleCommands[fromIndex];
-              const cmd2 = visibleCommands[toIndex];
-              const originalFromIndex = commandToIndexMap.get(cmd1.id) || fromIndex;
-              const originalToIndex = commandToIndexMap.get(cmd2.id) || toIndex;
-              
               const currentSkit = skits[currentSkitId || ''];
               if (!currentSkit) return;
               const commands = currentSkit.commands;
+
+              // 表示用インデックスから元のコマンド配列のインデックスへ変換
+              const cmd1 = visibleCommands[fromIndex];
+              const cmd2 = visibleCommands[toIndex];
+              const originalFromIndex = commandToIndexMap.get(cmd1.id) ?? fromIndex;
+              let originalToIndex = commandToIndexMap.get(cmd2.id) ?? toIndex;
+
+              // group_end のアイテム上にドロップされた場合、
+              // グループが折りたたまれていると本来の順序と表示順が一致しないため
+              // ドロップ先を group_end の次の位置に調整する
+              if (cmd2.type === 'group_end') {
+                const startIndex = findGroupStartIndex(commands, originalToIndex);
+                if (startIndex !== null && commands[startIndex].isCollapsed) {
+                  originalToIndex += 1;
+                }
+              }
               
               // ドラッグされたコマンド (cmd1) が group_start かどうかをまず確認
               if (cmd1.type === 'group_start') {
