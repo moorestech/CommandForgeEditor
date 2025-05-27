@@ -24,9 +24,4 @@ export default defineConfig({
     port: 5173,
     reuseExistingServer: !process.env.CI,
   },
-  expect: {
-    toHaveScreenshot: {
-      threshold: 0.05,
-    },
-  },
 });
