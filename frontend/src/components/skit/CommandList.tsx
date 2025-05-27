@@ -174,7 +174,14 @@ export const CommandList = memo(function CommandList() {
               const cmd1 = visibleCommands[fromIndex];
               const cmd2 = visibleCommands[toIndex];
               const originalFromIndex = commandToIndexMap.get(cmd1.id) || fromIndex;
-              const originalToIndex = commandToIndexMap.get(cmd2.id) || toIndex;
+              let originalToIndex = commandToIndexMap.get(cmd2.id) || toIndex;
+
+              // group_end のアイテム上にドロップされた場合、
+              // デフォルトではそのグループ内の最後に挿入されてしまうため
+              // 明示的に group_end の次の位置へ挿入する
+              if (cmd2.type === 'group_end') {
+                originalToIndex += 1;
+              }
               
               const currentSkit = skits[currentSkitId || ''];
               if (!currentSkit) return;
