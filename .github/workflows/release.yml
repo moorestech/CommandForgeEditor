@@ -84,27 +84,50 @@ jobs:
       run: |
         set -euo pipefail
 
-        TAG="${GITHUB_REF_NAME}"              # v1.2.3
-        VER="${{ steps.ver.outputs.ver }}"    # 1.2.3
+        TAG="${GITHUB_REF_NAME}"                 # 例: v1.2.3
+        VER="${TAG#v}"                           # → 1.2.3
 
         OS="${{ matrix.os }}"
         ARCH="${{ matrix.arch }}"
         EXT="${{ matrix.ext }}"
         DIR="${{ matrix.dir }}"
+        PROJECT_PATH="frontend"                  # ★ ここを実プロジェクトに合わせて
 
-        # ── 元ファイル検出
-        FILE=$(find src-tauri/target/release/bundle/${DIR} -type f -name "*.${EXT}" | head -n1)
+        # ────────────────────────────────────────────────────────────────
+        # 1) バンドル・ディレクトリを決定
+        #    projectPath を使う場合は必ず <projectPath>/src-tauri/... になる
+        #    万一 projectPath を外したら fallback で旧パスも探す
+        # ────────────────────────────────────────────────────────────────
+        BUNDLE_DIR="${PROJECT_PATH}/src-tauri/target/release/bundle/${DIR}"
+        if [[ ! -d "${BUNDLE_DIR}" ]]; then
+          BUNDLE_DIR="src-tauri/target/release/bundle/${DIR}"
+        fi
 
-        # ── 統一フォーマット名へリネーム
+        # ────────────────────────────────────────────────────────────────
+        # 2) 生成物ファイルを取得（AppImage / DMG / MSI など）
+        # ────────────────────────────────────────────────────────────────
+        FILE=$(find "${BUNDLE_DIR}" -maxdepth 1 -type f -name "*.${EXT}" | head -n1)
+
+        if [[ -z "${FILE}" ]]; then
+          echo "::error :: No bundle found in ${BUNDLE_DIR}"
+          exit 1
+        fi
+
+        # ────────────────────────────────────────────────────────────────
+        # 3) 統一フォーマット名へリネーム
+        # ────────────────────────────────────────────────────────────────
         NEW="CommandForgeEditor-v${VER}-${OS}-${ARCH}.${EXT}"
         mv "${FILE}" "${NEW}"
 
-        # ── リリースが無ければドラフト作成
+        # ────────────────────────────────────────────────────────────────
+        # 4) ドラフトリリース作成 (既存ならスキップ) ＆ 資産アップロード
+        # ────────────────────────────────────────────────────────────────
         if ! gh release view "${TAG}" &>/dev/null; then
-          gh release create "${TAG}" -t "CommandForgeEditor ${TAG}" \
+          gh release create "${TAG}" \
+            -t "CommandForgeEditor ${TAG}" \
             -n "See the assets to download and install this version." \
             --draft
         fi
 
-        # ── 資産をアップロード (既に同名なら上書き)
         gh release upload "${TAG}" "${NEW}" --clobber
+
