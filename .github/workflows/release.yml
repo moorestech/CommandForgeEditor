@@ -1,72 +1,110 @@
 name: Release
-
 on:
   push:
-    tags: ['v*']
+    tags: ['v*']        # 例: v1.2.3
   workflow_dispatch:
 
-# ★ すべてのジョブに最低限必要な権限だけ付与
 permissions:
-  contents: write      # Release を作るので write
-  actions: read        # Action をダウンロードするので必須
-  id-token: write      # OIDC 連携する Action 用 (将来のため)
+  contents: write
+  actions: read         # Action ZIP を取るのに必須
 
 jobs:
   build:
-    runs-on: ${{ matrix.platform }}
-    permissions:        # さらに追加が必要なものだけ上書き
-      contents: write
-      actions: read
-      packages: write   # crates.io などへの publish がある場合
-
     strategy:
       fail-fast: false
       matrix:
         include:
+          # ──────────────────────────────────────────────────────────────
           - platform: macos-latest
             args: '--target universal-apple-darwin'
+            os: macos          # ファイル名に入れる
+            arch: universal
+            ext: dmg
+            dir: dmg           # 出力が入る bundle サブフォルダ
+          # ──────────────────────────────────────────────────────────────
           - platform: ubuntu-22.04
             args: ''
+            os: linux
+            arch: x86_64
+            ext: AppImage
+            dir: appimage
+          # ──────────────────────────────────────────────────────────────
           - platform: windows-latest
             args: ''
+            os: windows
+            arch: x86_64
+            ext: msi
+            dir: msi
+          # ──────────────────────────────────────────────────────────────
+    runs-on: ${{ matrix.platform }}
 
     steps:
-      - uses: actions/checkout@v4          # v4.4.0 時点が最新
+    # 1) 取得 & セットアップ -------------------------------------------------
+    - uses: actions/checkout@v4
+    - if: matrix.platform == 'ubuntu-22.04'
+      name: Install Linux deps
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev \
+          librsvg2-dev patchelf
+    - uses: dtolnay/rust-toolchain@stable
+      with:
+        targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+    - uses: swatinem/rust-cache@v2
+    - uses: actions/setup-node@v4
+      with:
+        node-version: lts/*
+        cache: npm
+        cache-dependency-path: frontend/package-lock.json
+    - name: Install frontend deps
+      working-directory: frontend
+      run: npm ci
 
-      - name: Install Linux deps
-        if: matrix.platform == 'ubuntu-22.04'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev \
-            libappindicator3-dev librsvg2-dev patchelf
+    # 2) ビルドのみ ---------------------------------------------------------
+    - id: tauri
+      uses: tauri-apps/tauri-action@v0.5.20    # ← 最新パッチ
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN || github.token }}
+      with:
+        projectPath: frontend
+        # ★ tagName / releaseName を渡さない＝アップロードしない
+        args: ${{ matrix.args }}
 
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+    # 3) タグ文字列から "v" を除いたバージョン番号を取得 -------------------
+    - id: ver
+      shell: bash
+      run: echo "ver=${GITHUB_REF_NAME#v}" >>"$GITHUB_OUTPUT"
 
-      - uses: swatinem/rust-cache@v2
+    # 4) リネーム + リリース作成/アップロード ------------------------------
+    - name: Rename & upload asset
+      shell: bash
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN || github.token }}
+      run: |
+        set -euo pipefail
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: lts/*
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
+        TAG="${GITHUB_REF_NAME}"              # v1.2.3
+        VER="${{ steps.ver.outputs.ver }}"    # 1.2.3
 
-      - name: Install frontend deps
-        working-directory: frontend
-        run: npm ci
+        OS="${{ matrix.os }}"
+        ARCH="${{ matrix.arch }}"
+        EXT="${{ matrix.ext }}"
+        DIR="${{ matrix.dir }}"
 
-      - name: Build & draft release
-        uses: tauri-apps/tauri-action@v0.5.20   # 2025-03-02 現在の最新パッチ 
-        env:
-          # GH_TOKEN が無い場合は GitHub が自動発行するデフォルトトークンを使う
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN || github.token }}
-        with:
-          projectPath: frontend
-          tagName: ${{ github.ref_name }}
-          releaseName: CommandForgeEditor ${{ github.ref_name }}
-          releaseBody: 'See the assets to download and install this version.'
-          releaseDraft: true
-          prerelease: false
-          includeUpdaterJson: false
-          args: ${{ matrix.args }}
+        # ── 元ファイル検出
+        FILE=$(find src-tauri/target/release/bundle/${DIR} -type f -name "*.${EXT}" | head -n1)
+
+        # ── 統一フォーマット名へリネーム
+        NEW="CommandForgeEditor-v${VER}-${OS}-${ARCH}.${EXT}"
+        mv "${FILE}" "${NEW}"
+
+        # ── リリースが無ければドラフト作成
+        if ! gh release view "${TAG}" &>/dev/null; then
+          gh release create "${TAG}" -t "CommandForgeEditor ${TAG}" \
+            -n "See the assets to download and install this version." \
+            --draft
+        fi
+
+        # ── 資産をアップロード (既に同名なら上書き)
+        gh release upload "${TAG}" "${NEW}" --clobber
