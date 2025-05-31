@@ -93,14 +93,32 @@ jobs:
         DIR="${{ matrix.dir }}"
         PROJECT_PATH="frontend"                  # ★ ここを実プロジェクトに合わせて
 
-        # ────────────────────────────────────────────────────────────────
         # 1) バンドル・ディレクトリを決定
-        #    projectPath を使う場合は必ず <projectPath>/src-tauri/... になる
-        #    万一 projectPath を外したら fallback で旧パスも探す
+        #    universal-apple-darwin (macOS universal) の場合は
+        #    target/universal-apple-darwin/... に出力される点に注意
         # ────────────────────────────────────────────────────────────────
-        BUNDLE_DIR="${PROJECT_PATH}/src-tauri/target/release/bundle/${DIR}"
-        if [[ ! -d "${BUNDLE_DIR}" ]]; then
-          BUNDLE_DIR="src-tauri/target/release/bundle/${DIR}"
+        CANDIDATES=(
+          "${PROJECT_PATH}/src-tauri/target/universal-apple-darwin/release/bundle/${DIR}"
+          "${PROJECT_PATH}/src-tauri/target/release/bundle/${DIR}"
+          "src-tauri/target/universal-apple-darwin/release/bundle/${DIR}"
+          "src-tauri/target/release/bundle/${DIR}"
+        )
+        for p in "${CANDIDATES[@]}"; do
+          if [[ -d "${p}" ]]; then
+            BUNDLE_DIR="${p}"
+            break
+          fi
+        done
+
+        # 見つからなければ最後の保険として再帰検索
+        if [[ -z "${BUNDLE_DIR:-}" || ! -d "${BUNDLE_DIR}" ]]; then
+          BUNDLE_DIR=$(find "${PROJECT_PATH}/src-tauri/target" \
+            -type d -path "*/bundle/${DIR}" | head -n1 || true)
+        fi
+
+        if [[ -z "${BUNDLE_DIR}" || ! -d "${BUNDLE_DIR}" ]]; then
+          echo "::error :: No bundle directory found for ${DIR}"
+          exit 1
         fi
 
         # ────────────────────────────────────────────────────────────────
