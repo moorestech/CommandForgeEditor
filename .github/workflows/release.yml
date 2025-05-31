@@ -91,12 +91,9 @@ jobs:
         ARCH="${{ matrix.arch }}"
         EXT="${{ matrix.ext }}"
         DIR="${{ matrix.dir }}"
-        PROJECT_PATH="frontend"                  # ★ ここを実プロジェクトに合わせて
+        PROJECT_PATH="frontend"                  # ★ 実プロジェクトに合わせて
 
-        # 1) バンドル・ディレクトリを決定
-        #    universal-apple-darwin (macOS universal) の場合は
-        #    target/universal-apple-darwin/... に出力される点に注意
-        # ────────────────────────────────────────────────────────────────
+        # 1) バンドル・ディレクトリを決定 ...............................
         CANDIDATES=(
           "${PROJECT_PATH}/src-tauri/target/universal-apple-darwin/release/bundle/${DIR}"
           "${PROJECT_PATH}/src-tauri/target/release/bundle/${DIR}"
@@ -110,42 +107,64 @@ jobs:
           fi
         done
 
-        # 見つからなければ最後の保険として再帰検索
+        # 見つからなければ再帰検索
         if [[ -z "${BUNDLE_DIR:-}" || ! -d "${BUNDLE_DIR}" ]]; then
           BUNDLE_DIR=$(find "${PROJECT_PATH}/src-tauri/target" \
             -type d -path "*/bundle/${DIR}" | head -n1 || true)
         fi
-
         if [[ -z "${BUNDLE_DIR}" || ! -d "${BUNDLE_DIR}" ]]; then
           echo "::error :: No bundle directory found for ${DIR}"
           exit 1
         fi
 
-        # ────────────────────────────────────────────────────────────────
-        # 2) 生成物ファイルを取得（AppImage / DMG / MSI など）
-        # ────────────────────────────────────────────────────────────────
+        # 2) 生成物ファイルを取得（AppImage / DMG / MSI など）.............
         FILE=$(find "${BUNDLE_DIR}" -maxdepth 1 -type f -name "*.${EXT}" | head -n1)
-
         if [[ -z "${FILE}" ]]; then
           echo "::error :: No bundle found in ${BUNDLE_DIR}"
           exit 1
         fi
 
-        # ────────────────────────────────────────────────────────────────
-        # 3) 統一フォーマット名へリネーム
-        # ────────────────────────────────────────────────────────────────
+        # 3) 統一フォーマット名へリネーム .................................
         NEW="CommandForgeEditor-v${VER}-${OS}-${ARCH}.${EXT}"
         mv "${FILE}" "${NEW}"
 
-        # ────────────────────────────────────────────────────────────────
-        # 4) ドラフトリリース作成 (既存ならスキップ) ＆ 資産アップロード
-        # ────────────────────────────────────────────────────────────────
+        # 4) ドラフトリリース作成 (既存ならスキップ) ＆ 資産アップロード ....
         if ! gh release view "${TAG}" &>/dev/null; then
           gh release create "${TAG}" \
             -t "CommandForgeEditor ${TAG}" \
             -n "See the assets to download and install this version." \
             --draft
         fi
-
         gh release upload "${TAG}" "${NEW}" --clobber
+
+        # ────────────────────────────────────────────────────────────────
+        # ★★ ここから追加 : 直接実行バイナリも探してアップロード
+        # ────────────────────────────────────────────────────────────────
+        exe_suffix=""
+        [[ "${OS}" == "windows" ]] && exe_suffix=".exe"
+
+        BIN_CANDIDATES=(
+          "${PROJECT_PATH}/src-tauri/target/universal-apple-darwin/release/CommandForgeEditor"
+          "${PROJECT_PATH}/src-tauri/target/${{ matrix.platform == 'macos-latest' && 'universal-apple-darwin' || 'release' }}/release/CommandForgeEditor${exe_suffix}"
+          "${PROJECT_PATH}/src-tauri/target/release/CommandForgeEditor${exe_suffix}"
+          "src-tauri/target/universal-apple-darwin/release/CommandForgeEditor"
+          "src-tauri/target/release/CommandForgeEditor${exe_suffix}"
+        )
+
+        for p in "${BIN_CANDIDATES[@]}"; do
+          if [[ -f "${p}" ]]; then
+            BIN_FILE="${p}"
+            break
+          fi
+        done
+
+        if [[ -n "${BIN_FILE:-}" && -f "${BIN_FILE}" ]]; then
+          RAW="CommandForgeEditor-v${VER}-${OS}-${ARCH}${exe_suffix}"
+          cp "${BIN_FILE}" "${RAW}"           # 元を残したい場合は cp
+          gh release upload "${TAG}" "${RAW}" --clobber
+          echo "Uploaded raw binary: ${RAW}"
+        else
+          echo "No standalone binary found; skipped raw upload."
+        fi
+
 
