@@ -1,0 +1,58 @@
+name: Deploy Frontend to GitHub Pages
+
+on:
+  push:
+    branches: [main]           # ← 適宜ブランチを変えても OK
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write                 # ★ デプロイに必須
+  id-token: write              # ★ デプロイに必須
+
+# 同時に複数デプロイが走らないように
+concurrency:
+  group: "pages-production"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: frontend   # 以降すべて ./frontend が CWD
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - run: npm ci
+      - run: npm run build            # Vite/Next などで dist/ を生成
+
+      # GitHub Pages 用アーティファクトをアップロード
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist                  # ← ビルド出力ディレクトリ
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages             # 既定の環境名
+      url:  ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      # (任意) メタデータ収集。生成物に .nojekyll が入るため Jekyll 無効化も不要
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Deploy to GitHub Pages
+        id:   deployment
+        uses: actions/deploy-pages@v4
