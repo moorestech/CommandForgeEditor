@@ -3,7 +3,13 @@ import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    viteStaticCopy({
+      targets: [{ src: 'src/sample/*', dest: 'sample' }]
+    })
+  ],
+  
   base: process.env.GITHUB_ACTIONS ? '/CommandForgeEditor/' : '/',
   resolve: {
     alias: {
