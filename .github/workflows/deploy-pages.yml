@@ -1,59 +1,67 @@
-name: Deploy Frontend to GitHub Pages
+name: Build & Deploy GitHub Pages (preview / production)
 
 on:
-  push:
-    branches: [main]           # ← 適宜ブランチを変えても OK
-  workflow_dispatch:
+  # PR を開く・更新 ⇒ プレビュー
   pull_request:
+    types: [opened, reopened, synchronize]
+  # main へ push ⇒ 本番デプロイ
+  push:
+    branches: [main]
+  # 手動実行
+  workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write                 # ★ デプロイに必須
-  id-token: write              # ★ デプロイに必須
+  pages: write
+  id-token: write
 
-# 同時に複数デプロイが走らないように
 concurrency:
-  group: "pages-production"
+  # プレビューは PR 番号単位 / 本番は固定グループ
+  group: ${{ github.event_name == 'pull_request'
+            && format('pages-preview-{0}', github.event.pull_request.number)
+            || 'pages-production' }}
   cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: frontend   # 以降すべて ./frontend が CWD
-
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: 20
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
-      - run: npm ci
-      - run: npm run build            # Vite/Next などで dist/ を生成
+      # ---------- ビルド ----------
+      - name: Install & Build Frontend
+        run: |
+          cd frontend
+          npm ci
+          npm run build          # → frontend/dist に出力
 
-      # GitHub Pages 用アーティファクトをアップロード
+      # ---------- 成果物アップロード ----------
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist                  # ← ビルド出力ディレクトリ
+          path: frontend/dist    # ★ 修正ポイント
+          name: github-pages     # 本番／プレビューどちらでも同じ名前で OK
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
+
+    # Pages 用の環境を指定（存在しなければ自動生成される）
     environment:
-      name: github-pages             # 既定の環境名
-      url:  ${{ steps.deployment.outputs.page_url }}
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-      # (任意) メタデータ収集。生成物に .nojekyll が入るため Jekyll 無効化も不要
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
-
       - name: Deploy to GitHub Pages
-        id:   deployment
+        id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          # PR のときだけ preview=true
+          preview: ${{ github.event_name == 'pull_request' }}
+          # artifact_name はデフォルトで github-pages
+
