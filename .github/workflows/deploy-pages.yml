@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]           # ← 適宜ブランチを変えても OK
   workflow_dispatch:
+  pull_request:
 
 permissions:
   contents: read
