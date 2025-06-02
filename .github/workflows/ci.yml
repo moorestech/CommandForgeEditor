@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+  checks: write    # Vitest のレポーターが Checks にコメントする場合のみ
+
+defaults:
+  run:
+    working-directory: frontend   # 以降は ./frontend がカレント
+
+concurrency:
+  group: ci-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node: [20]         # 将来 22 に切り替えたい場合はここを増やす
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # ---------- Node ----------
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      # ---------- Rust (Tauri) ----------
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+      - name: Cache cargo registry
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            src-tauri -> target
+
+      # ---------- Install / Lint / Test ----------
+      - run: npm ci
+      - run: npm run lint          # ESlint
+      - run: npm run typecheck     # tsc --noEmit
+      - run: npm run test          # Vitest
+      - run: npm run test:e2e --if-present  # Playwright（オプション）
+
+      # ---------- Build ----------
+      - run: npm run build         # Vite + Tailwind
+      # Rust 側のビルド（バイナリを生成するだけで署名/パッケージはしない）
+      - run: npm run tauri build -- --ci --bundles none
