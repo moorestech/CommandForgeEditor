@@ -9,7 +9,8 @@ export async function loadSampleCommandsYaml(): Promise<string> {
     console.log('Loading commands.yaml for web environment');
     
     // Web環境でfetchを使用してファイルをロード
-    const response = await fetch('/src/sample/commands.yaml');
+    const url = `${import.meta.env.BASE_URL}src/sample/commands.yaml`;
+    const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`Failed to fetch commands.yaml: ${response.status}`);
     }
@@ -31,7 +32,8 @@ export async function loadSampleSkit(): Promise<Record<string, Skit>> {
     console.log('Loading sample-skit.json for web environment');
     
     // Web環境でfetchを使用してファイルをロード
-    const response = await fetch('/src/sample/skits/sample_skit.json');
+    const url = `${import.meta.env.BASE_URL}src/sample/skits/sample_skit.json`;
+    const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`Failed to fetch sample-skit.json: ${response.status}`);
     }

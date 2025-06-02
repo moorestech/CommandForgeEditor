@@ -36,7 +36,7 @@ function App() {
         const skits = await loadSkitsFiles(projectPath);
         loadSkits(skits);
       } catch (error) {
-        if (import.meta.env.DEV) {
+        if (import.meta.env.DEV || !('__TAURI__' in window)) {
           // 外部ファイルからサンプルデータをロード
           try {
             const sampleSkits = await loadSampleSkit();
