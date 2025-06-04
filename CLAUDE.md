@@ -2,6 +2,20 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Project Overview
+
+CommandForgeEditor is a visual scripting tool designed for game developers to create and manage scenario scripts (called "skits") without writing code. It provides an intuitive drag-and-drop interface for assembling sequences of commands that control game flow, dialogue, character actions, and other game events.
+
+**Key Features:**
+- Visual command arrangement with drag-and-drop functionality
+- Real-time validation of command properties
+- Extensible command system defined in YAML
+- Multi-platform desktop application (Windows, macOS, Linux)
+- Project-based workflow with file system integration
+- Undo/redo, copy/paste, and other productivity features
+
+**Target Users:** Game developers, scenario writers, and content creators who need to create complex game scripts without programming knowledge.
+
 ## Essential Commands
 
 ### Development
