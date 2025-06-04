@@ -22,6 +22,8 @@ import {
   ResizableHandle,
 } from "./components/ui/resizable"
 import './App.css';
+import { I18nextProvider } from 'react-i18next';
+import i18n from './i18n/config';
 
 function App() {
   const { loadCommandsYaml, loadSkits, projectPath } = useSkitStore();
@@ -61,35 +63,37 @@ function App() {
   }, [loadCommandsYaml, loadSkits, projectPath]);
 
   return (
-    <DndProvider>
-      <MainLayout>
-        <div className="w-full flex flex-col overflow-hidden h-full">
-          <Toolbar />
-          <ResizablePanelGroup
-            direction="horizontal"
-            className="flex-1 flex overflow-hidden"
-          >
-            <ResizablePanel defaultSize={30} minSize={20}>
-              <div className="overflow-y-auto h-full">
-                <CommandList />
-              </div>
-            </ResizablePanel>
-            <ResizableHandle withHandle />
-            <ResizablePanel defaultSize={70} minSize={30}>
-              <div className="flex-1 flex flex-col overflow-hidden h-full">
-                <div className="flex-1 overflow-y-auto p-4">
-                  <CommandEditor />
+    <I18nextProvider i18n={i18n}>
+      <DndProvider>
+        <MainLayout>
+          <div className="w-full flex flex-col overflow-hidden h-full">
+            <Toolbar />
+            <ResizablePanelGroup
+              direction="horizontal"
+              className="flex-1 flex overflow-hidden"
+            >
+              <ResizablePanel defaultSize={30} minSize={20}>
+                <div className="overflow-y-auto h-full">
+                  <CommandList />
                 </div>
-                <div>
-                  <ValidationLog />
+              </ResizablePanel>
+              <ResizableHandle withHandle />
+              <ResizablePanel defaultSize={70} minSize={30}>
+                <div className="flex-1 flex flex-col overflow-hidden h-full">
+                  <div className="flex-1 overflow-y-auto p-4">
+                    <CommandEditor />
+                  </div>
+                  <div>
+                    <ValidationLog />
+                  </div>
                 </div>
-              </div>
-            </ResizablePanel>
-          </ResizablePanelGroup>
-        </div>
-        <Toaster position="bottom-right" />
-      </MainLayout>
-    </DndProvider>
+              </ResizablePanel>
+            </ResizablePanelGroup>
+          </div>
+          <Toaster position="bottom-right" />
+        </MainLayout>
+      </DndProvider>
+    </I18nextProvider>
   );
 }
 

@@ -19,6 +19,8 @@ import {
 } from '../ui/context-menu';
 import { useMemo, useCallback, memo } from 'react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
+import { useCommandTranslation } from '../../hooks/useCommandTranslation';
+import { useTranslation } from 'react-i18next';
 
 /**
  * CommandList コンポーネント - パフォーマンス最適化済み
@@ -32,6 +34,7 @@ import { ChevronDown, ChevronRight } from 'lucide-react';
  * 6. 表示対象のコマンドのみをレンダリング（非表示コマンドはDOMに含めない）
  */
 export const CommandList = memo(function CommandList() {
+  const { t } = useTranslation();
   const store = useSkitStore();
   const {
     skits,
@@ -157,7 +160,7 @@ export const CommandList = memo(function CommandList() {
   if (!currentSkit) {
     return (
       <div className="p-4 text-center text-muted-foreground">
-        スキットが選択されていません
+        {t('editor.noSkitSelected')}
       </div>
     );
   }
@@ -259,6 +262,17 @@ export const CommandList = memo(function CommandList() {
     </ScrollArea>
   );
 });
+
+// Helper component to get translated command label
+const CommandLabel = ({ command, commandDef }: { command: SkitCommand; commandDef?: CommandDefinition }) => {
+  const { tCommand } = useCommandTranslation(command.type);
+  
+  if (!commandDef) return <>{command.type}</>;
+  
+  // Use translation if available, otherwise fallback to label
+  const label = tCommand('name', commandDef.label || command.type);
+  return <>{label}</>;
+};
 
 // メモ化コンポーネント
 const CommandItem = memo(({ 
@@ -407,7 +421,7 @@ const CommandItem = memo(({
         // フォーマットがない場合は従来通りタイプとプレビューを表示
         <>
           <div className="font-medium mr-2">
-            {command.type}
+            <CommandLabel command={command} commandDef={commandDef} />
           </div>
           <div className="text-sm truncate">
             {commandPreview}

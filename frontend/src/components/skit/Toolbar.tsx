@@ -25,8 +25,18 @@ import { createCommandWithDefaults } from '../../utils/commandDefaults';
 import { DraggableCommand } from '../dnd/DraggableCommand';
 import { DropZone } from '../dnd/DropZone';
 import { selectProjectFolder } from '../../utils/fileSystem';
+import { useTranslation } from 'react-i18next';
+import { useCommandTranslation } from '../../hooks/useCommandTranslation';
+import { LanguageSwitcher } from '../layout/LanguageSwitcher';
+
+// Helper component to display translated command label
+function CommandMenuLabel({ commandId, label }: { commandId: string; label?: string }) {
+  const { tCommand } = useCommandTranslation(commandId);
+  return <>{tCommand('name', label || commandId)}</>;
+}
 
 export function Toolbar() {
+  const { t } = useTranslation();
   const {
     currentSkitId,
     selectedCommandIds,
@@ -68,7 +78,7 @@ export function Toolbar() {
       }
     }
 
-    toast.success(`${commandDef.label}を追加しました`);
+    toast.success(t('editor.toolbar.commandAdded', { command: commandDef.label }));
   };
 
   const handleSelectFolder = async () => {
@@ -87,10 +97,10 @@ export function Toolbar() {
         );
         loadSkits(skits);
         
-        toast.success('プロジェクトフォルダを読み込みました');
+        toast.success(t('editor.toolbar.projectLoaded'));
       } catch (error) {
         console.error('Failed to load project data:', error);
-        toast.error('プロジェクトの読み込みに失敗しました');
+        toast.error(t('editor.toolbar.projectLoadFailed'));
       }
     }
   };
@@ -98,9 +108,9 @@ export function Toolbar() {
   const handleSave = async () => {
     try {
       await saveSkit();
-      toast.success('スキットを保存しました');
+      toast.success(t('editor.toolbar.skitSaved'));
     } catch (error) {
-      toast.error(`保存に失敗しました: ${error instanceof Error ? error.message : String(error)}`);
+      toast.error(t('editor.toolbar.saveFailed', { error: error instanceof Error ? error.message : String(error) }));
     }
   };
 
@@ -121,7 +131,7 @@ export function Toolbar() {
               disabled={isDisabled}
             >
               <Plus className="h-4 w-4" />
-              追加
+              {t('editor.toolbar.addCommand')}
               <ChevronDown className="h-4 w-4 ml-1" />
             </Button>
           </DropdownMenuTrigger>
@@ -133,7 +143,7 @@ export function Toolbar() {
               >
                 <DraggableCommand id={command.id}>
                   <div className="flex items-center w-full">
-                    {command.label}
+                    <CommandMenuLabel commandId={command.id} label={command.label} />
                   </div>
                 </DraggableCommand>
               </DropdownMenuItem>
@@ -149,7 +159,7 @@ export function Toolbar() {
             onClick={() => copySelectedCommands()}
           >
             <Copy className="h-4 w-4 mr-1" />
-            コピー
+            {t('editor.menu.edit.copy')}
           </Button>
         </DropZone>
 
@@ -160,7 +170,7 @@ export function Toolbar() {
           onClick={() => cutSelectedCommands()}
         >
           <Scissors className="h-4 w-4 mr-1" />
-          切り取り
+          {t('editor.menu.edit.cut')}
         </Button>
 
         <Button
@@ -169,7 +179,7 @@ export function Toolbar() {
           onClick={() => pasteCommandsFromClipboard()}
         >
           <ClipboardPaste className="h-4 w-4 mr-1" />
-          貼り付け
+          {t('editor.menu.edit.paste')}
         </Button>
 
         <DropZone id="trash-zone" className="inline-flex">
@@ -180,7 +190,7 @@ export function Toolbar() {
             onClick={() => selectedCommandIds.length > 0 && removeCommands(selectedCommandIds)}
           >
             <Trash className="h-4 w-4 mr-1" />
-            削除
+            {t('editor.menu.edit.delete')}
           </Button>
         </DropZone>
       </div>
@@ -197,41 +207,45 @@ export function Toolbar() {
         variant="outline"
         size="sm"
         onClick={handleSelectFolder}
-        title="プロジェクトフォルダを開く"
+        title={t('editor.toolbar.openProjectFolder')}
         className="mr-2"
       >
         <FolderOpen className="h-4 w-4 mr-1" />
-        フォルダ
+        {t('editor.toolbar.folder')}
       </Button>
 
-      <div className="ml-auto flex items-center">
-        <Button
-          variant="ghost"
-          size="sm"
-          disabled={isDisabled}
-          onClick={undo}
-        >
-          <Undo className="h-4 w-4" />
-        </Button>
+      <div className="ml-auto flex items-center gap-2">
+        <LanguageSwitcher />
+        
+        <div className="border-l pl-2 flex items-center">
+          <Button
+            variant="ghost"
+            size="sm"
+            disabled={isDisabled}
+            onClick={undo}
+          >
+            <Undo className="h-4 w-4" />
+          </Button>
 
-        <Button
-          variant="ghost"
-          size="sm"
-          disabled={isDisabled}
-          onClick={redo}
-        >
-          <Redo className="h-4 w-4" />
-        </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            disabled={isDisabled}
+            onClick={redo}
+          >
+            <Redo className="h-4 w-4" />
+          </Button>
 
-        <Button
-          variant="default"
-          size="sm"
-          disabled={isDisabled}
-          onClick={handleSave}
-        >
-          <Save className="h-4 w-4 mr-1" />
-          保存
-        </Button>
+          <Button
+            variant="default"
+            size="sm"
+            disabled={isDisabled}
+            onClick={handleSave}
+          >
+            <Save className="h-4 w-4 mr-1" />
+            {t('editor.menu.file.save')}
+          </Button>
+        </div>
       </div>
     </div>
   );
