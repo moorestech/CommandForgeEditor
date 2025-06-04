@@ -94,3 +94,17 @@ Real-time validation using JSON Schema validation (ajv) ensures commands have re
 - The UI is fully keyboard accessible with shortcut support
 - Multi-select operations (copy/cut/paste/delete) work across command groups
 - Drag and drop reordering maintains proper command relationships
+
+## Documentation
+
+Comprehensive documentation is available in `memory-bank/doc/`:
+- Overview and architecture details
+- Data models and component structure
+- Development guide and API reference
+- Testing strategy and troubleshooting
+
+**Important**: Please keep the documentation updated when making significant changes to the codebase. This includes:
+- Adding new features or components
+- Changing data models or API interfaces
+- Modifying the build process or dependencies
+- Updating development workflows
