@@ -14,8 +14,10 @@ import {
 } from '../ui/dialog';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
+import { useTranslation } from 'react-i18next';
 
 export function SkitList() {
+  const { t } = useTranslation();
   const { skits, currentSkitId, setCurrentSkit, projectPath, loadSkits } = useSkitStore();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newSkitTitle, setNewSkitTitle] = useState('');
@@ -29,7 +31,7 @@ export function SkitList() {
 
   const handleCreateNewSkit = async () => {
     if (!newSkitTitle.trim()) {
-      toast.error('タイトルを入力してください');
+      toast.error(t('editor.enterTitle'));
       return;
     }
 
@@ -38,7 +40,7 @@ export function SkitList() {
       const { id, errors } = await createNewSkit(newSkitTitle, projectPath);
       
       if (errors.length > 0) {
-        toast.error(`スキット作成エラー: ${errors.join(', ')}`);
+        toast.error(`${t('editor.skitCreationError')}: ${errors.join(', ')}`);
         return;
       }
       
@@ -50,12 +52,12 @@ export function SkitList() {
       }
       
       setCurrentSkit(id);
-      toast.success('新しいスキットを作成しました');
+      toast.success(t('editor.skitCreated'));
       setIsDialogOpen(false);
       setNewSkitTitle('');
     } catch (error) {
       console.error('Failed to create new skit:', error);
-      toast.error(`スキット作成に失敗しました: ${error instanceof Error ? error.message : String(error)}`);
+      toast.error(`${t('editor.skitCreationFailed')}: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setIsCreating(false);
     }
@@ -63,7 +65,7 @@ export function SkitList() {
 
   const openNewSkitDialog = () => {
     if (!projectPath) {
-      toast.error('プロジェクトフォルダを選択してください');
+      toast.error(t('editor.selectProjectFolder'));
       return;
     }
     setIsDialogOpen(true);
@@ -78,7 +80,7 @@ export function SkitList() {
           onClick={openNewSkitDialog}
         >
           <PlusCircle className="h-4 w-4" />
-          新規作成
+          {t('editor.newSkit')}
         </Button>
       </div>
       <ScrollArea className="flex-1">
@@ -99,15 +101,15 @@ export function SkitList() {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>新規スキット作成</DialogTitle>
+            <DialogTitle>{t('editor.createNewSkit')}</DialogTitle>
           </DialogHeader>
           <div className="py-4">
-            <Label htmlFor="skit-title">タイトル</Label>
+            <Label htmlFor="skit-title">{t('editor.title')}</Label>
             <Input
               id="skit-title"
               value={newSkitTitle}
               onChange={(e) => setNewSkitTitle(e.target.value)}
-              placeholder="スキットのタイトルを入力"
+              placeholder={t('editor.enterSkitTitle')}
               autoFocus
             />
           </div>
@@ -117,13 +119,13 @@ export function SkitList() {
               onClick={() => setIsDialogOpen(false)}
               disabled={isCreating}
             >
-              キャンセル
+              {t('editor.cancel')}
             </Button>
             <Button 
               onClick={handleCreateNewSkit}
               disabled={!newSkitTitle.trim() || isCreating}
             >
-              {isCreating ? '作成中...' : '作成'}
+              {isCreating ? t('editor.creating') : t('editor.create')}
             </Button>
           </DialogFooter>
         </DialogContent>

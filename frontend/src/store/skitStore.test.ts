@@ -43,7 +43,7 @@ describe('skitStore', () => {
           {
             id: 1,
             type: 'text',
-            character: 'キャラA',
+            character: 'CharacterA',
             body: 'こんにちは',
           },
         ],
@@ -94,13 +94,13 @@ describe('skitStore', () => {
     act(() => {
       useSkitStore.getState().loadSkits(testSkits);
       useSkitStore.getState().setCurrentSkit('test-skit');
-      useSkitStore.getState().addCommand({ type: 'text', character: 'キャラA', body: 'こんにちは' });
+      useSkitStore.getState().addCommand({ type: 'text', character: 'CharacterA', body: 'こんにちは' });
     });
     
     const commands = useSkitStore.getState().skits['test-skit'].commands;
     expect(commands.length).toBe(1);
     expect(commands[0].type).toBe('text');
-    expect(commands[0].character).toBe('キャラA');
+    expect(commands[0].character).toBe('CharacterA');
     expect(commands[0].body).toBe('こんにちは');
   });
   
@@ -117,7 +117,7 @@ describe('skitStore', () => {
           {
             id: 1,
             type: 'text',
-            character: 'キャラA',
+            character: 'CharacterA',
             body: 'こんにちは',
           },
         ],

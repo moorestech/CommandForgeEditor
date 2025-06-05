@@ -3,8 +3,10 @@ import { useSkitStore } from '../../store/skitStore';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { useToast } from '../../hooks/use-toast';
+import { useTranslation } from 'react-i18next';
 
 export function ValidationLog() {
+  const { t } = useTranslation();
   const { validationErrors } = useSkitStore();
   const { toast } = useToast();
   
@@ -12,7 +14,7 @@ export function ValidationLog() {
     if (validationErrors.length > 0) {
       validationErrors.forEach(error => {
         toast({
-          title: "エラー",
+          title: t('editor.errorLabel'),
           description: error,
           variant: "destructive"
         });
@@ -29,7 +31,7 @@ export function ValidationLog() {
       {validationErrors.map((error, index) => (
         <Alert key={index} variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>エラー</AlertTitle>
+          <AlertTitle>{t('editor.errorLabel')}</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       ))}

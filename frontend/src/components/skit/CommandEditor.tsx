@@ -9,8 +9,36 @@ import { SkitCommand } from '../../types';
 import { formatCommandPreview } from '../../utils/commandFormatting';
 import { ColorPicker } from '../ui/color-picker';
 import { VectorInput } from '../ui/vector-input';
+import { useTranslation } from 'react-i18next';
+import { useCommandTranslation } from '../../hooks/useCommandTranslation';
+
+// Helper component for displaying translated command labels
+function TranslatedCommandLabel({ commandType, label }: { commandType: string; label: string }) {
+  const { tCommand } = useCommandTranslation(commandType);
+  return <>{tCommand('name', label)}</>;
+}
+
+// Helper component for displaying translated property labels
+function PropertyLabel({ commandType, propertyKey, required }: { commandType: string; propertyKey: string; required?: boolean }) {
+  const { tProperty } = useCommandTranslation(commandType);
+  const label = tProperty(propertyKey, 'name', propertyKey);
+  
+  return (
+    <>
+      {label}
+      {required && <span className="text-destructive ml-1">*</span>}
+    </>
+  );
+}
+
+// Helper component for enum options
+function EnumOption({ commandType, propertyKey, value }: { commandType: string; propertyKey: string; value: string }) {
+  const { tEnum } = useCommandTranslation(commandType);
+  return <>{tEnum(propertyKey, value, value)}</>;
+}
 
 export function CommandEditor() {
+  const { t } = useTranslation();
   const {
     skits,
     currentSkitId,
@@ -28,7 +56,7 @@ export function CommandEditor() {
   if (selectedCommands.length === 0) {
     return (
       <div className="p-4 text-center text-muted-foreground">
-        コマンドが選択されていません
+        {t('editor.noCommandSelected')}
       </div>
     );
   }
@@ -38,7 +66,7 @@ export function CommandEditor() {
   if (!firstCommandDef) {
     return (
       <div className="p-4 text-center text-muted-foreground">
-        コマンド定義が見つかりません: {firstCommand.type}
+        {t('editor.commandDefinitionNotFound')}: {firstCommand.type}
       </div>
     );
   }
@@ -54,7 +82,7 @@ export function CommandEditor() {
   if (!firstCommandDef) {
     return (
       <div className="p-4 text-center text-muted-foreground">
-        コマンド定義が見つかりません: {firstCommand.type}
+        {t('editor.commandDefinitionNotFound')}: {firstCommand.type}
       </div>
     );
   }
@@ -78,14 +106,14 @@ export function CommandEditor() {
       <CardHeader className="pb-2">
         <CardTitle>
           {selectedCommands.length > 1
-            ? `${uniqueLabels.join(', ')} (${selectedCommands.length}個選択中)`
-            : firstCommandDef.label}
+            ? `${uniqueLabels.join(', ')} (${t('editor.itemsSelected', { count: selectedCommands.length })})`
+            : <TranslatedCommandLabel commandType={firstCommand.type} label={firstCommandDef.label} />}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Background Color Picker */}
         <div className="space-y-2">
-          <Label htmlFor="backgroundColor">背景色</Label>
+          <Label htmlFor="backgroundColor">{t('editor.backgroundColor')}</Label>
           <ColorPicker
             value={bgColorValue}
             onChange={(value) => handlePropertyChange("backgroundColor", value)}
@@ -102,18 +130,18 @@ export function CommandEditor() {
           return (
             <div key={propName} className="space-y-2">
               <Label htmlFor={propName}>
-                {propName}
-                {propDef.required && <span className="text-destructive ml-1">*</span>}
+                <PropertyLabel commandType={firstCommand.type} propertyKey={propName} required={propDef.required} />
               </Label>
-              {renderPropertyInput(
-                propName,
-                propDef,
-                value,
-                (val) => handlePropertyChange(propName, val),
-                commands,
-                commandsMap,
-                isMixed
-              )}
+              <PropertyInput
+                propName={propName}
+                propDef={propDef}
+                value={value}
+                onChange={(val) => handlePropertyChange(propName, val)}
+                commands={commands}
+                commandsMap={commandsMap}
+                isMixed={isMixed}
+                commandType={firstCommand.type}
+              />
             </div>
           );
         })}
@@ -122,15 +150,42 @@ export function CommandEditor() {
   );
 }
 
-function renderPropertyInput(
-  propName: string,
-  propDef: PropertyDefinition,
-  value: unknown,
-  onChange: (value: unknown) => void,
-  commands?: SkitCommand[],
-  commandsMap?: Map<string, CommandDefinition>,
-  isMixed?: boolean
-) {
+// Wrapper component for property input with translations
+function PropertyInput(props: {
+  propName: string;
+  propDef: PropertyDefinition;
+  value: unknown;
+  onChange: (value: unknown) => void;
+  commands?: SkitCommand[];
+  commandsMap?: Map<string, CommandDefinition>;
+  isMixed?: boolean;
+  commandType: string;
+}) {
+  const { t } = useTranslation();
+  return <>{renderPropertyInput({ ...props, t })}</>;
+}
+
+function renderPropertyInput({
+  propName,
+  propDef,
+  value,
+  onChange,
+  commands,
+  commandsMap,
+  isMixed,
+  commandType,
+  t
+}: {
+  propName: string;
+  propDef: PropertyDefinition;
+  value: unknown;
+  onChange: (value: unknown) => void;
+  commands?: SkitCommand[];
+  commandsMap?: Map<string, CommandDefinition>;
+  isMixed?: boolean;
+  commandType?: string;
+  t: (key: string) => string;
+}) {
   switch (propDef.type) {
     case 'string': {
       const stringValue = value as string | undefined;
@@ -173,11 +228,11 @@ function renderPropertyInput(
           onValueChange={(val) => onChange(val === 'true')}
         >
           <SelectTrigger id={propName}>
-            <SelectValue placeholder={isMixed ? '-' : '選択してください'} />
+            <SelectValue placeholder={isMixed ? '-' : t('editor.selectPlease')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="true">はい</SelectItem>
-            <SelectItem value="false">いいえ</SelectItem>
+            <SelectItem value="true">{t('editor.yes')}</SelectItem>
+            <SelectItem value="false">{t('editor.no')}</SelectItem>
           </SelectContent>
         </Select>
       );
@@ -190,12 +245,16 @@ function renderPropertyInput(
           onValueChange={onChange}
         >
           <SelectTrigger id={propName}>
-            <SelectValue placeholder={isMixed ? '-' : '選択してください'} />
+            <SelectValue placeholder={isMixed ? '-' : t('editor.selectPlease')}>
+              {!isMixed && enumValue && commandType ? (
+                <EnumOption commandType={commandType} propertyKey={propName} value={enumValue} />
+              ) : null}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {propDef.options?.map((option) => (
               <SelectItem key={option} value={option}>
-                {option}
+                {commandType ? <EnumOption commandType={commandType} propertyKey={propName} value={option} /> : option}
               </SelectItem>
             ))}
           </SelectContent>

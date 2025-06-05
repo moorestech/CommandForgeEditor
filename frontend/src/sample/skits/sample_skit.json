@@ -46,7 +46,7 @@
     {
       "id": 5,
       "type": "emote",
-      "character": "キャラA",
+      "character": "CharacterA",
       "emotion": "通常"
     },
     {
@@ -59,13 +59,13 @@
     {
       "id": 6,
       "type": "emote",
-      "character": "キャラB",
+      "character": "CharacterB",
       "emotion": "通常"
     },
     {
       "id": 7,
       "type": "text",
-      "character": "キャラA",
+      "character": "CharacterA",
       "body": "今日の授業、難しかったね。"
     },
     {
@@ -81,7 +81,7 @@
     {
       "id": 9,
       "type": "emote",
-      "character": "キャラB",
+      "character": "CharacterB",
       "emotion": "困惑"
     },
     {
@@ -92,7 +92,7 @@
     {
       "id": 10,
       "type": "text",
-      "character": "キャラB",
+      "character": "CharacterB",
       "body": "ほんとそれ。特に最後の問題は全然わからなかった..."
     },
     {
@@ -105,15 +105,15 @@
     {
       "id": 11,
       "type": "action",
-      "character": "キャラA",
+      "character": "CharacterA",
       "action": "指さす",
       "direction": "右"
     },
     {
       "id": 12,
       "type": "text",
-      "character": "キャラA",
-      "body": "あ、キャラCが来たよ！"
+      "character": "CharacterA",
+      "body": "あ、CharacterCが来たよ！"
     },
     {
       "id": 13,
@@ -129,25 +129,25 @@
     {
       "id": 14,
       "type": "emote",
-      "character": "キャラC",
+      "character": "CharacterC",
       "emotion": "笑顔"
     },
     {
       "id": 15,
       "type": "text",
-      "character": "キャラC",
+      "character": "CharacterC",
       "body": "やあ、みんな！何の話をしているの？"
     },
     {
       "id": 16,
       "type": "emote",
-      "character": "キャラB",
+      "character": "CharacterB",
       "emotion": "悲しみ"
     },
     {
       "id": 17,
       "type": "text",
-      "character": "キャラB",
+      "character": "CharacterB",
       "body": "今日の数学のテスト。全然できなかったよ..."
     },
     {
@@ -159,18 +159,18 @@
       "id": 18,
       "type": "camera",
       "action": "フォーカス",
-      "target": "キャラC"
+      "target": "CharacterC"
     },
     {
       "id": 19,
       "type": "emote",
-      "character": "キャラC",
+      "character": "CharacterC",
       "emotion": "驚き"
     },
     {
       "id": 20,
       "type": "text",
-      "character": "キャラC",
+      "character": "CharacterC",
       "body": "え？あのテスト簡単だったよ？問題1は..."
     },
     {
@@ -188,37 +188,37 @@
     {
       "id": 23,
       "type": "emote",
-      "character": "先生",
+      "character": "Teacher",
       "emotion": "通常"
     },
     {
       "id": 24,
       "type": "text",
-      "character": "先生",
+      "character": "Teacher",
       "body": "まだ残っていたんですね。もうすぐ下校時間ですよ。"
     },
     {
       "id": 25,
       "type": "emote",
-      "character": "キャラA",
+      "character": "CharacterA",
       "emotion": "驚き"
     },
     {
       "id": 26,
       "type": "text",
-      "character": "キャラA",
+      "character": "CharacterA",
       "body": "あ、先生！今日のテスト、解説してもらえませんか？"
     },
     {
       "id": 27,
       "type": "emote",
-      "character": "先生",
+      "character": "Teacher",
       "emotion": "笑顔"
     },
     {
       "id": 28,
       "type": "text",
-      "character": "先生",
+      "character": "Teacher",
       "body": "今から少し時間があるなら、カフェでお話ししましょうか。私も一息つきたいところです。"
     },
     {
@@ -253,61 +253,61 @@
     {
       "id": 34,
       "type": "emote",
-      "character": "店員",
+      "character": "Waiter",
       "emotion": "笑顔"
     },
     {
       "id": 35,
       "type": "text",
-      "character": "店員",
+      "character": "Waiter",
       "body": "いらっしゃいませ！ご注文は何になさいますか？"
     },
     {
       "id": 36,
       "type": "emote",
-      "character": "キャラA",
+      "character": "CharacterA",
       "emotion": "照れ"
     },
     {
       "id": 37,
       "type": "text",
-      "character": "キャラA",
+      "character": "CharacterA",
       "body": "えっと、カフェラテをください！"
     },
     {
       "id": 38,
       "type": "emote",
-      "character": "キャラB",
+      "character": "CharacterB",
       "emotion": "通常"
     },
     {
       "id": 39,
       "type": "text",
-      "character": "キャラB",
+      "character": "CharacterB",
       "body": "僕はアイスティーで。"
     },
     {
       "id": 40,
       "type": "emote",
-      "character": "キャラC",
+      "character": "CharacterC",
       "emotion": "笑顔"
     },
     {
       "id": 41,
       "type": "text",
-      "character": "キャラC",
+      "character": "CharacterC",
       "body": "チョコレートケーキとカフェモカください！"
     },
     {
       "id": 42,
       "type": "emote",
-      "character": "先生",
+      "character": "Teacher",
       "emotion": "通常"
     },
     {
       "id": 43,
       "type": "text",
-      "character": "先生",
+      "character": "Teacher",
       "body": "私はホットコーヒーを。"
     },
     {
@@ -323,31 +323,31 @@
     {
       "id": 46,
       "type": "emote",
-      "character": "先生",
+      "character": "Teacher",
       "emotion": "真剣"
     },
     {
       "id": 47,
       "type": "text",
-      "character": "先生",
+      "character": "Teacher",
       "body": "この問題のポイントは、まず式を整理することなんです。こうやって..."
     },
     {
       "id": 48,
       "type": "camera",
       "action": "パン左",
-      "target": "キャラA"
+      "target": "CharacterA"
     },
     {
       "id": 49,
       "type": "emote",
-      "character": "キャラA",
+      "character": "CharacterA",
       "emotion": "驚き"
     },
     {
       "id": 50,
       "type": "text",
-      "character": "キャラA",
+      "character": "CharacterA",
       "body": "なるほど！そんな風に考えればよかったのか！"
     },
     {
@@ -359,7 +359,7 @@
     {
       "id": 52,
       "type": "action",
-      "character": "キャラA",
+      "character": "CharacterA",
       "action": "指さす",
       "direction": "左"
     },
@@ -372,68 +372,68 @@
     {
       "id": 54,
       "type": "emote",
-      "character": "キャラD",
+      "character": "CharacterD",
       "emotion": "通常"
     },
     {
       "id": 55,
       "type": "text",
-      "character": "キャラD",
+      "character": "CharacterD",
       "body": "あ、みんなここにいたんだ！探したよ。"
     },
     {
       "id": 56,
       "type": "action",
-      "character": "キャラD",
+      "character": "CharacterD",
       "action": "座る",
       "direction": "中央"
     },
     {
       "id": 57,
       "type": "emote",
-      "character": "キャラD",
+      "character": "CharacterD",
       "emotion": "困惑"
     },
     {
       "id": 58,
       "type": "text",
-      "character": "キャラD",
+      "character": "CharacterD",
       "body": "あれ？勉強会？僕も混ざっていい？"
     },
     {
       "id": 59,
       "type": "emote",
-      "character": "キャラB",
+      "character": "CharacterB",
       "emotion": "笑顔"
     },
     {
       "id": 60,
       "type": "text",
-      "character": "キャラB",
+      "character": "CharacterB",
       "body": "もちろん！今、先生が数学のテストを解説してくれてるんだ。"
     },
     {
       "id": 61,
       "type": "emote",
-      "character": "先生",
+      "character": "Teacher",
       "emotion": "笑顔"
     },
     {
       "id": 62,
       "type": "text",
-      "character": "先生",
+      "character": "Teacher",
       "body": "さて、休憩も兼ねて少し話を変えましょうか。最近何か面白いことはありましたか？"
     },
     {
       "id": 63,
       "type": "emote",
-      "character": "キャラC",
+      "character": "CharacterC",
       "emotion": "照れ"
     },
     {
       "id": 64,
       "type": "text",
-      "character": "キャラC",
+      "character": "CharacterC",
       "body": "実は...文化祭の出し物、何にするか迷ってて..."
     },
     {
@@ -446,18 +446,18 @@
       "id": 66,
       "type": "camera",
       "action": "ズームイン",
-      "target": "キャラC"
+      "target": "CharacterC"
     },
     {
       "id": 67,
       "type": "emote",
-      "character": "キャラC",
+      "character": "CharacterC",
       "emotion": "真剣"
     },
     {
       "id": 68,
       "type": "text",
-      "character": "キャラC",
+      "character": "CharacterC",
       "body": "クラスのみんなは演劇がいいみたいだけど、私はカフェがいいと思ってて..."
     },
     {
@@ -469,85 +469,85 @@
     {
       "id": 70,
       "type": "emote",
-      "character": "キャラA",
+      "character": "CharacterA",
       "emotion": "驚き"
     },
     {
       "id": 71,
       "type": "text",
-      "character": "キャラA",
+      "character": "CharacterA",
       "body": "え？そうだったの？私も実はカフェがいいと思ってた！"
     },
     {
       "id": 72,
       "type": "emote",
-      "character": "キャラB",
+      "character": "CharacterB",
       "emotion": "照れ"
     },
     {
       "id": 73,
       "type": "text",
-      "character": "キャラB",
+      "character": "CharacterB",
       "body": "僕もカフェ派かな..."
     },
     {
       "id": 74,
       "type": "emote",
-      "character": "キャラD",
+      "character": "CharacterD",
       "emotion": "困惑"
     },
     {
       "id": 75,
       "type": "text",
-      "character": "キャラD",
+      "character": "CharacterD",
       "body": "でも、クラス会議では演劇に決まりそうな感じだったよね？"
     },
     {
       "id": 76,
       "type": "emote",
-      "character": "先生",
+      "character": "Teacher",
       "emotion": "真剣"
     },
     {
       "id": 77,
       "type": "text",
-      "character": "先生",
+      "character": "Teacher",
       "body": "なるほど。みなさん、意見が割れているんですね。"
     },
     {
       "id": 78,
       "type": "emote",
-      "character": "先生",
+      "character": "Teacher",
       "emotion": "通常"
     },
     {
       "id": 79,
       "type": "text",
-      "character": "先生",
+      "character": "Teacher",
       "body": "こういう場合は、お互いの意見をよく聞いて、折衷案を考えるのもいいかもしれませんね。"
     },
     {
       "id": 80,
       "type": "emote",
-      "character": "キャラA",
+      "character": "CharacterA",
       "emotion": "照れ"
     },
     {
       "id": 81,
       "type": "text",
-      "character": "キャラA",
+      "character": "CharacterA",
       "body": "折衷案...例えばどんなのがあるんですか？"
     },
     {
       "id": 82,
       "type": "emote",
-      "character": "先生",
+      "character": "Teacher",
       "emotion": "笑顔"
     },
     {
       "id": 83,
       "type": "text",
-      "character": "先生",
+      "character": "Teacher",
       "body": "例えば、演劇の世界観をテーマにしたカフェとか。劇中の登場人物に扮してカフェを運営するというのはどうでしょう。"
     },
     {
@@ -559,49 +559,49 @@
     {
       "id": 85,
       "type": "emote",
-      "character": "キャラC",
+      "character": "CharacterC",
       "emotion": "喜び"
     },
     {
       "id": 86,
       "type": "emote",
-      "character": "キャラD",
+      "character": "CharacterD",
       "emotion": "喜び"
     },
     {
       "id": 87,
       "type": "emote",
-      "character": "キャラB",
+      "character": "CharacterB",
       "emotion": "笑顔"
     },
     {
       "id": 88,
       "type": "text",
-      "character": "キャラC",
+      "character": "CharacterC",
       "body": "それいいですね！劇と喫茶店の良いとこどりじゃないですか！"
     },
     {
       "id": 89,
       "type": "text",
-      "character": "キャラD",
+      "character": "CharacterD",
       "body": "おお、それだと僕らの意見も取り入れられるし、演劇派の人たちも満足できそう！"
     },
     {
       "id": 90,
       "type": "camera",
       "action": "パン右",
-      "target": "キャラB"
+      "target": "CharacterB"
     },
     {
       "id": 91,
       "type": "emote",
-      "character": "キャラB",
+      "character": "CharacterB",
       "emotion": "通常"
     },
     {
       "id": 92,
       "type": "text",
-      "character": "キャラB",
+      "character": "CharacterB",
       "body": "でもどんな物語がいいかな？テーマは何にする？"
     },
     {
@@ -635,37 +635,37 @@
     {
       "id": 98,
       "type": "emote",
-      "character": "キャラA",
+      "character": "CharacterA",
       "emotion": "喜び"
     },
     {
       "id": 99,
       "type": "text",
-      "character": "キャラA",
+      "character": "CharacterA",
       "body": "やった！これで明日のクラス会議でみんなに提案できるね！"
     },
     {
       "id": 100,
       "type": "emote",
-      "character": "キャラC",
+      "character": "CharacterC",
       "emotion": "照れ"
     },
     {
       "id": 101,
       "type": "text",
-      "character": "キャラC",
+      "character": "CharacterC",
       "body": "先生、ありがとうございます。いつも私たちの相談に乗ってくれて..."
     },
     {
       "id": 102,
       "type": "emote",
-      "character": "先生",
+      "character": "Teacher",
       "emotion": "笑顔"
     },
     {
       "id": 103,
       "type": "text",
-      "character": "先生",
+      "character": "Teacher",
       "body": "いえいえ。皆さんが自分たちで解決策を見つけられたことが素晴らしいです。"
     },
     {
@@ -682,53 +682,53 @@
     {
       "id": 106,
       "type": "emote",
-      "character": "先生",
+      "character": "Teacher",
       "emotion": "通常"
     },
     {
       "id": 107,
       "type": "text",
-      "character": "先生",
+      "character": "Teacher",
       "body": "そろそろ時間ですね。今日はここまでにしましょう。"
     },
     {
       "id": 108,
       "type": "action",
-      "character": "キャラA",
+      "character": "CharacterA",
       "action": "立つ",
       "direction": "中央"
     },
     {
       "id": 109,
       "type": "action",
-      "character": "キャラB",
+      "character": "CharacterB",
       "action": "立つ",
       "direction": "中央"
     },
     {
       "id": 110,
       "type": "action",
-      "character": "キャラC",
+      "character": "CharacterC",
       "action": "立つ",
       "direction": "中央"
     },
     {
       "id": 111,
       "type": "action",
-      "character": "キャラD",
+      "character": "CharacterD",
       "action": "立つ",
       "direction": "中央"
     },
     {
       "id": 112,
       "type": "emote",
-      "character": "キャラA",
+      "character": "CharacterA",
       "emotion": "笑顔"
     },
     {
       "id": 113,
       "type": "text",
-      "character": "キャラA",
+      "character": "CharacterA",
       "body": "公園を通って帰ろうよ。夕日がきれいに見えるはず！"
     },
     {
@@ -763,55 +763,55 @@
     {
       "id": 119,
       "type": "emote",
-      "character": "キャラB",
+      "character": "CharacterB",
       "emotion": "通常"
     },
     {
       "id": 120,
       "type": "text",
-      "character": "キャラB",
+      "character": "CharacterB",
       "body": "ねえ、今日は本当に良い一日だったね。数学の問題も理解できたし。"
     },
     {
       "id": 121,
       "type": "emote",
-      "character": "キャラC",
+      "character": "CharacterC",
       "emotion": "笑顔"
     },
     {
       "id": 122,
       "type": "text",
-      "character": "キャラC",
+      "character": "CharacterC",
       "body": "うん！それに文化祭の問題も解決したし！"
     },
     {
       "id": 123,
       "type": "emote",
-      "character": "キャラD",
+      "character": "CharacterD",
       "emotion": "照れ"
     },
     {
       "id": 124,
       "type": "text",
-      "character": "キャラD",
+      "character": "CharacterD",
       "body": "僕、ファンタジーカフェで何の役をやろうかな..."
     },
     {
       "id": 125,
       "type": "emote",
-      "character": "キャラA",
+      "character": "CharacterA",
       "emotion": "喜び"
     },
     {
       "id": 126,
       "type": "text",
-      "character": "キャラA",
+      "character": "CharacterA",
       "body": "私は魔法使いになりたいな！杖を持って「いらっしゃいませ」って！"
     },
     {
       "id": 127,
       "type": "action",
-      "character": "キャラA",
+      "character": "CharacterA",
       "action": "指さす",
       "direction": "上"
     },
@@ -830,54 +830,54 @@
       "id": 130,
       "type": "camera",
       "action": "ズームイン",
-      "target": "キャラA"
+      "target": "CharacterA"
     },
     {
       "id": 131,
       "type": "emote",
-      "character": "キャラA",
+      "character": "CharacterA",
       "emotion": "真剣"
     },
     {
       "id": 132,
       "type": "text",
-      "character": "キャラA",
+      "character": "CharacterA",
       "body": "ねえ、約束しよう。私たちの文化祭、絶対に成功させようね！"
     },
     {
       "id": 133,
       "type": "emote",
-      "character": "キャラB",
+      "character": "CharacterB",
       "emotion": "笑顔"
     },
     {
       "id": 134,
       "type": "emote",
-      "character": "キャラC",
+      "character": "CharacterC",
       "emotion": "笑顔"
     },
     {
       "id": 135,
       "type": "emote",
-      "character": "キャラD",
+      "character": "CharacterD",
       "emotion": "笑顔"
     },
     {
       "id": 136,
       "type": "text",
-      "character": "キャラB",
+      "character": "CharacterB",
       "body": "もちろん！"
     },
     {
       "id": 137,
       "type": "text",
-      "character": "キャラC",
+      "character": "CharacterC",
       "body": "約束だよ！"
     },
     {
       "id": 138,
       "type": "text",
-      "character": "キャラD",
+      "character": "CharacterD",
       "body": "みんなでがんばろう！"
     },
     {
@@ -889,28 +889,28 @@
     {
       "id": 140,
       "type": "action",
-      "character": "キャラA",
+      "character": "CharacterA",
       "action": "手を振る",
       "direction": "中央"
     },
     {
       "id": 141,
       "type": "action",
-      "character": "キャラB",
+      "character": "CharacterB",
       "action": "手を振る",
       "direction": "中央"
     },
     {
       "id": 142,
       "type": "action",
-      "character": "キャラC",
+      "character": "CharacterC",
       "action": "手を振る",
       "direction": "中央"
     },
     {
       "id": 143,
       "type": "action",
-      "character": "キャラD",
+      "character": "CharacterD",
       "action": "手を振る",
       "direction": "中央"
     },

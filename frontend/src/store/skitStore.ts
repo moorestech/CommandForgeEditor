@@ -4,6 +4,8 @@ import { persist } from 'zustand/middleware';
 import { Skit, SkitCommand, CommandDefinition } from '../types';
 import { parse } from 'yaml';
 import { reservedCommands } from '../utils/reservedCommands';
+import i18n from '../i18n/config';
+import { loadTranslations } from '../i18n/translationLoader';
 
 interface SkitState {
   skits: Record<string, Skit>;
@@ -18,6 +20,8 @@ interface SkitState {
     past: Skit[];
     future: Skit[];
   };
+  currentLanguage: string;
+  availableLanguages: Array<{ code: string; name: string }>;
   
   loadSkits: (skits: Record<string, Skit>) => void;
   setCurrentSkit: (skitId: string) => void;
@@ -42,6 +46,8 @@ interface SkitState {
   copySelectedCommands: () => Promise<void>;
   cutSelectedCommands: () => Promise<void>;
   pasteCommandsFromClipboard: () => Promise<void>;
+  changeLanguage: (language: string) => Promise<void>;
+  loadAvailableLanguages: () => Promise<void>;
 }
 
 export const useSkitStore = create<SkitState>()(
@@ -102,6 +108,11 @@ export const useSkitStore = create<SkitState>()(
       past: [],
       future: [],
     },
+    currentLanguage: 'ja', // デフォルトで日本語
+    availableLanguages: [
+      { code: 'ja', name: '日本語' },
+      { code: 'en', name: 'English' },
+    ],
 
     loadSkits: (skits) => {
       set((state) => {
@@ -743,6 +754,34 @@ export const useSkitStore = create<SkitState>()(
         currentSkit.meta.modified = new Date().toISOString();
         state.selectedCommandIds = newCommands.map((cmd) => cmd.id);
       });
+    },
+    
+    changeLanguage: async (language: string) => {
+      try {
+        await i18n.changeLanguage(language);
+        set((state) => {
+          state.currentLanguage = language;
+        });
+        // Reload translations if project path is set
+        const projectPath = get().projectPath;
+        if (projectPath) {
+          await loadTranslations();
+        }
+      } catch (error) {
+        console.error('Failed to change language:', error);
+      }
+    },
+    
+    loadAvailableLanguages: async () => {
+      try {
+        const { getAvailableLanguages } = await import('../i18n/translationLoader');
+        const languages = await getAvailableLanguages();
+        set((state) => {
+          state.availableLanguages = languages;
+        });
+      } catch (error) {
+        console.error('Failed to load available languages:', error);
+      }
     },
     };
   }),
