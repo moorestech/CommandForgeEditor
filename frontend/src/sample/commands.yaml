@@ -1,8 +1,8 @@
 version: 1
 commands:
   - id: text
-    label: テキスト
-    description: 台詞を表示
+    label: Text
+    description: Display dialogue
     commandListLabelFormat: "{character}「{body}」"
     properties:
       character:
@@ -15,17 +15,17 @@ commands:
         required: true
 
   - id: characterPosition
-    label: カメラ位置
-    description: カメラ位置
-    commandListLabelFormat: "カメラ移動 {position}"
+    label: Camera Position
+    description: Camera position
+    commandListLabelFormat: "Camera Move {position}"
     properties:
       position:
         type: vector3Int
         required: true
 
   - id: emote
-    label: エモート
-    description: 立ち絵・表情切替
+    label: Emote
+    description: Character expression change
     commandListLabelFormat: "EMOTE: {character}, {emotion}"
     properties:
       character:
@@ -34,12 +34,12 @@ commands:
         required: true
       emotion:
         type: enum
-        options: ["通常", "笑顔", "驚き", "怒り", "悲しみ", "困惑", "照れ", "恐怖", "喜び", "真剣"]
+        options: ["Normal", "Smile", "Surprise", "Anger", "Sadness", "Confusion", "Shy", "Fear", "Joy", "Serious"]
         required: true
 
   - id: wait
-    label: 待機
-    description: 指定秒数だけウェイト
+    label: Wait
+    description: Wait for specified seconds
     commandListLabelFormat: "WAIT: {seconds}"
     defaultBackgroundColor: '#57e317'
     properties:
@@ -51,12 +51,12 @@ commands:
 
   - id: bgm
     label: BGM
-    description: 背景音楽を変更
+    description: Change background music
     commandListLabelFormat: "BGM: {track}, volume={volume}"
     properties:
       track:
         type: enum
-        options: ["なし", "日常", "緊張", "悲しい", "楽しい", "神秘的", "アクション", "ロマンティック", "エンディング"]
+        options: ["None", "Daily Life", "Tension", "Sad", "Happy", "Mysterious", "Action", "Romantic", "Ending"]
         required: true
       volume:
         type: number
@@ -66,13 +66,13 @@ commands:
           max: 1.0
 
   - id: sound
-    label: 効果音
-    description: 効果音を再生
+    label: Sound Effect
+    description: Play sound effect
     commandListLabelFormat: "SOUND: {effect}, volume={volume}"
     properties:
       effect:
         type: enum
-        options: ["ドア", "足音", "衝撃", "爆発", "鐘", "拍手", "警報", "雨", "雷", "風"]
+        options: ["Door", "Footsteps", "Impact", "Explosion", "Bell", "Applause", "Alarm", "Rain", "Thunder", "Wind"]
         required: true
       volume:
         type: number
@@ -82,51 +82,51 @@ commands:
           max: 1.0
 
   - id: background
-    label: 背景
-    description: 背景画像を変更
+    label: Background
+    description: Change background image
     commandListLabelFormat: "BG: {scene}, effect={transition}"
     properties:
       scene:
         type: enum
-        options: ["教室", "廊下", "体育館", "屋上", "公園", "駅", "カフェ", "自宅", "図書館", "商店街"]
+        options: ["Classroom", "Hallway", "Gymnasium", "Rooftop", "Park", "Station", "Cafe", "Home", "Library", "Shopping Street"]
         required: true
       transition:
         type: enum
-        options: ["なし", "フェード", "ワイプ", "クロスフェード", "フラッシュ"]
-        default: "なし"
+        options: ["None", "Fade", "Wipe", "Crossfade", "Flash"]
+        default: "None"
 
   - id: camera
-    label: カメラ
-    description: カメラワークを指定
+    label: Camera
+    description: Control camera work
     commandListLabelFormat: "CAMERA: {action}, target={target}"
     properties:
       action:
         type: enum
-        options: ["ズームイン", "ズームアウト", "パン左", "パン右", "シェイク", "フォーカス", "リセット"]
+        options: ["Zoom In", "Zoom Out", "Pan Left", "Pan Right", "Shake", "Focus", "Reset"]
         required: true
       target:
         type: enum
-        options: ["全体", "CharacterA", "CharacterB", "CharacterC", "CharacterD", "Teacher", "Waiter", "背景"]
-        default: "全体"
+        options: ["Whole", "CharacterA", "CharacterB", "CharacterC", "CharacterD", "Teacher", "Waiter", "Background"]
+        default: "Whole"
 
   - id: choice
-    label: 選択肢
-    description: 選択肢を表示
+    label: Choice
+    description: Display choices
     commandListLabelFormat: "CHOICE: {options}"
     properties:
       options:
         type: string
         multiline: true
-        description: "選択肢を1行に1つずつ記述"
+        description: "One option per line"
         required: true
       timeout:
         type: number
         default: 0
-        description: "自動選択までの秒数（0で無制限）"
+        description: "Auto-select timeout in seconds (0 for unlimited)"
 
   - id: action
-    label: アクション
-    description: キャラクターのアクションを実行
+    label: Action
+    description: Execute character action
     commandListLabelFormat: "ACTION: {character}, {action}"
     properties:
       character:
@@ -135,16 +135,16 @@ commands:
         required: true
       action:
         type: enum
-        options: ["歩く", "走る", "座る", "立つ", "ジャンプ", "踊る", "倒れる", "手を振る", "指さす", "抱きしめる"]
+        options: ["Walk", "Run", "Sit", "Stand", "Jump", "Dance", "Fall", "Wave", "Point", "Hug"]
         required: true
       direction:
         type: enum
-        options: ["左", "右", "上", "下", "中央"]
-        default: "中央"
+        options: ["Left", "Right", "Up", "Down", "Center"]
+        default: "Center"
 
   - id: narration
-    label: ナレーション
-    description: ナレーションテキストを表示
+    label: Narration
+    description: Display narration text
     commandListLabelFormat: "NARRATION: {text}"
     properties:
       text:
@@ -153,12 +153,12 @@ commands:
         required: true
       style:
         type: enum
-        options: ["通常", "強調", "小さく", "斜体", "点滅"]
-        default: "通常"
+        options: ["Normal", "Emphasis", "Small", "Italic", "Blinking"]
+        default: "Normal"
 
   - id: branch
-    label: 分岐
-    description: 他のコマンドを参照する分岐
+    label: Branch
+    description: Branch referencing other commands
     commandListLabelFormat: "BRANCH: Target {targetCommand}"
     defaultBackgroundColor: "#f9f0ff"
     properties:
