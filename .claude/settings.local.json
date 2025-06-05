@@ -3,7 +3,9 @@
     "allow": [
       "Bash(mkdir:*)",
       "Bash(npm install:*)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Bash(npm run tauri:build:*)",
+      "Bash(npm run build:*)"
     ]
   },
   "enableAllProjectMcpServers": false
