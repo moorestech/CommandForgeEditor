@@ -245,7 +245,11 @@ function renderPropertyInput({
           onValueChange={onChange}
         >
           <SelectTrigger id={propName}>
-            <SelectValue placeholder={isMixed ? '-' : t('editor.selectPlease')} />
+            <SelectValue placeholder={isMixed ? '-' : t('editor.selectPlease')}>
+              {!isMixed && enumValue && commandType ? (
+                <EnumOption commandType={commandType} propertyKey={propName} value={enumValue} />
+              ) : null}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {propDef.options?.map((option) => (
