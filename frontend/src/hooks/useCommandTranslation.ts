@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { getTranslationWithFallback } from '../i18n/translationLoader';
 
 export function useCommandTranslation(commandId: string) {
-  const { i18n } = useTranslation();
+  useTranslation(); // Ensure translation context is available
 
   const tCommand = (suffix: string, fallback?: string): string => {
     const key = `command.${commandId}.${suffix}`;

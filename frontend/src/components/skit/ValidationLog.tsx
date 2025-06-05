@@ -14,7 +14,7 @@ export function ValidationLog() {
     if (validationErrors.length > 0) {
       validationErrors.forEach(error => {
         toast({
-          title: t('editor.error'),
+          title: t('editor.errorLabel'),
           description: error,
           variant: "destructive"
         });
@@ -31,7 +31,7 @@ export function ValidationLog() {
       {validationErrors.map((error, index) => (
         <Alert key={index} variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>{t('editor.error')}</AlertTitle>
+          <AlertTitle>{t('editor.errorLabel')}</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       ))}

@@ -145,6 +145,11 @@ export function getTranslationWithFallback(
 ): string {
   const translation = i18n.t(key, options);
   
+  // Ensure we return a string
+  if (typeof translation !== 'string') {
+    return fallback || key;
+  }
+  
   // If translation is the same as key, use fallback
   if (translation === key && fallback) {
     return fallback;
