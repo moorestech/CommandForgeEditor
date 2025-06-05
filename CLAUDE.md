@@ -117,6 +117,27 @@ Comprehensive documentation is available in `memory-bank/doc/`:
 - Development guide and API reference
 - Testing strategy and troubleshooting
 
+## MCP Browser Automation
+
+This project can be tested and demonstrated using Playwright MCP (Model Control Protocol) for browser automation. The application runs on `http://localhost:5173/` in development mode.
+
+### UI Testing with MCP
+
+**Available MCP Playwright Operations:**
+- `mcp__playwright__browser_navigate`: Navigate to the development server
+- `mcp__playwright__browser_snapshot`: Capture accessibility tree for UI analysis
+- `mcp__playwright__browser_click`: Interact with UI elements
+- `mcp__playwright__browser_type`: Input text into form fields
+- `mcp__playwright__browser_select_option`: Choose dropdown options
+
+**Key UI Areas for Testing:**
+1. **Skit List** (Left panel): Shows available skits and creation options
+2. **Command List** (Center panel): Displays numbered commands with drag handles
+3. **Command Editor** (Right panel): Properties panel for selected commands
+4. **Toolbar**: Action buttons (add, copy, cut, paste, delete, save)
+5. **Language Switcher**: i18n language selection dropdown
+
+
 **Important**: Please keep the documentation updated when making significant changes to the codebase. This includes:
 - Adding new features or components
 - Changing data models or API interfaces
