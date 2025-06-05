@@ -87,7 +87,7 @@ commands:
     properties:
       character:
         type: enum
-        options: ["キャラA", "キャラB"]
+        options: ["CharacterA", "CharacterB"]
         required: true
       body:
         type: string
@@ -109,13 +109,13 @@ commands:
     {
       "id": 1,
       "type": "text",
-      "character": "キャラA",
+      "character": "CharacterA",
       "body": "こんにちは"
     },
     {
       "id": 2,
       "type": "emote",
-      "character": "キャラA",
+      "character": "CharacterA",
       "emotion": "笑顔"
     }
   ]

@@ -50,7 +50,7 @@ describe('Toolbar', () => {
         properties: {
           character: {
             type: "enum",
-            options: ["キャラA", "キャラB"],
+            options: ["CharacterA", "CharacterB"],
             required: true
           },
           body: {

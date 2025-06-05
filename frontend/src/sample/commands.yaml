@@ -7,7 +7,7 @@ commands:
     properties:
       character:
         type: enum
-        options: ["キャラA", "キャラB", "キャラC", "キャラD", "先生", "店員"]
+        options: ["CharacterA", "CharacterB", "CharacterC", "CharacterD", "Teacher", "Waiter"]
         required: true
       body:
         type: string
@@ -30,7 +30,7 @@ commands:
     properties:
       character:
         type: enum
-        options: ["キャラA", "キャラB", "キャラC", "キャラD", "先生", "店員"]
+        options: ["CharacterA", "CharacterB", "CharacterC", "CharacterD", "Teacher", "Waiter"]
         required: true
       emotion:
         type: enum
@@ -106,7 +106,7 @@ commands:
         required: true
       target:
         type: enum
-        options: ["全体", "キャラA", "キャラB", "キャラC", "キャラD", "先生", "店員", "背景"]
+        options: ["全体", "CharacterA", "CharacterB", "CharacterC", "CharacterD", "Teacher", "Waiter", "背景"]
         default: "全体"
 
   - id: choice
@@ -131,7 +131,7 @@ commands:
     properties:
       character:
         type: enum
-        options: ["キャラA", "キャラB", "キャラC", "キャラD", "先生", "店員"]
+        options: ["CharacterA", "CharacterB", "CharacterC", "CharacterD", "Teacher", "Waiter"]
         required: true
       action:
         type: enum

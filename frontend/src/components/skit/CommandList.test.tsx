@@ -48,7 +48,7 @@ describe('CommandList', () => {
             {
               id: 1,
               type: 'text',
-              character: 'キャラA',
+              character: 'CharacterA',
               body: 'こんにちは',
             },
           ],
@@ -62,6 +62,6 @@ describe('CommandList', () => {
 
     render(<CommandList />);
     expect(screen.getByText('text')).toBeInTheDocument();
-    expect(screen.getByText('キャラA')).toBeInTheDocument();
+    expect(screen.getByText('CharacterA')).toBeInTheDocument();
   });
 });
