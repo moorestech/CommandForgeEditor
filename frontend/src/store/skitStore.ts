@@ -48,6 +48,7 @@ interface SkitState {
   pasteCommandsFromClipboard: () => Promise<void>;
   changeLanguage: (language: string) => Promise<void>;
   loadAvailableLanguages: () => Promise<void>;
+  openFolder: () => Promise<void>;
 }
 
 export const useSkitStore = create<SkitState>()(
@@ -781,6 +782,53 @@ export const useSkitStore = create<SkitState>()(
         });
       } catch (error) {
         console.error('Failed to load available languages:', error);
+      }
+    },
+    
+    openFolder: async () => {
+      try {
+        const { selectProjectFolder, loadCommandsYaml: loadCommandsYamlFile, loadSkits: loadSkitsFiles } = await import('../utils/fileSystem');
+        
+        // Open folder selection dialog
+        const selectedPath = await selectProjectFolder();
+        
+        if (selectedPath) {
+          // Update project path
+          set((state) => {
+            state.projectPath = selectedPath;
+          });
+          
+          // Load commands.yaml from the new path
+          try {
+            const commandsYamlContent = await loadCommandsYamlFile(selectedPath);
+            get().loadCommandsYaml(commandsYamlContent);
+          } catch (error) {
+            console.error('Failed to load commands.yaml:', error);
+          }
+          
+          // Load skits from the new path
+          try {
+            const skits = await loadSkitsFiles(selectedPath);
+            set((state) => {
+              state.skits = skits;
+              // Reset current skit selection
+              state.currentSkitId = null;
+              state.selectedCommandIds = [];
+              state.history = {
+                past: [],
+                future: [],
+              };
+            });
+          } catch (error) {
+            console.error('Failed to load skits:', error);
+          }
+          
+          // Reload translations for the new project
+          const { loadTranslations } = await import('../i18n/translationLoader');
+          await loadTranslations();
+        }
+      } catch (error) {
+        console.error('Failed to open folder:', error);
       }
     },
     };

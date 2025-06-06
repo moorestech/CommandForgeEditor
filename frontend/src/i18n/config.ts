@@ -36,6 +36,8 @@ const editorTranslations = {
           saveFailed: 'Failed to save: {{error}}',
           openProjectFolder: 'Open project folder',
           folder: 'Folder',
+          currentDirectory: 'Current Directory',
+          noFolderOpen: 'No folder open',
         },
         panel: {
           commandList: 'Command List',
@@ -82,6 +84,12 @@ const editorTranslations = {
         yes: 'Yes',
         no: 'No',
       },
+      language: {
+        label: 'Language',
+      },
+      skitList: {
+        title: 'Skit List',
+      },
     },
   },
   ja: {
@@ -116,6 +124,8 @@ const editorTranslations = {
           saveFailed: '保存に失敗しました: {{error}}',
           openProjectFolder: 'プロジェクトフォルダを開く',
           folder: 'フォルダ',
+          currentDirectory: '現在のディレクトリ',
+          noFolderOpen: 'フォルダが開かれていません',
         },
         panel: {
           commandList: 'コマンドリスト',
@@ -161,6 +171,12 @@ const editorTranslations = {
         selectPlease: '選択してください',
         yes: 'はい',
         no: 'いいえ',
+      },
+      language: {
+        label: '言語',
+      },
+      skitList: {
+        title: 'スキット一覧',
       },
     },
   },

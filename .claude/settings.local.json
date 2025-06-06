@@ -12,7 +12,8 @@
       "mcp__playwright__browser_close",
       "mcp__playwright__browser_wait_for",
       "Bash(ls:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(find:*)"
     ]
   },
   "enableAllProjectMcpServers": false

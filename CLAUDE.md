@@ -33,6 +33,8 @@ npm run test         # Run unit tests
 npm run test:watch   # Run tests in watch mode
 npm run test:ui      # Run tests with UI
 npm run test:e2e     # Run Playwright E2E tests
+npm run test:e2e -- --ui  # Run E2E tests in interactive UI mode
+npm run test -- --coverage  # Run tests with coverage report
 ```
 
 ### Code Quality
@@ -40,6 +42,7 @@ npm run test:e2e     # Run Playwright E2E tests
 cd frontend
 npm run lint         # Run ESLint
 npm run build        # Build for production (includes type checking)
+npx tsc --noEmit     # Quick type check without building
 ```
 
 ### Build
@@ -58,6 +61,8 @@ This is a desktop application for creating and editing game scenario scripts ("s
 - **State Management**: Zustand with Immer for immutable updates
 - **UI**: Shadcn UI components with Tailwind CSS
 - **Drag & Drop**: dnd-kit library for command manipulation
+- **Path Aliasing**: `@/` maps to `./src/` for cleaner imports
+- **Validation**: AJV for JSON Schema validation of command properties
 
 ### Key Data Models
 - **Commands**: Defined in YAML files, represent individual actions/instructions
@@ -100,6 +105,14 @@ The system includes built-in command types like `group_start`/`group_end` for or
 ### Validation System
 Real-time validation using JSON Schema validation (ajv) ensures commands have required properties and correct data types before saving.
 
+### i18n System
+The project features a dual-layer internationalization system:
+- **Fixed translations**: UI elements defined in `i18n/config.ts`
+- **Dynamic translations**: User-defined command labels loaded from project's `i18n/` folder
+- **Translation keys**: Follow pattern `command.<commandId>.property.<propertyKey>.name`
+- **Custom hook**: `useCommandTranslation()` for command-specific translations
+- **Current default**: Japanese (`lng: 'ja'` in config.ts)
+
 ## Development Notes
 
 - The project supports both web development (using sample data) and Tauri desktop app modes
@@ -108,6 +121,9 @@ Real-time validation using JSON Schema validation (ajv) ensures commands have re
 - The UI is fully keyboard accessible with shortcut support
 - Multi-select operations (copy/cut/paste/delete) work across command groups
 - Drag and drop reordering maintains proper command relationships
+- Test files are colocated with source files (`*.test.ts` alongside `*.ts`)
+- E2E tests include visual regression testing with screenshots
+- Vite base URL changes for GitHub Actions deployment
 
 ## Documentation
 
@@ -116,6 +132,11 @@ Comprehensive documentation is available in `memory-bank/doc/`:
 - Data models and component structure
 - Development guide and API reference
 - Testing strategy and troubleshooting
+
+Additional specifications in `specification/`:
+- **I18N_SPECIFICATION.md**: Complete i18n system design
+- **TMP_SUBROUTINE_SPECIFICATION.md**: Planned subroutine feature (future)
+- **TMP_VARIABLE_SPECIFICATION.md**: Planned variable system (future)
 
 ## MCP Browser Automation
 

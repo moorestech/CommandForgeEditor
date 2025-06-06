@@ -8,7 +8,6 @@ import {
   Redo,
   Save,
   ChevronDown,
-  FolderOpen,
   ClipboardPaste,
   Scissors
 } from 'lucide-react';
@@ -24,10 +23,8 @@ import { toast } from 'sonner';
 import { createCommandWithDefaults } from '../../utils/commandDefaults';
 import { DraggableCommand } from '../dnd/DraggableCommand';
 import { DropZone } from '../dnd/DropZone';
-import { selectProjectFolder } from '../../utils/fileSystem';
 import { useTranslation } from 'react-i18next';
 import { useCommandTranslation } from '../../hooks/useCommandTranslation';
-import { LanguageSwitcher } from '../layout/LanguageSwitcher';
 
 // Helper component to display translated command label
 function CommandMenuLabel({ commandId, label }: { commandId: string; label?: string }) {
@@ -50,10 +47,6 @@ export function Toolbar() {
     redo,
     saveSkit,
     commandDefinitions,
-    projectPath,
-    setProjectPath,
-    loadSkits,
-    loadCommandsYaml
   } = useSkitStore();
 
   const handleAddCommand = (commandType: string) => {
@@ -79,30 +72,6 @@ export function Toolbar() {
     }
 
     toast.success(t('editor.toolbar.commandAdded', { command: commandDef.label }));
-  };
-
-  const handleSelectFolder = async () => {
-    const selectedPath = await selectProjectFolder();
-    if (selectedPath) {
-      setProjectPath(selectedPath);
-      
-      try {
-        const commandsYamlContent = await import('../../utils/fileSystem').then(
-          module => module.loadCommandsYaml(selectedPath)
-        );
-        loadCommandsYaml(commandsYamlContent);
-        
-        const skits = await import('../../utils/fileSystem').then(
-          module => module.loadSkits(selectedPath)
-        );
-        loadSkits(skits);
-        
-        toast.success(t('editor.toolbar.projectLoaded'));
-      } catch (error) {
-        console.error('Failed to load project data:', error);
-        toast.error(t('editor.toolbar.projectLoadFailed'));
-      }
-    }
   };
 
   const handleSave = async () => {
@@ -195,29 +164,8 @@ export function Toolbar() {
         </DropZone>
       </div>
 
-      <div className="flex-1 flex items-center mx-2">
-        {projectPath && (
-          <div className="text-xs text-gray-500 truncate max-w-[200px]" title={projectPath}>
-            {projectPath}
-          </div>
-        )}
-      </div>
-
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={handleSelectFolder}
-        title={t('editor.toolbar.openProjectFolder')}
-        className="mr-2"
-      >
-        <FolderOpen className="h-4 w-4 mr-1" />
-        {t('editor.toolbar.folder')}
-      </Button>
-
       <div className="ml-auto flex items-center gap-2">
-        <LanguageSwitcher />
-        
-        <div className="border-l pl-2 flex items-center">
+        <div className="flex items-center">
           <Button
             variant="ghost"
             size="sm"
