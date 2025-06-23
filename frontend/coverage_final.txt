@@ -1,0 +1,671 @@
+
+> frontend@0.0.0 test
+> vitest run --coverage --run
+
+
+ RUN  v3.2.4 /Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend
+      Coverage enabled with v8
+
+ ❯ src/lib/utils.test.ts (22 tests | 1 failed) 21ms
+   ✓ lib/utils > cn function > should handle single string class 7ms
+   ✓ lib/utils > cn function > should handle multiple string classes 2ms
+   ✓ lib/utils > cn function > should handle undefined values 0ms
+   ✓ lib/utils > cn function > should handle null values 1ms
+   ✓ lib/utils > cn function > should handle false values 0ms
+   ✓ lib/utils > cn function > should handle empty strings 0ms
+   ✓ lib/utils > cn function > should handle conditional classes with ternary operators 0ms
+   ✓ lib/utils > cn function > should handle object syntax for conditional classes 0ms
+   ✓ lib/utils > cn function > should handle arrays of classes 0ms
+   ✓ lib/utils > cn function > should handle nested arrays 0ms
+   ✓ lib/utils > cn function > should handle mixed input types 0ms
+   ✓ lib/utils > cn function > should merge tailwind classes correctly 0ms
+   ✓ lib/utils > cn function > should preserve non-conflicting classes 0ms
+   ✓ lib/utils > cn function > should handle responsive variants 0ms
+   ✓ lib/utils > cn function > should handle hover and other state variants 0ms
+   ✓ lib/utils > cn function > should handle arbitrary values 1ms
+   × lib/utils > cn function > should handle important modifiers 7ms
+     → expected 'text-red-500 !text-blue-500' to be '!text-blue-500' // Object.is equality
+   ✓ lib/utils > cn function > should handle negative values 0ms
+   ✓ lib/utils > cn function > should handle multiple conflicting utilities 0ms
+   ✓ lib/utils > cn function > should return empty string for no valid inputs 0ms
+   ✓ lib/utils > cn function > should handle complex real-world scenarios 0ms
+   ✓ lib/utils > cn function > should handle utility conflicts with different properties 0ms
+stderr | src/i18n/translationLoader.test.ts > translationLoader > loadTranslations > should handle fetch errors in development mode
+Failed to load english translations in dev mode: Error: Network error
+    at [90m/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39msrc/i18n/translationLoader.test.ts:84:35
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:155:11
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:752:26
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1863:10[90m)[39m
+    at runTest [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1574:12[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at runSuite [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1729:8[90m)[39m
+    at runSuite [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1729:8[90m)[39m
+
+stderr | src/i18n/translationLoader.test.ts > translationLoader > loadTranslations > should handle fetch errors in development mode
+Failed to load japanese translations in dev mode: Error: Network error
+    at [90m/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39msrc/i18n/translationLoader.test.ts:84:35
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:155:11
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:752:26
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1863:10[90m)[39m
+    at runTest [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1574:12[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at runSuite [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1729:8[90m)[39m
+    at runSuite [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1729:8[90m)[39m
+
+stderr | src/i18n/translationLoader.test.ts > translationLoader > loadTranslations > should handle development mode even with __TAURI__ present
+i18n directory not found, using development translations
+
+ ❯ src/i18n/config.test.ts (14 tests | 1 failed) 38ms
+   × i18n/config > i18n initialization > should initialize i18n with correct configuration 17ms
+     → expected [ 'en' ] to deeply equal 'en'
+   ✓ i18n/config > i18n initialization > should have editor translations for English 4ms
+   ✓ i18n/config > i18n initialization > should have editor translations for Japanese 2ms
+   ✓ i18n/config > i18n initialization > should translate keys correctly 7ms
+   ✓ i18n/config > i18n initialization > should provide English translations when specifying language 2ms
+   ✓ i18n/config > i18n initialization > should fallback to English for missing Japanese translations 1ms
+   ✓ i18n/config > i18n initialization > should return key if translation is missing in all languages 0ms
+   ✓ i18n/config > initializeI18n > should call loadTranslations and return i18n instance 1ms
+   ✓ i18n/config > initializeI18n > should handle errors in loadTranslations 1ms
+   ✓ i18n/config > i18n language switching > should allow changing language 0ms
+   ✓ i18n/config > i18n language switching > should emit languageChanged event 0ms
+   ✓ i18n/config > i18n resource management > should allow adding new resources 0ms
+   ✓ i18n/config > i18n resource management > should allow adding nested resources 0ms
+   ✓ i18n/config > i18n resource management > should check if resource exists 0ms
+ ❯ src/i18n/translationLoader.test.ts (20 tests | 1 failed) 49ms
+   ✓ translationLoader > loadTranslations > should load development translations when not in Tauri environment 21ms
+   × translationLoader > loadTranslations > should handle fetch errors in development mode 19ms
+     → expected "error" to be called at least once
+   ✓ translationLoader > loadTranslations > should load translations from Tauri filesystem 0ms
+   ✓ translationLoader > loadTranslations > should fallback to development mode when commands path not found 0ms
+   ✓ translationLoader > loadTranslations > should handle missing i18n directory 0ms
+   ✓ translationLoader > loadTranslations > should handle JSON parse errors 2ms
+   ✓ translationLoader > loadTranslations > should skip non-existent language files 0ms
+   ✓ translationLoader > loadTranslations > should handle development mode even with __TAURI__ present 0ms
+   ✓ translationLoader > generateCommandTranslationKeys > should generate basic command translation keys 0ms
+   ✓ translationLoader > generateCommandTranslationKeys > should generate property translation keys 1ms
+   ✓ translationLoader > generateCommandTranslationKeys > should generate enum translation keys 0ms
+   ✓ translationLoader > generateCommandTranslationKeys > should handle commands without properties 0ms
+   ✓ translationLoader > getAvailableLanguages > should return available languages from i18n resource store 0ms
+   ✓ translationLoader > getAvailableLanguages > should use language code as fallback name 1ms
+   ✓ translationLoader > getTranslationWithFallback > should return translation when available 0ms
+   ✓ translationLoader > getTranslationWithFallback > should return fallback when translation equals key 0ms
+   ✓ translationLoader > getTranslationWithFallback > should return key when no translation and no fallback 1ms
+   ✓ translationLoader > getTranslationWithFallback > should handle non-string translations 0ms
+   ✓ translationLoader > getTranslationWithFallback > should pass options to i18n.t 0ms
+   ✓ translationLoader > getTranslationWithFallback > should return key when translation is non-string and no fallback 1ms
+stderr | src/components/layout/LanguageSwitcher.test.tsx > LanguageSwitcher > should render with globe icon
+Warning: validateDOMNesting(...): <button> cannot appear as a descendant of <button>.
+    at button
+    at SelectTrigger (/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/src/components/layout/LanguageSwitcher.test.tsx:12:21)
+    at button
+    at div
+    at Select (/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/src/components/layout/LanguageSwitcher.test.tsx:3:14)
+    at div
+    at LanguageSwitcher
+
+ ✓ src/components/layout/LanguageSwitcher.test.tsx (12 tests) 897ms
+   ✓ LanguageSwitcher > should render with globe icon  343ms
+   ✓ LanguageSwitcher > should display current language  385ms
+ ❯ src/main.test.tsx (8 tests | 5 failed) 3420ms
+   ✓ main.tsx > should initialize i18n before rendering  1205ms
+   × main.tsx > should render App component after i18n initialization 1051ms
+     → expected "spy" to be called with arguments: [ <div id="root"></div> ][90m
+
+Number of calls: [1m0[22m
+[39m
+   ✓ main.tsx > should set localStorage language to ja in development mode 9ms
+   ✓ main.tsx > should not set localStorage if already ja in development mode 35ms
+   × main.tsx > should not modify localStorage in production mode 38ms
+     → expected "spy" to not be called at all, but actually been called 1 times[90m
+
+Received: 
+
+[1m  1st spy call:
+
+[22m    Array [
+      "i18nextLng",
+      "ja",
+    ]
+[39m[90m
+
+Number of calls: [1m1[22m
+[39m
+   × main.tsx > should handle i18n initialization errors gracefully 40ms
+     → promise resolved "undefined" instead of rejecting
+   × main.tsx > should find root element by id 27ms
+     → promise resolved "undefined" instead of rejecting
+     → The node to be removed is not a child of this node.
+   × main.tsx > should render in StrictMode 1013ms
+     → expected undefined to be 'StrictMode' // Object.is equality
+stderr | src/components/skit/SkitList.test.tsx > SkitList > should handle creation exceptions
+Failed to create new skit: Error: Network error
+    at [90m/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39msrc/components/skit/SkitList.test.tsx:283:52
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:155:11
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:752:26
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1863:10[90m)[39m
+    at runTest [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1574:12[90m)[39m
+    at runSuite [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1729:8[90m)[39m
+    at runSuite [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1729:8[90m)[39m
+    at runFiles [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1787:3[90m)[39m
+
+stderr | src/components/skit/SkitList.test.tsx > SkitList > should handle non-Error objects in catch
+Failed to create new skit: String error
+
+stderr | src/App.test.tsx > App > should render resizable panels with correct structure
+Failed to load sample commands.yaml: Error: Yaml load error
+    at [90m/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39msrc/App.test.tsx:185:71
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:155:11
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:752:26
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1863:10[90m)[39m
+    at runTest [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1574:12[90m)[39m
+    at runSuite [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1729:8[90m)[39m
+    at runSuite [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1729:8[90m)[39m
+    at runFiles [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1787:3[90m)[39m
+
+stderr | src/App.test.tsx > App > should not reload data when projectPath does not change
+Failed to load sample commands.yaml: Error: Yaml load error
+    at [90m/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39msrc/App.test.tsx:185:71
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:155:11
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:752:26
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1863:10[90m)[39m
+    at runTest [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1574:12[90m)[39m
+    at runSuite [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1729:8[90m)[39m
+    at runSuite [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1729:8[90m)[39m
+    at runFiles [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1787:3[90m)[39m
+
+ ❯ src/App.test.tsx (10 tests | 1 failed) 2606ms
+   ✓ App > should render all main components 90ms
+   ✓ App > should load initial data on mount 59ms
+   × App > should handle errors when loading initial data 2082ms
+     → expected "error" to be called with arguments: [ Array(2) ][90m
+
+Number of calls: [1m0[22m
+[39m
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div[39m
+        [33mdata-testid[39m=[32m"i18next-provider"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mdata-testid[39m=[32m"dnd-provider"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mdata-testid[39m=[32m"main-layout"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"w-full flex flex-col overflow-hidden h-full"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mdata-testid[39m=[32m"toolbar"[39m
+              [36m>[39m
+                [0mToolbar[0m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mdata-testid[39m=[32m"resizable-panel-group"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mdata-testid[39m=[32m"resizable-panel"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"overflow-y-auto h-full"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mdata-testid[39m=[32m"command-list"[39m
+                    [36m>[39m
+                      [0mCommand List[0m
+                    [36m</div>[39m
+                  [36m</div>[39m
+                [36m</div>[39m
+                [36m<div[39m
+                  [33mdata-testid[39m=[32m"resizable-handle"[39m
+                [36m/>[39m
+                [36m<div[39m
+                  [33mdata-testid[39m=[32m"resizable-panel"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"flex-1 flex flex-col overflow-hidden h-full"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mclass[39m=[32m"flex-1 overflow-y-auto p-4"[39m
+                    [36m>[39m
+                      [36m<div[39m
+                        [33mdata-testid[39m=[32m"command-editor"[39m
+                      [36m>[39m
+                        [0mCommand Editor[0m
+                      [36m</div>[39m
+                    [36m</div>[39m
+                    [36m<div>[39m
+                      [36m<div[39m
+                        [33mdata-testid[39m=[32m"validation-log"[39m
+                      [36m>[39m
+                        [0mValidation Log[0m
+                      [36m</div>[39m
+                    [36m</div>[39m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mdata-testid[39m=[32m"toaster"[39m
+            [36m/>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+   ✓ App > should load sample data in development mode when main data fails 65ms
+   ✓ App > should handle errors when loading sample skit data 68ms
+   ✓ App > should handle errors when loading sample commands yaml 67ms
+   ✓ App > should render resizable panels with correct structure 32ms
+   ✓ App > should not reload data when projectPath does not change 5ms
+   ✓ App > should handle successful initial data load in production 70ms
+   ✓ App > should handle when projectPath is null 66ms
+ ✓ src/components/skit/SkitList.test.tsx (16 tests) 2596ms
+   ✓ SkitList > should highlight current skit  389ms
+   ✓ SkitList > should handle creation errors from API  311ms
+   ✓ SkitList > should handle creation exceptions  343ms
+   ✓ SkitList > should handle non-Error objects in catch  325ms
+ ✓ src/components/skit/CommandEditor.test.tsx (25 tests) 2954ms
+   ✓ CommandEditor > should handle boolean property changes  582ms
+   ✓ CommandEditor > should handle command property with filtering  331ms
+ ✓ src/components/dnd/SortableItem.test.tsx (13 tests) 901ms
+ ✓ src/components/skit/Toolbar.test.tsx (20 tests) 3647ms
+   ✓ Toolbar > should disable buttons when no skit is selected  392ms
+   ✓ Toolbar > should enable command-specific buttons when commands are selected  588ms
+   ✓ Toolbar > should save skit successfully  321ms
+   ✓ Toolbar > should handle non-Error objects in save error  369ms
+ ✓ src/components/layout/MainLayout.test.tsx (19 tests) 1042ms
+   ✓ MainLayout > should render children  459ms
+ ✓ src/components/skit/CommandList.test.tsx (21 tests | 1 skipped) 1293ms
+ ✓ src/components/dnd/DraggableCommand.test.tsx (10 tests) 723ms
+ ✓ src/components/dnd/DndProvider.test.tsx (13 tests) 451ms
+stderr | src/store/skitStore.test.ts > moveCommands edge cases > should handle moving to negative index
+[moveCommands] dropTargetItemInOriginalArray not found for toIndex -1. Inserting at end of remaining.
+
+ ✓ src/store/skitStore.test.ts (37 tests) 227ms
+ ✓ src/components/skit/ValidationLog.test.tsx (10 tests) 415ms
+ ✓ src/hooks/useDndSortable.test.ts (13 tests) 215ms
+ ✓ src/components/dnd/SortableList.test.tsx (13 tests) 211ms
+ ✓ src/components/dnd/DropZone.test.tsx (10 tests) 86ms
+ ✓ src/hooks/use-toast.test.ts (20 tests) 197ms
+ ✓ src/hooks/useToast.test.ts (13 tests) 245ms
+ ✓ src/hooks/useCommandTranslation.test.ts (14 tests) 89ms
+stderr | src/utils/fileSystem.test.ts > fileSystem > selectProjectFolder > should return null on error
+Failed to select project folder: Error: Dialog error
+    at [90m/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39msrc/utils/fileSystem.test.ts:56:48
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:155:11
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:752:26
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1863:10[90m)[39m
+    at runTest [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1574:12[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at runSuite [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1729:8[90m)[39m
+    at runSuite [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1729:8[90m)[39m
+
+stderr | src/utils/fileSystem.test.ts > fileSystem > loadCommandsYaml > should throw error on failure
+Failed to load commands.yaml: Error: File not found
+    at [90m/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39msrc/utils/fileSystem.test.ts:101:57
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:155:11
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:752:26
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1863:10[90m)[39m
+    at runTest [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1574:12[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at runSuite [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1729:8[90m)[39m
+    at runSuite [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1729:8[90m)[39m
+
+stderr | src/utils/fileSystem.test.ts > fileSystem > loadCommandsYaml > should throw error in web environment
+Failed to load commands.yaml: Error: Running in web environment, Tauri API not available
+    at Module.loadCommandsYaml [90m(/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39msrc/utils/fileSystem.ts:40:13[90m)[39m
+    at [90m/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39msrc/utils/fileSystem.test.ts:111:20
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:155:11
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:752:26
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1863:10[90m)[39m
+    at runTest [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1574:12[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at runSuite [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1729:8[90m)[39m
+
+stdout | src/utils/fileSystem.test.ts > fileSystem > loadSkits > should create skits directory if not exists
+Created skits directory at /project/skits
+
+stderr | src/utils/fileSystem.test.ts > fileSystem > loadSkits > should return empty object on error
+Failed to load skits: Error: Path error
+    at [90m/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39msrc/utils/fileSystem.test.ts:186:46
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:155:11
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:752:26
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1863:10[90m)[39m
+    at runTest [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1574:12[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at runSuite [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1729:8[90m)[39m
+    at runSuite [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1729:8[90m)[39m
+
+stderr | src/utils/fileSystem.test.ts > fileSystem > saveSkit > should return error on save failure
+Failed to save skit: Error: Path error
+    at [90m/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39msrc/utils/fileSystem.test.ts:320:46
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:155:11
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:752:26
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1863:10[90m)[39m
+    at runTest [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1574:12[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at runSuite [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1729:8[90m)[39m
+    at runSuite [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1729:8[90m)[39m
+
+ ✓ src/utils/fileSystem.test.ts (26 tests) 58ms
+ ✓ src/hooks/use-mobile.test.tsx (12 tests) 91ms
+ ✓ src/utils/commandFormatting.test.ts (19 tests) 8ms
+ ✓ src/utils/devFileSystem.test.ts (10 tests) 20ms
+ ✓ src/utils/reservedCommands.test.ts (9 tests) 11ms
+ ✓ src/utils/validation.test.ts (19 tests) 45ms
+ ✓ src/hooks/useKeyboardShortcuts.test.ts (19 tests | 1 skipped) 334ms
+ ✓ src/utils/commandDefaults.test.ts (17 tests) 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/App.test.tsx > App > should handle errors when loading initial data
+AssertionError: expected "error" to be called with arguments: [ Array(2) ][90m
+
+Number of calls: [1m0[22m
+[39m
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div[39m
+        [33mdata-testid[39m=[32m"i18next-provider"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mdata-testid[39m=[32m"dnd-provider"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mdata-testid[39m=[32m"main-layout"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"w-full flex flex-col overflow-hidden h-full"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mdata-testid[39m=[32m"toolbar"[39m
+              [36m>[39m
+                [0mToolbar[0m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mdata-testid[39m=[32m"resizable-panel-group"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mdata-testid[39m=[32m"resizable-panel"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"overflow-y-auto h-full"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mdata-testid[39m=[32m"command-list"[39m
+                    [36m>[39m
+                      [0mCommand List[0m
+                    [36m</div>[39m
+                  [36m</div>[39m
+                [36m</div>[39m
+                [36m<div[39m
+                  [33mdata-testid[39m=[32m"resizable-handle"[39m
+                [36m/>[39m
+                [36m<div[39m
+                  [33mdata-testid[39m=[32m"resizable-panel"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"flex-1 flex flex-col overflow-hidden h-full"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mclass[39m=[32m"flex-1 overflow-y-auto p-4"[39m
+                    [36m>[39m
+                      [36m<div[39m
+                        [33mdata-testid[39m=[32m"command-editor"[39m
+                      [36m>[39m
+                        [0mCommand Editor[0m
+                      [36m</div>[39m
+                    [36m</div>[39m
+                    [36m<div>[39m
+                      [36m<div[39m
+                        [33mdata-testid[39m=[32m"validation-log"[39m
+                      [36m>[39m
+                        [0mValidation Log[0m
+                      [36m</div>[39m
+                    [36m</div>[39m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mdata-testid[39m=[32m"toaster"[39m
+            [36m/>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+ ❯ __vi_import_1__.waitFor.timeout src/App.test.tsx:131:31
+    129|     
+    130|     await waitFor(() => {
+    131|       expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to load ini…
+       |                               ^
+    132|     }, { timeout: 2000 });
+    133|     
+ ❯ runWithExpensiveErrorDiagnosticsDisabled node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/10]⎯
+
+ FAIL  src/main.test.tsx > main.tsx > should render App component after i18n initialization
+AssertionError: expected "spy" to be called with arguments: [ <div id="root"></div> ][90m
+
+Number of calls: [1m0[22m
+[39m
+ ❯ src/main.test.tsx:82:37
+     80|     
+     81|     await vi.waitFor(() => {
+     82|       expect(vi.mocked(createRoot)).toHaveBeenCalledWith(rootElement);
+       |                                     ^
+     83|       expect(mockRender).toHaveBeenCalled();
+     84|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/10]⎯
+
+ FAIL  src/main.test.tsx > main.tsx > should not modify localStorage in production mode
+AssertionError: expected "spy" to not be called at all, but actually been called 1 times[90m
+
+Received: 
+
+[1m  1st spy call:
+
+[22m    Array [
+      "i18nextLng",
+      "ja",
+    ]
+[39m[90m
+
+Number of calls: [1m1[22m
+[39m
+ ❯ src/main.test.tsx:130:42
+    128|     
+    129|     // Should not call setItem in production
+    130|     expect(localStorageMock.setItem).not.toHaveBeenCalled();
+       |                                          ^
+    131|   });
+    132| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/10]⎯
+
+ FAIL  src/main.test.tsx > main.tsx > should handle i18n initialization errors gracefully
+AssertionError: promise resolved "undefined" instead of rejecting
+
+[32m- Expected:[39m 
+Error {
+  "message": "rejected promise",
+}
+
+[31m+ Received:[39m 
+undefined
+
+ ❯ src/main.test.tsx:144:6
+    142|       // Wait a bit to ensure the promise rejection is processed
+    143|       await new Promise(resolve => setTimeout(resolve, 10));
+    144|     }).rejects.toThrow();
+       |      ^
+    145|     
+    146|     consoleErrorSpy.mockRestore();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/10]⎯
+
+ FAIL  src/main.test.tsx > main.tsx > should find root element by id
+AssertionError: promise resolved "undefined" instead of rejecting
+
+[32m- Expected:[39m 
+Error {
+  "message": "rejected promise",
+}
+
+[31m+ Received:[39m 
+undefined
+
+ ❯ src/main.test.tsx:161:6
+    159|       await import('./main');
+    160|       await new Promise(resolve => setTimeout(resolve, 10));
+    161|     }).rejects.toThrow();
+       |      ^
+    162|     
+    163|     // Add it back for cleanup
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/10]⎯
+
+ FAIL  src/main.test.tsx > main.tsx > should find root element by id
+NotFoundError: The node to be removed is not a child of this node.
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/10]⎯
+
+ FAIL  src/main.test.tsx > main.tsx > should render in StrictMode
+AssertionError: expected undefined to be 'StrictMode' // Object.is equality
+
+[32m- Expected:[39m 
+"StrictMode"
+
+[31m+ Received:[39m 
+undefined
+
+ ❯ src/main.test.tsx:178:36
+    176|       // Check that StrictMode is used
+    177|       const renderCall = mockRender.mock.calls[0][0];
+    178|       expect(renderCall.type.name).toBe('StrictMode');
+       |                                    ^
+    179|     });
+    180|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/10]⎯
+
+ FAIL  src/i18n/config.test.ts > i18n/config > i18n initialization > should initialize i18n with correct configuration
+AssertionError: expected [ 'en' ] to deeply equal 'en'
+
+[32m- Expected:[39m 
+"en"
+
+[31m+ Received:[39m 
+[
+  "en",
+]
+
+ ❯ src/i18n/config.test.ts:24:40
+     22|       expect(i18n.isInitialized).toBe(true);
+     23|       expect(i18n.language).toBe('ja');
+     24|       expect(i18n.options.fallbackLng).toEqual('en');
+       |                                        ^
+     25|       expect(i18n.options.debug).toBe(false);
+     26|       expect(i18n.options.interpolation?.escapeValue).toBe(false);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/10]⎯
+
+ FAIL  src/i18n/translationLoader.test.ts > translationLoader > loadTranslations > should handle fetch errors in development mode
+AssertionError: expected "error" to be called at least once
+ ❯ src/i18n/translationLoader.test.ts:90:31
+     88|       await loadTranslations();
+     89| 
+     90|       expect(consoleErrorSpy).toHaveBeenCalled();
+       |                               ^
+     91|       
+     92|       consoleErrorSpy.mockRestore();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/10]⎯
+
+ FAIL  src/lib/utils.test.ts > lib/utils > cn function > should handle important modifiers
+AssertionError: expected 'text-red-500 !text-blue-500' to be '!text-blue-500' // Object.is equality
+
+Expected: [32m"!text-blue-500"[39m
+Received: [31m"[7mtext-red-500 [27m!text-blue-500"[39m
+
+ ❯ src/lib/utils.test.ts:98:52
+     96|     it('should handle important modifiers', () => {
+     97|       expect(cn('!text-red-500', '!text-blue-500')).toBe('!text-blue-5…
+     98|       expect(cn('text-red-500', '!text-blue-500')).toBe('!text-blue-50…
+       |                                                    ^
+     99|     });
+    100| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/10]⎯
+
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 1 unhandled error during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+Error: Init failed
+ ❯ src/main.test.tsx:135:49
+    133|   it('should handle i18n initialization errors gracefully', async () =…
+    134|     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementat…
+    135|     vi.mocked(initializeI18n).mockRejectedValue(new Error('Init failed…
+       |                                                 ^
+    136|     
+    137|     vi.resetModules();
+ ❯ node_modules/@vitest/runner/dist/chunk-hooks.js:155:11
+ ❯ node_modules/@vitest/runner/dist/chunk-hooks.js:752:26
+ ❯ node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20
+ ❯ runWithTimeout node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10
+ ❯ runTest node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12
+ ❯ processTicksAndRejections node:internal/process/task_queues:105:5
+ ❯ runSuite node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8
+ ❯ runSuite node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8
+
+This error originated in "src/main.test.tsx" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "should handle i18n initialization errors gracefully". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+
+ Test Files  5 failed | 25 passed (30)
+      Tests  9 failed | 473 passed | 2 skipped (484)
+     Errors  1 error
+   Start at  15:24:43
+   Duration  21.23s (transform 5.31s, setup 19.95s, collect 22.16s, tests 22.90s, environment 64.16s, prepare 11.82s)
+

@@ -1,0 +1,32 @@
+
+> frontend@0.0.0 test
+> vitest run --run --coverage
+
+
+ RUN  v3.2.4 /Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend
+      Coverage enabled with v8
+
+ ✓ src/utils/commandDefaults.test.ts (17 tests) 5ms
+ ✓ src/components/dnd/DropZone.test.tsx (10 tests) 54ms
+ ✓ src/components/dnd/DraggableCommand.test.tsx (10 tests) 181ms
+ ✓ src/store/skitStore.test.ts (20 tests) 33ms
+ ✓ src/components/skit/ValidationLog.test.tsx (10 tests) 78ms
+ ✓ src/components/skit/CommandList.test.tsx (2 tests | 1 skipped) 302ms
+   ✓ CommandList > renders commands when a skit is selected  300ms
+ ✓ src/components/skit/CommandEditor.test.tsx (25 tests) 949ms
+ ✓ src/components/skit/Toolbar.test.tsx (20 tests) 1589ms
+   ✓ Toolbar > should disable buttons when no skit is selected  491ms
+stdout | src/utils/fileSystem.test.ts > fileSystem > loadSkits > should create skits directory if not exists
+Created skits directory at /project/skits
+
+ ✓ src/utils/devFileSystem.test.ts (10 tests) 7ms
+ ✓ src/utils/commandFormatting.test.ts (19 tests) 4ms
+ ✓ src/utils/fileSystem.test.ts (26 tests) 31ms
+ ✓ src/utils/reservedCommands.test.ts (9 tests) 7ms
+ ✓ src/utils/validation.test.ts (19 tests) 87ms
+
+ Test Files  1 failed | 13 passed (14)
+      Tests  196 passed | 1 skipped (197)
+   Start at  10:50:57
+   Duration  6.77s (transform 1.35s, setup 5.06s, collect 5.17s, tests 3.33s, environment 19.65s, prepare 2.88s)
+

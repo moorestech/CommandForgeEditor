@@ -6,6 +6,7 @@
       "Bash(npm run dev:*)",
       "Bash(npm run tauri:build:*)",
       "Bash(npm run build:*)",
+      "Bash(npm:*)",
       "mcp__playwright__browser_navigate",
       "mcp__playwright__browser_click",
       "mcp__playwright__browser_snapshot",
@@ -13,7 +14,12 @@
       "mcp__playwright__browser_wait_for",
       "Bash(ls:*)",
       "Bash(cat:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(npm run test:*)",
+      "Bash(npm test:*)",
+      "Bash(grep:*)",
+      "Bash(npx vitest run:*)",
+      "Bash(npx c8 report:*)"
     ]
   },
   "enableAllProjectMcpServers": false
