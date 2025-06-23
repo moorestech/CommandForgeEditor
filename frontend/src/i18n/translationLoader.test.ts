@@ -9,7 +9,7 @@ import * as tauriPath from '@tauri-apps/api/path';
 // Mock modules
 vi.mock('i18next', () => ({
   default: {
-    t: vi.fn((key, options) => key),
+    t: vi.fn((key, _options) => key),
     addResourceBundle: vi.fn(),
     services: {
       resourceStore: {
@@ -273,11 +273,11 @@ describe('translationLoader', () => {
   describe('getAvailableLanguages', () => {
     it('should return available languages from i18n resource store', async () => {
       const mockT = vi.mocked(i18n.t);
-      mockT.mockImplementation((key: string, options?: any) => {
+      mockT.mockImplementation(((key: string, options?: any) => {
         if (key === 'language.en' && options?.lng === 'en') return 'English';
         if (key === 'language.ja' && options?.lng === 'ja') return '日本語';
         return key;
-      });
+      }) as any);
 
       const languages = await getAvailableLanguages();
 
@@ -289,7 +289,7 @@ describe('translationLoader', () => {
 
     it('should use language code as fallback name', async () => {
       const mockT = vi.mocked(i18n.t);
-      mockT.mockImplementation((key: string) => key);
+      mockT.mockImplementation(((key: string) => key) as any);
 
       const languages = await getAvailableLanguages();
 
@@ -341,10 +341,10 @@ describe('translationLoader', () => {
       const mockT = vi.mocked(i18n.t);
       mockT.mockReturnValue('Translated with options');
 
-      const options = { lng: 'en', count: 5 };
-      const result = getTranslationWithFallback('test.key', 'Fallback', options);
+      const _options = { lng: 'en', count: 5 };
+      const result = getTranslationWithFallback('test.key', 'Fallback', _options);
 
-      expect(mockT).toHaveBeenCalledWith('test.key', options);
+      expect(mockT).toHaveBeenCalledWith('test.key', _options);
       expect(result).toBe('Translated with options');
     });
 

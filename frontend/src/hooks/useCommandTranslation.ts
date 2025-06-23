@@ -18,7 +18,7 @@ export function useCommandTranslation(commandId: string) {
     // If masterKey is provided, prioritize master data translation
     if (masterKey) {
       const masterDataKey = `master.${masterKey}.${enumValue}`;
-      const masterTranslation = getTranslationWithFallback(masterDataKey, null);
+      const masterTranslation = getTranslationWithFallback(masterDataKey, undefined);
       
       // If master translation exists, use it
       if (masterTranslation !== masterDataKey) {

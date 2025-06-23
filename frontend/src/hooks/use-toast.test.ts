@@ -174,10 +174,8 @@ describe('use-toast', () => {
     it('should update toast', () => {
       const { result } = renderHook(() => useToast());
       
-      let toastId: string;
       act(() => {
-        const { id } = result.current.toast({ title: 'Original' });
-        toastId = id;
+        result.current.toast({ title: 'Original' });
       });
       
       act(() => {

@@ -28,7 +28,7 @@ vi.mock('../../store/skitStore', () => ({
   }),
   getTopLevelGroups: vi.fn((commands, indices) => {
     // Simple mock implementation - return group_start indices
-    return indices.filter(i => commands[i]?.type === 'group_start');
+    return indices.filter((i: number) => commands[i]?.type === 'group_start');
   }),
 }));
 
@@ -60,9 +60,9 @@ vi.mock('../dnd/DraggableCommand', () => ({
 
 vi.mock('../../hooks/useCommandTranslation', () => ({
   useCommandTranslation: () => ({
-    tCommand: (key: string, fallback?: string) => fallback || key,
-    tProperty: (prop: string, key: string, fallback?: string) => fallback || `${prop}.${key}`,
-    tEnum: (prop: string, value: string, fallback?: string) => fallback || value,
+    tCommand: (_key: string, fallback?: string) => fallback || _key,
+    tProperty: (_prop: string, _key: string, fallback?: string) => fallback || `${_prop}.${_key}`,
+    tEnum: (_prop: string, _value: string, fallback?: string) => fallback || _value,
   }),
 }));
 

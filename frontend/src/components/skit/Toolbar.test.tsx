@@ -1,5 +1,4 @@
 // AI Generated Test Code
-import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Toolbar } from './Toolbar';
@@ -24,8 +23,8 @@ vi.mock('../dnd/DropZone', () => ({
   )
 }));
 vi.mock('../../hooks/useCommandTranslation', () => ({
-  useCommandTranslation: (commandType: string) => ({
-    tCommand: (key: string, fallback: string) => fallback
+  useCommandTranslation: (_commandType: string) => ({
+    tCommand: (_key: string, fallback: string) => fallback
   })
 }));
 
@@ -34,7 +33,7 @@ vi.mock('../ui/dropdown-menu', () => {
   const React = require('react');
   return {
     DropdownMenu: ({ children }: any) => <>{children}</>,
-    DropdownMenuTrigger: ({ children, asChild }: any) => {
+    DropdownMenuTrigger: ({ children, asChild: _asChild }: any) => {
       const [open, setOpen] = React.useState(false);
       const child = React.Children.only(children);
       return React.cloneElement(child, {

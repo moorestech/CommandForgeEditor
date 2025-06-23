@@ -252,7 +252,7 @@ function renderPropertyInput({
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
-            {propDef.options?.map((option) => (
+            {Array.isArray(propDef.options) && propDef.options.map((option) => (
               <SelectItem key={option} value={option}>
                 {commandType ? <EnumOption commandType={commandType} propertyKey={propName} value={option} masterKey={propDef.masterKey} /> : option}
               </SelectItem>

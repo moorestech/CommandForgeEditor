@@ -1,6 +1,5 @@
 // AI Generated Test Code
-import React from 'react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { DropZone } from './DropZone';
 import { useDroppable } from '@dnd-kit/core';
@@ -52,8 +51,8 @@ describe('DropZone', () => {
       </DropZone>
     );
 
-    const dropZone = screen.getByText('Content').parentElement;
-    expect(dropZone).toHaveClass('custom-class');
+    const element = screen.getByText('Content').parentElement;
+    expect(element).toHaveClass('custom-class');
   });
 
   it('should apply ring style when isOver is true', () => {
@@ -72,8 +71,8 @@ describe('DropZone', () => {
       </DropZone>
     );
 
-    const dropZone = screen.getByText('Content').parentElement;
-    expect(dropZone).toHaveClass('ring-2', 'ring-primary');
+    const element = screen.getByText('Content').parentElement;
+    expect(element).toHaveClass('ring-2', 'ring-primary');
   });
 
   it('should not apply ring style when isOver is false', () => {
@@ -83,9 +82,9 @@ describe('DropZone', () => {
       </DropZone>
     );
 
-    const dropZone = screen.getByText('Content').parentElement;
-    expect(dropZone).not.toHaveClass('ring-2');
-    expect(dropZone).not.toHaveClass('ring-primary');
+    const element = screen.getByText('Content').parentElement;
+    expect(element).not.toHaveClass('ring-2');
+    expect(element).not.toHaveClass('ring-primary');
   });
 
   it('should set ref using setNodeRef', () => {
@@ -95,7 +94,6 @@ describe('DropZone', () => {
       </DropZone>
     );
 
-    const dropZone = screen.getByText('Content').parentElement;
     expect(mockSetNodeRef).toHaveBeenCalled();
   });
 
@@ -115,8 +113,8 @@ describe('DropZone', () => {
       </DropZone>
     );
 
-    const dropZone = screen.getByText('Content').parentElement;
-    expect(dropZone).toHaveClass('my-custom-class', 'ring-2', 'ring-primary');
+    const element = screen.getByText('Content').parentElement;
+    expect(element).toHaveClass('my-custom-class', 'ring-2', 'ring-primary');
   });
 
   it('should render multiple children', () => {
@@ -140,8 +138,8 @@ describe('DropZone', () => {
       </DropZone>
     );
 
-    const dropZone = screen.getByText('Content').parentElement;
-    expect(dropZone).toBeInTheDocument();
+    const element = screen.getByText('Content').parentElement;
+    expect(element).toBeInTheDocument();
   });
 
   it('should work without className prop', () => {
@@ -151,7 +149,7 @@ describe('DropZone', () => {
       </DropZone>
     );
 
-    const dropZone = screen.getByText('Content').parentElement;
-    expect(dropZone).toBeInTheDocument();
+    const element = screen.getByText('Content').parentElement;
+    expect(element).toBeInTheDocument();
   });
 });

@@ -572,7 +572,7 @@ describe('skitStore', () => {
       },
     };
 
-    vi.mocked(fileSystem.saveSkit).mockResolvedValueOnce({ success: true });
+    vi.mocked(fileSystem.saveSkit).mockResolvedValueOnce([]);
     
     act(() => {
       useSkitStore.getState().loadSkits(testSkits);
@@ -769,9 +769,10 @@ describe('moveCommands edge cases', () => {
       validationErrors: [],
       commandDefinitions: [],
       commandsMap: new Map(),
-      commandClipboard: [],
-      history: [],
-      historyIndex: -1,
+      history: {
+        past: [],
+        future: [],
+      },
     });
     
     const testSkit: Skit = {
@@ -885,9 +886,10 @@ describe('history edge cases', () => {
       validationErrors: [],
       commandDefinitions: [],
       commandsMap: new Map(),
-      commandClipboard: [],
-      history: [],
-      historyIndex: -1,
+      history: {
+        past: [],
+        future: [],
+      },
     });
     
     const testSkit: Skit = {

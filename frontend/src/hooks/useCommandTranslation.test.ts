@@ -1,5 +1,5 @@
 // AI Generated Test Code
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useCommandTranslation } from './useCommandTranslation';
 import { useTranslation } from 'react-i18next';
@@ -14,14 +14,14 @@ describe('useCommandTranslation', () => {
     vi.clearAllMocks();
     
     // Mock useTranslation
-    vi.mocked(useTranslation).mockReturnValue({
-      t: vi.fn(),
-      i18n: {} as any,
-      ready: true,
-    });
+    vi.mocked(useTranslation).mockReturnValue([
+      vi.fn() as any,
+      {} as any,
+      true,
+    ] as any);
     
     // Mock getTranslationWithFallback
-    vi.mocked(getTranslationWithFallback).mockImplementation((key, fallback) => {
+    vi.mocked(getTranslationWithFallback).mockImplementation((key, _fallback) => {
       return `translated:${key}`;
     });
   });

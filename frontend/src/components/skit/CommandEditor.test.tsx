@@ -4,16 +4,15 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { CommandEditor } from './CommandEditor';
 import { useSkitStore } from '../../store/skitStore';
 import { CommandDefinition, Skit, SkitCommand } from '../../types';
-import React from 'react';
 
 // Mock dependencies
 vi.mock('../../store/skitStore');
 
 vi.mock('../../hooks/useCommandTranslation', () => ({
-  useCommandTranslation: (commandType: string) => ({
-    tCommand: (key: string, fallback: string) => fallback,
-    tProperty: (propKey: string, key: string, fallback: string) => fallback,
-    tEnum: (propKey: string, value: string, fallback: string, masterKey?: string) => fallback,
+  useCommandTranslation: (_commandType: string) => ({
+    tCommand: (_key: string, fallback: string) => fallback,
+    tProperty: (_propKey: string, _key: string, fallback: string) => fallback,
+    tEnum: (_propKey: string, _value: string, fallback: string, _masterKey?: string) => fallback,
   })
 }));
 

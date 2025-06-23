@@ -1,5 +1,5 @@
 // AI Generated Test Code
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useDndSortable } from './useDndSortable';
 
@@ -122,7 +122,7 @@ describe('useDndSortable', () => {
   });
 
   it('should not use props directly', () => {
-    const { result } = renderHook(() => useDndSortable(defaultProps));
+    renderHook(() => useDndSortable(defaultProps));
     
     // The hook doesn't use the props directly, just for type safety
     expect(mockOnReorder).not.toHaveBeenCalled();

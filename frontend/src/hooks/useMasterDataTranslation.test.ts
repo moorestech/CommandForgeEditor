@@ -156,8 +156,8 @@ describe('Master data i18n integration', () => {
     const { result } = renderHook(() => useCommandTranslation('dialogue'));
     
     // Test with masterKey - should use master translations
-    expect(result.current.tEnum('speaker', 'CharacterA', null, 'characters')).toBe('ヒーロー');
-    expect(result.current.tEnum('mood', 'Happy', null, 'emotions')).toBe('幸せ');
+    expect(result.current.tEnum('speaker', 'CharacterA', undefined, 'characters')).toBe('ヒーロー');
+    expect(result.current.tEnum('mood', 'Happy', undefined, 'emotions')).toBe('幸せ');
     
     // Test without masterKey - should use command-specific translations
     expect(result.current.tEnum('speaker', 'CharacterA')).toBe('ダイアログキャラA');

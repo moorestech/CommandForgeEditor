@@ -1,5 +1,4 @@
 // AI Generated Test Code
-import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -8,7 +7,6 @@ import { useSkitStore } from '../../store/skitStore';
 import { createNewSkit } from '../../utils/fileSystem';
 import { toast } from 'sonner';
 import { Skit } from '../../types';
-import { useTranslation } from 'react-i18next';
 
 // Mock i18n config first to prevent initialization issues
 vi.mock('../../i18n/config', () => ({

@@ -14,11 +14,11 @@ describe('useIsMobile', () => {
     mockMatchMedia = vi.fn((query: string) => ({
       matches: false,
       media: query,
-      addEventListener: vi.fn((event: string, handler: Function) => {
-        listeners.push({ event, handler });
+      addEventListener: vi.fn((_event: string, handler: Function) => {
+        listeners.push({ event: _event, handler });
       }),
-      removeEventListener: vi.fn((event: string, handler: Function) => {
-        listeners = listeners.filter(l => l.event !== event || l.handler !== handler);
+      removeEventListener: vi.fn((_event: string, handler: Function) => {
+        listeners = listeners.filter(l => l.event !== _event || l.handler !== handler);
       }),
     }));
     
@@ -223,10 +223,10 @@ describe('useIsMobile', () => {
     mockMatchMedia.mockReturnValue({
       matches: false,
       media: '',
-      addEventListener: vi.fn((event: string, handler: Function) => {
+      addEventListener: vi.fn((_event: string, handler: Function) => {
         addedHandlers.push(handler);
       }),
-      removeEventListener: vi.fn((event: string, handler: Function) => {
+      removeEventListener: vi.fn((_event: string, handler: Function) => {
         removedHandlers.push(handler);
       }),
     });

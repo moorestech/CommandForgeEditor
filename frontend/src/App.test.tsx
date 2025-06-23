@@ -103,7 +103,17 @@ describe('App', () => {
 
   it('should load initial data on mount', async () => {
     const mockCommandsYaml = 'test yaml content';
-    const mockSkitsData = { 'test-skit': { meta: {}, commands: [] } };
+    const mockSkitsData = { 
+      'test-skit': { 
+        meta: {
+          title: 'Test Skit',
+          version: 1,
+          created: '2024-01-01T00:00:00Z',
+          modified: '2024-01-01T00:00:00Z'
+        }, 
+        commands: [] 
+      } 
+    };
     
     vi.mocked(fileSystem.loadCommandsYaml).mockResolvedValue(mockCommandsYaml);
     vi.mocked(fileSystem.loadSkits).mockResolvedValue(mockSkitsData);
@@ -122,7 +132,17 @@ describe('App', () => {
   it('should load sample data in development mode when main data fails', async () => {
     (import.meta as any).env = { DEV: true };
     
-    const mockSampleSkits = { 'sample-skit': { meta: {}, commands: [] } };
+    const mockSampleSkits = { 
+      'sample-skit': { 
+        meta: {
+          title: 'Sample Skit',
+          version: 1,
+          created: '2024-01-01T00:00:00Z',
+          modified: '2024-01-01T00:00:00Z'
+        }, 
+        commands: [] 
+      } 
+    };
     const mockSampleYaml = 'sample yaml';
     
     vi.mocked(fileSystem.loadCommandsYaml).mockRejectedValue(new Error('Load error'));
@@ -204,7 +224,17 @@ describe('App', () => {
     (import.meta as any).env = { DEV: false };
     
     const mockCommandsYaml = 'production yaml';
-    const mockSkitsData = { 'prod-skit': { meta: {}, commands: [] } };
+    const mockSkitsData = { 
+      'prod-skit': { 
+        meta: {
+          title: 'Production Skit',
+          version: 1,
+          created: '2024-01-01T00:00:00Z',
+          modified: '2024-01-01T00:00:00Z'
+        }, 
+        commands: [] 
+      } 
+    };
     
     vi.mocked(fileSystem.loadCommandsYaml).mockResolvedValue(mockCommandsYaml);
     vi.mocked(fileSystem.loadSkits).mockResolvedValue(mockSkitsData);

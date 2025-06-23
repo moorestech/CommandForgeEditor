@@ -1,5 +1,4 @@
 // AI Generated Test Code
-import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { MainLayout } from './MainLayout';
@@ -61,11 +60,12 @@ describe('MainLayout', () => {
       return translations[key] || key;
     });
     
-    vi.mocked(useTranslation).mockReturnValue({
-      t: mockT,
-      i18n: {} as any,
-      ready: true,
-    });
+    const mockReturn = [mockT as any, {} as any, true] as any;
+    mockReturn.t = mockT;
+    mockReturn.i18n = {} as any;
+    mockReturn.ready = true;
+    
+    vi.mocked(useTranslation).mockReturnValue(mockReturn);
   });
 
   it('should render children', () => {

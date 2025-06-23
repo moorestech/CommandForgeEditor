@@ -1,9 +1,7 @@
 // AI Generated Test Code
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { validateSkitData, validateCommandProperties, validateCommandsYaml } from './validation';
 import { Skit, CommandsConfig } from '../types';
-import * as validation from './validation';
-import * as yaml from 'js-yaml';
 
 describe('validation', () => {
   describe('validateSkitData', () => {
