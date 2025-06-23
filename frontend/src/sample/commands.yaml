@@ -1,4 +1,17 @@
 version: 1
+master:
+  characters: ["CharacterA", "CharacterB", "CharacterC", "CharacterD", "Teacher", "Waiter"]
+  emotions: ["Normal", "Smile", "Surprise", "Anger", "Sadness", "Confusion", "Shy", "Fear", "Joy", "Serious"]
+  bgmTracks: ["None", "Daily Life", "Tension", "Sad", "Happy", "Mysterious", "Action", "Romantic", "Ending"]
+  soundEffects: ["Door", "Footsteps", "Impact", "Explosion", "Bell", "Applause", "Alarm", "Rain", "Thunder", "Wind"]
+  locations: ["Classroom", "Hallway", "Gymnasium", "Rooftop", "Park", "Station", "Cafe", "Home", "Library", "Shopping Street"]
+  transitions: ["None", "Fade", "Wipe", "Crossfade", "Flash"]
+  cameraActions: ["Zoom In", "Zoom Out", "Pan Left", "Pan Right", "Shake", "Focus", "Reset"]
+  cameraTargets: ["Whole", "CharacterA", "CharacterB", "CharacterC", "CharacterD", "Teacher", "Waiter", "Background"]
+  characterActions: ["Walk", "Run", "Sit", "Stand", "Jump", "Dance", "Fall", "Wave", "Point", "Hug"]
+  directions: ["Left", "Right", "Up", "Down", "Center"]
+  textStyles: ["Normal", "Emphasis", "Small", "Italic", "Blinking"]
+
 commands:
   - id: text
     label: Text
@@ -7,7 +20,8 @@ commands:
     properties:
       character:
         type: enum
-        options: ["CharacterA", "CharacterB", "CharacterC", "CharacterD", "Teacher", "Waiter"]
+        options:
+          master: characters
         required: true
       body:
         type: string
@@ -30,11 +44,13 @@ commands:
     properties:
       character:
         type: enum
-        options: ["CharacterA", "CharacterB", "CharacterC", "CharacterD", "Teacher", "Waiter"]
+        options:
+          master: characters
         required: true
       emotion:
         type: enum
-        options: ["Normal", "Smile", "Surprise", "Anger", "Sadness", "Confusion", "Shy", "Fear", "Joy", "Serious"]
+        options:
+          master: emotions
         required: true
 
   - id: wait
@@ -56,7 +72,8 @@ commands:
     properties:
       track:
         type: enum
-        options: ["None", "Daily Life", "Tension", "Sad", "Happy", "Mysterious", "Action", "Romantic", "Ending"]
+        options:
+          master: bgmTracks
         required: true
       volume:
         type: number
@@ -72,7 +89,8 @@ commands:
     properties:
       effect:
         type: enum
-        options: ["Door", "Footsteps", "Impact", "Explosion", "Bell", "Applause", "Alarm", "Rain", "Thunder", "Wind"]
+        options:
+          master: soundEffects
         required: true
       volume:
         type: number
@@ -88,11 +106,13 @@ commands:
     properties:
       scene:
         type: enum
-        options: ["Classroom", "Hallway", "Gymnasium", "Rooftop", "Park", "Station", "Cafe", "Home", "Library", "Shopping Street"]
+        options:
+          master: locations
         required: true
       transition:
         type: enum
-        options: ["None", "Fade", "Wipe", "Crossfade", "Flash"]
+        options:
+          master: transitions
         default: "None"
 
   - id: camera
@@ -102,11 +122,13 @@ commands:
     properties:
       action:
         type: enum
-        options: ["Zoom In", "Zoom Out", "Pan Left", "Pan Right", "Shake", "Focus", "Reset"]
+        options:
+          master: cameraActions
         required: true
       target:
         type: enum
-        options: ["Whole", "CharacterA", "CharacterB", "CharacterC", "CharacterD", "Teacher", "Waiter", "Background"]
+        options:
+          master: cameraTargets
         default: "Whole"
 
   - id: choice
@@ -131,15 +153,18 @@ commands:
     properties:
       character:
         type: enum
-        options: ["CharacterA", "CharacterB", "CharacterC", "CharacterD", "Teacher", "Waiter"]
+        options:
+          master: characters
         required: true
       action:
         type: enum
-        options: ["Walk", "Run", "Sit", "Stand", "Jump", "Dance", "Fall", "Wave", "Point", "Hug"]
+        options:
+          master: characterActions
         required: true
       direction:
         type: enum
-        options: ["Left", "Right", "Up", "Down", "Center"]
+        options:
+          master: directions
         default: "Center"
 
   - id: narration
@@ -153,7 +178,8 @@ commands:
         required: true
       style:
         type: enum
-        options: ["Normal", "Emphasis", "Small", "Italic", "Blinking"]
+        options:
+          master: textStyles
         default: "Normal"
 
   - id: branch

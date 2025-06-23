@@ -39,6 +39,13 @@ const commandsConfigSchema = {
   required: ['version', 'commands'],
   properties: {
     version: { type: 'number' },
+    master: {
+      type: 'object',
+      additionalProperties: {
+        type: 'array',
+        items: { type: 'string' }
+      }
+    },
     commands: {
       type: 'array',
       items: {
@@ -74,8 +81,19 @@ const commandsConfigSchema = {
                 default: { },
                 multiline: { type: 'boolean' },
                 options: { 
-                  type: 'array',
-                  items: { type: 'string' }
+                  oneOf: [
+                    {
+                      type: 'array',
+                      items: { type: 'string' }
+                    },
+                    {
+                      type: 'object',
+                      required: ['master'],
+                      properties: {
+                        master: { type: 'string' }
+                      }
+                    }
+                  ]
                 },
                 optionsFrom: { type: 'string' },
                 commandTypes: { 
@@ -143,8 +161,40 @@ export function validateCommandProperties(
     } else {
       if (commandDef.properties) {
         Object.entries(commandDef.properties).forEach(([propName, propDef]: [string, PropertyDefinition]) => {
-          if (propDef.required && (command[propName] === undefined || command[propName] === '')) {
+          const propValue = command[propName];
+          
+          // Check required properties
+          if (propDef.required && (propValue === undefined || propValue === '')) {
             errors.push(`Command ${command.id}: Required property "${propName}" is missing`);
+          }
+          
+          // Validate enum values
+          if (propDef.type === 'enum' && propValue !== undefined && propValue !== '') {
+            const options = Array.isArray(propDef.options) ? propDef.options : [];
+            if (options.length > 0 && !options.includes(propValue as string)) {
+              errors.push(`Command ${command.id}: Property "${propName}" has invalid value "${propValue}". Must be one of: ${options.join(', ')}`);
+            }
+          }
+          
+          // Validate number constraints
+          if (propDef.type === 'number' && propValue !== undefined && propValue !== '') {
+            const numValue = Number(propValue);
+            if (propDef.constraints) {
+              if (propDef.constraints.min !== undefined && numValue < propDef.constraints.min) {
+                errors.push(`Command ${command.id}: Property "${propName}" value ${numValue} is less than minimum ${propDef.constraints.min}`);
+              }
+              if (propDef.constraints.max !== undefined && numValue > propDef.constraints.max) {
+                errors.push(`Command ${command.id}: Property "${propName}" value ${numValue} is greater than maximum ${propDef.constraints.max}`);
+              }
+            }
+          }
+          
+          // Validate string patterns
+          if (propDef.type === 'string' && propValue !== undefined && propValue !== '' && propDef.constraints?.pattern) {
+            const regex = new RegExp(propDef.constraints.pattern);
+            if (!regex.test(propValue as string)) {
+              errors.push(`Command ${command.id}: Property "${propName}" value does not match pattern ${propDef.constraints.pattern}`);
+            }
           }
         });
       }

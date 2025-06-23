@@ -32,9 +32,9 @@ function PropertyLabel({ commandType, propertyKey, required }: { commandType: st
 }
 
 // Helper component for enum options
-function EnumOption({ commandType, propertyKey, value }: { commandType: string; propertyKey: string; value: string }) {
+function EnumOption({ commandType, propertyKey, value, masterKey }: { commandType: string; propertyKey: string; value: string; masterKey?: string }) {
   const { tEnum } = useCommandTranslation(commandType);
-  return <>{tEnum(propertyKey, value, value)}</>;
+  return <>{tEnum(propertyKey, value, value, masterKey)}</>;
 }
 
 export function CommandEditor() {
@@ -247,14 +247,14 @@ function renderPropertyInput({
           <SelectTrigger id={propName}>
             <SelectValue placeholder={isMixed ? '-' : t('editor.selectPlease')}>
               {!isMixed && enumValue && commandType ? (
-                <EnumOption commandType={commandType} propertyKey={propName} value={enumValue} />
+                <EnumOption commandType={commandType} propertyKey={propName} value={enumValue} masterKey={propDef.masterKey} />
               ) : null}
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {propDef.options?.map((option) => (
               <SelectItem key={option} value={option}>
-                {commandType ? <EnumOption commandType={commandType} propertyKey={propName} value={option} /> : option}
+                {commandType ? <EnumOption commandType={commandType} propertyKey={propName} value={option} masterKey={propDef.masterKey} /> : option}
               </SelectItem>
             ))}
           </SelectContent>

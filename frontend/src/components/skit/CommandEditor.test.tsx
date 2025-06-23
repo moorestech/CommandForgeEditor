@@ -13,7 +13,7 @@ vi.mock('../../hooks/useCommandTranslation', () => ({
   useCommandTranslation: (commandType: string) => ({
     tCommand: (key: string, fallback: string) => fallback,
     tProperty: (propKey: string, key: string, fallback: string) => fallback,
-    tEnum: (propKey: string, value: string, fallback: string) => fallback,
+    tEnum: (propKey: string, value: string, fallback: string, masterKey?: string) => fallback,
   })
 }));
 
@@ -709,5 +709,64 @@ describe('CommandEditor', () => {
     expect(optionTexts).toContain('1: TEXT: Alice, Hello');
     expect(optionTexts).toContain('2: TEXT: Bob, Hi');
     expect(optionTexts.some(text => text?.includes('CHOICE'))).toBe(false);
+  });
+
+  it('should render enum property with masterKey correctly', () => {
+    const commandsWithMasterKey: CommandDefinition[] = [
+      {
+        id: 'character_action',
+        label: 'Character Action',
+        description: 'Character performs action',
+        commandListLabelFormat: 'ACTION: {character} {action}',
+        properties: {
+          character: {
+            type: 'enum',
+            required: true,
+            options: ['alice', 'bob', 'charlie'],
+            masterKey: 'characters'
+          }
+        }
+      }
+    ];
+
+    const testCommand: SkitCommand = {
+      id: 1,
+      type: 'character_action',
+      character: 'alice'
+    };
+
+    const testSkit: Skit = {
+      meta: {
+        title: 'Test Skit',
+        version: 1,
+        created: '2024-01-01',
+        modified: '2024-01-01'
+      },
+      commands: [testCommand]
+    };
+
+    vi.mocked(useSkitStore).mockReturnValue({
+      skits: { 'test-skit': testSkit },
+      currentSkitId: 'test-skit',
+      selectedCommandIds: [1],
+      updateCommand: mockUpdateCommand,
+      commandDefinitions: commandsWithMasterKey,
+      commandsMap: new Map(commandsWithMasterKey.map(def => [def.id, def]))
+    } as any);
+
+    render(<CommandEditor />);
+
+    // Check that enum select renders properly
+    const selectTrigger = screen.getByRole('combobox');
+    expect(selectTrigger).toBeInTheDocument();
+    
+    // The component should render with the property that has masterKey
+    fireEvent.click(selectTrigger);
+    
+    const options = screen.getAllByRole('option');
+    expect(options).toHaveLength(3);
+    expect(options[0]).toHaveTextContent('alice');
+    expect(options[1]).toHaveTextContent('bob');
+    expect(options[2]).toHaveTextContent('charlie');
   });
 });
