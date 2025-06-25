@@ -17,9 +17,10 @@ export interface PropertyDefinition {
   required?: boolean;
   default?: string | number | boolean | number[];
   multiline?: boolean;
-  options?: string[];
+  options?: string[] | { master: string };
   optionsFrom?: string;
   commandTypes?: string[]; // Array of command types that can be selected
+  masterKey?: string; // The master data key if options were resolved from master data
   constraints?: {
     min?: number;
     max?: number;
@@ -38,6 +39,7 @@ export interface CommandDefinition {
 
 export interface CommandsConfig {
   version: number;
+  master?: Record<string, string[]>;
   commands: CommandDefinition[];
 }
 

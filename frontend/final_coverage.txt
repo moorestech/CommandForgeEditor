@@ -1,0 +1,200 @@
+    at runSuite [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1729:8[90m)[39m
+    at runSuite [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1729:8[90m)[39m
+    at runFiles [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1787:3[90m)[39m
+
+stderr | src/App.test.tsx > App > should not reload data when projectPath does not change
+Failed to load sample commands.yaml: Error: Yaml load error
+    at [90m/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39msrc/App.test.tsx:174:71
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:155:11
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:752:26
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1863:10[90m)[39m
+    at runTest [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1574:12[90m)[39m
+    at runSuite [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1729:8[90m)[39m
+    at runSuite [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1729:8[90m)[39m
+    at runFiles [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1787:3[90m)[39m
+
+ ✓ src/components/layout/MainLayout.test.tsx (19 tests) 585ms
+ ✓ src/components/skit/CommandList.test.tsx (21 tests | 1 skipped) 545ms
+ ✓ src/App.test.tsx (11 tests | 2 skipped) 414ms
+stderr | src/components/skit/SkitList.test.tsx > SkitList > should handle creation exceptions
+Failed to create new skit: Error: Network error
+    at [90m/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39msrc/components/skit/SkitList.test.tsx:283:52
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:155:11
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:752:26
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1863:10[90m)[39m
+    at runTest [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1574:12[90m)[39m
+    at runSuite [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1729:8[90m)[39m
+    at runSuite [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1729:8[90m)[39m
+    at runFiles [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1787:3[90m)[39m
+
+stderr | src/components/skit/SkitList.test.tsx > SkitList > should handle non-Error objects in catch
+Failed to create new skit: String error
+
+ ✓ src/components/skit/SkitList.test.tsx (16 tests) 1438ms
+ ✓ src/components/skit/Toolbar.test.tsx (20 tests) 2011ms
+   ✓ Toolbar > should disable buttons when no skit is selected  406ms
+ ✓ src/components/skit/CommandEditor.test.tsx (25 tests) 1602ms
+   ✓ CommandEditor > should handle boolean property changes  400ms
+ ✓ src/components/skit/ValidationLog.test.tsx (10 tests) 204ms
+stderr | src/store/skitStore.test.ts > moveCommands edge cases > should handle moving to negative index
+[moveCommands] dropTargetItemInOriginalArray not found for toIndex -1. Inserting at end of remaining.
+
+stderr | src/store/skitStore.test.ts > Language Management > should change language successfully
+Failed to load translations: TypeError: Cannot read properties of undefined (reading 'catch')
+    at loadTranslations [90m(/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39msrc/i18n/translationLoader.ts:56:66[90m)[39m
+    at changeLanguage [90m(/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39msrc/store/skitStore.ts:769:17[90m)[39m
+    at [90m/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39msrc/store/skitStore.test.ts:977:7
+
+stderr | src/store/skitStore.test.ts > Language Management > should change language successfully
+Failed to load english translations in dev mode: TypeError: Failed to parse URL from /src/sample/i18n/english.json
+[90m    at node:internal/deps/undici/undici:13185:13[39m
+    at loadDevelopmentTranslations [90m(/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39msrc/i18n/translationLoader.ts:32:26[90m)[39m
+    at loadTranslations [90m(/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39msrc/i18n/translationLoader.ts:98:5[90m)[39m
+    at changeLanguage [90m(/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39msrc/store/skitStore.ts:769:11[90m)[39m
+    at [90m/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39msrc/store/skitStore.test.ts:977:7 {
+  [cause]: TypeError: Invalid URL: /src/sample/i18n/english.json
+      at new URLImpl [90m(/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4mwhatwg-url[24m/lib/URL-impl.js:20:13[90m)[39m
+      at Object.exports.setup [90m(/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4mwhatwg-url[24m/lib/URL.js:54:12[90m)[39m
+      at new URL [90m(/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4mwhatwg-url[24m/lib/URL.js:115:22[90m)[39m
+  [90m    at new Request (node:internal/deps/undici/undici:9276:25)[39m
+  [90m    at fetch (node:internal/deps/undici/undici:10005:25)[39m
+  [90m    at fetch (node:internal/deps/undici/undici:13183:10)[39m
+  [90m    at fetch (node:internal/bootstrap/web/exposed-window-or-worker:72:12)[39m
+      at loadDevelopmentTranslations [90m(/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39msrc/i18n/translationLoader.ts:32:32[90m)[39m
+      at loadTranslations [90m(/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39msrc/i18n/translationLoader.ts:98:11[90m)[39m
+      at changeLanguage [90m(/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39msrc/store/skitStore.ts:769:17[90m)[39m
+}
+
+stderr | src/store/skitStore.test.ts > Language Management > should change language successfully
+Failed to load japanese translations in dev mode: TypeError: Failed to parse URL from /src/sample/i18n/japanese.json
+[90m    at node:internal/deps/undici/undici:13185:13[39m
+    at loadDevelopmentTranslations [90m(/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39msrc/i18n/translationLoader.ts:32:26[90m)[39m
+    at loadTranslations [90m(/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39msrc/i18n/translationLoader.ts:98:5[90m)[39m
+    at changeLanguage [90m(/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39msrc/store/skitStore.ts:769:11[90m)[39m
+    at [90m/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39msrc/store/skitStore.test.ts:977:7 {
+  [cause]: TypeError: Invalid URL: /src/sample/i18n/japanese.json
+      at new URLImpl [90m(/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4mwhatwg-url[24m/lib/URL-impl.js:20:13[90m)[39m
+      at Object.exports.setup [90m(/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4mwhatwg-url[24m/lib/URL.js:54:12[90m)[39m
+      at new URL [90m(/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4mwhatwg-url[24m/lib/URL.js:115:22[90m)[39m
+  [90m    at new Request (node:internal/deps/undici/undici:9276:25)[39m
+  [90m    at fetch (node:internal/deps/undici/undici:10005:25)[39m
+  [90m    at fetch (node:internal/deps/undici/undici:13183:10)[39m
+  [90m    at fetch (node:internal/bootstrap/web/exposed-window-or-worker:72:12)[39m
+      at loadDevelopmentTranslations [90m(/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39msrc/i18n/translationLoader.ts:32:32[90m)[39m
+      at loadTranslations [90m(/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39msrc/i18n/translationLoader.ts:98:5[90m)[39m
+      at changeLanguage [90m(/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39msrc/store/skitStore.ts:769:11[90m)[39m
+}
+
+ ✓ src/store/skitStore.test.ts (46 tests) 320ms
+ ✓ src/main.test.tsx (8 tests | 2 skipped) 106ms
+ ✓ src/components/dnd/DraggableCommand.test.tsx (10 tests) 326ms
+ ✓ src/components/dnd/DndProvider.test.tsx (13 tests) 167ms
+ ✓ src/components/dnd/SortableList.test.tsx (13 tests) 187ms
+stderr | src/utils/fileSystem.test.ts > fileSystem > selectProjectFolder > should return null on error
+Failed to select project folder: Error: Dialog error
+    at [90m/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39msrc/utils/fileSystem.test.ts:57:48
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:155:11
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:752:26
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1863:10[90m)[39m
+    at runTest [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1574:12[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at runSuite [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1729:8[90m)[39m
+    at runSuite [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1729:8[90m)[39m
+
+stderr | src/utils/fileSystem.test.ts > fileSystem > loadCommandsYaml > should throw error on failure
+Failed to load commands.yaml: Error: File not found
+    at [90m/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39msrc/utils/fileSystem.test.ts:102:57
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:155:11
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:752:26
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1863:10[90m)[39m
+    at runTest [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1574:12[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at runSuite [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1729:8[90m)[39m
+    at runSuite [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1729:8[90m)[39m
+
+stderr | src/utils/fileSystem.test.ts > fileSystem > loadCommandsYaml > should throw error in web environment
+Failed to load commands.yaml: Error: Running in web environment, Tauri API not available
+    at Module.loadCommandsYaml [90m(/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39msrc/utils/fileSystem.ts:40:13[90m)[39m
+    at [90m/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39msrc/utils/fileSystem.test.ts:112:20
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:155:11
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:752:26
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1863:10[90m)[39m
+    at runTest [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1574:12[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at runSuite [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1729:8[90m)[39m
+
+stdout | src/utils/fileSystem.test.ts > fileSystem > loadSkits > should create skits directory if not exists
+Created skits directory at /project/skits
+
+stderr | src/utils/fileSystem.test.ts > fileSystem > loadSkits > should return empty object on error
+Failed to load skits: Error: Path error
+    at [90m/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39msrc/utils/fileSystem.test.ts:187:46
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:155:11
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:752:26
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1863:10[90m)[39m
+    at runTest [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1574:12[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at runSuite [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1729:8[90m)[39m
+    at runSuite [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1729:8[90m)[39m
+
+stderr | src/utils/fileSystem.test.ts > fileSystem > saveSkit > should return error on save failure
+Failed to save skit: Error: Path error
+    at [90m/Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39msrc/utils/fileSystem.test.ts:321:46
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:155:11
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:752:26
+    at [90mfile:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1863:10[90m)[39m
+    at runTest [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1574:12[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at runSuite [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1729:8[90m)[39m
+    at runSuite [90m(file:///Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1729:8[90m)[39m
+
+ ✓ src/hooks/useKeyboardShortcuts.test.ts (19 tests | 1 skipped) 77ms
+ ✓ src/components/dnd/DropZone.test.tsx (10 tests) 96ms
+ ✓ src/utils/fileSystem.test.ts (29 tests) 45ms
+ ✓ src/hooks/use-toast.test.ts (20 tests) 220ms
+ ✓ src/hooks/useCommandTranslation.test.ts (14 tests) 146ms
+ ✓ src/hooks/use-mobile.test.tsx (12 tests) 103ms
+ ✓ src/hooks/useToast.test.ts (13 tests) 77ms
+ ✓ src/utils/validation.test.ts (22 tests) 16ms
+ ✓ src/hooks/useDndSortable.test.ts (13 tests) 27ms
+ ✓ src/utils/devFileSystem.test.ts (10 tests) 8ms
+ ✓ src/i18n/config.test.ts (14 tests) 12ms
+ ✓ src/lib/utils.test.ts (22 tests) 9ms
+ ✓ src/utils/reservedCommands.test.ts (9 tests) 11ms
+ ✓ src/utils/commandFormatting.test.ts (19 tests) 9ms
+ ✓ src/utils/commandDefaults.test.ts (17 tests) 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/i18n/translationLoader.test.ts > translationLoader > loadDevelopmentTranslations error handling > should handle errors when loading development translations
+AssertionError: expected "error" to be called at least once
+ ❯ src/i18n/translationLoader.test.ts:374:31
+    372|       await loadTranslations();
+    373| 
+    374|       expect(consoleErrorSpy).toHaveBeenCalled();
+       |                               ^
+    375|       
+    376|       consoleErrorSpy.mockRestore();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 29 passed (30)
+      Tests  1 failed | 495 passed | 6 skipped (502)
+   Start at  16:30:14
+   Duration  11.98s (transform 2.79s, setup 10.22s, collect 12.36s, tests 9.62s, environment 42.01s, prepare 5.22s)
+

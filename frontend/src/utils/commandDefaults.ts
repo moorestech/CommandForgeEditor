@@ -24,7 +24,13 @@ export function createCommandWithDefaults(commandDef: CommandDefinition): Partia
           newCommand[propName] = false;
           break;
         case 'enum':
-          newCommand[propName] = propDef.options?.[0] || '';
+          // Handle both string[] and { master: string } types
+          if (propDef.options && Array.isArray(propDef.options)) {
+            newCommand[propName] = propDef.options[0] || '';
+          } else {
+            // For { master: string } or undefined options, we don't have a default value
+            newCommand[propName] = '';
+          }
           break;
         case 'asset':
           newCommand[propName] = '';

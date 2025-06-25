@@ -1,0 +1,238 @@
+
+> frontend@0.0.0 test
+> vitest run --run --coverage
+
+
+ RUN  v3.2.4 /Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend
+      Coverage enabled with v8
+
+ ✓ src/components/dnd/DropZone.test.tsx (10 tests) 37ms
+ ✓ src/components/dnd/DraggableCommand.test.tsx (10 tests) 67ms
+stdout | src/utils/fileSystem.test.ts > fileSystem > loadSkits > should create skits directory if not exists
+Created skits directory at /project/skits
+
+ ✓ src/utils/fileSystem.test.ts (26 tests) 26ms
+ ✓ src/store/skitStore.test.ts (20 tests) 38ms
+ ✓ src/components/skit/ValidationLog.test.tsx (10 tests) 66ms
+ ✓ src/components/skit/CommandList.test.tsx (2 tests | 1 skipped) 69ms
+ ✓ src/components/skit/CommandEditor.test.tsx (25 tests) 488ms
+ ✓ src/utils/devFileSystem.test.ts (10 tests) 8ms
+ ✓ src/components/skit/Toolbar.test.tsx (20 tests) 828ms
+ ✓ src/utils/reservedCommands.test.ts (9 tests) 5ms
+ ✓ src/utils/commandDefaults.test.ts (17 tests) 4ms
+ ✓ src/utils/validation.test.ts (19 tests) 15ms
+ ✓ src/utils/commandFormatting.test.ts (19 tests) 3ms
+ ❯ src/components/skit/SkitList.test.tsx (16 tests | 2 failed) 2620ms
+   ✓ SkitList > should render skit list 33ms
+   ✓ SkitList > should highlight current skit 166ms
+   ✓ SkitList > should set current skit when clicked 37ms
+   ✓ SkitList > should auto-select first skit if no current skit 2ms
+   ✓ SkitList > should not auto-select if no skits available 2ms
+   ✓ SkitList > should show error when creating skit without project path 31ms
+   ✓ SkitList > should open new skit dialog when button clicked 17ms
+   × SkitList > should show error when creating skit with empty title 1030ms
+     → expected "spy" to be called with arguments: [ 'タイトルを入力してください' ][90m
+
+Number of calls: [1m0[22m
+[39m
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"h-full flex flex-col"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"p-2"[39m
+        [36m>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 dark:focus-visible:ring-zinc-300 border border-zinc-200 bg-white shadow-sm hover:bg-zinc-100 hover:text-zinc-900 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-800 dark:hover:text-zinc-50 h-9 px-4 py-2 w-full flex items-center gap-2"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33mclass[39m=[32m"lucide lucide-circle-plus h-4 w-4"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"24"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"24"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<circle[39m
+                [33mcx[39m=[32m"12"[39m
+                [33mcy[39m=[32m"12"[39m
+                [33mr[39m=[32m"10"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M8 12h8"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M12 8v8"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [0m新しいスキット[0m
+          [36m</button>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex-1"[39m
+          [33mdata-testid[39m=[32m"scroll-area"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"space-y-1 p-2"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"inline-flex items-center gap-2 whitespace-nowrap rounded-md text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 dark:focus-visible:ring-zinc-300 bg-zinc-900 text-zinc-50 shadow hover:bg-zinc-900/90 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-50/90 h-9 px-4 py-2 w-full justify-start text-left font-normal"[39m
+            [36m>[39m
+              [0mテストスキット1[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"inline-flex items-center gap-2 whitespace-nowrap rounded-md text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 dark:focus-visible:ring-zinc-300 hover:bg-zinc-100 hover:text-zinc-900 dark:hover:bg-zinc-800 dark:hover:text-zinc-50 h-9 px-4 py-2 w-full justify-start text-left font-normal"[39m
+            [36m>[39m
+              [0mテストスキット2[0m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mdata-testid[39m=[32m"dialog"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mdata-testid[39m=[32m"dialog-content"[39m
+          [36m>[39m
+            [36m<div>[39m
+              [36m<h2>[39m
+                [0m新しいスキットを作成[0m
+              [36m</h2>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"py-4"[39m
+            [36m>[39m
+              [36m<label[39m
+                [33mclass[39m=[32m"text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"[39m
+                [33mfor[39m=[32m"skit-title"[39m
+              [36m>[39m
+                [0mタイトル[0m
+              [36m</label>[39m
+              [36m<input[39m
+                [33mclass[39m=[32m"flex h-9 w-full rounded-md border border-zinc-200 bg-transparent px-3 py-1 text-base shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-zinc-950 placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:border-zinc-800 dark:file:text-zinc-50 dark:placeholder:text-zinc-400 dark:focus-visible:ring-zinc-300"[39m
+                [33mid[39m=[32m"skit-title"[39m
+                [33mplaceholder[39m=[32m"スキットタイトルを入力"[39m
+                [33mvalue[39m=[32m""[39m
+              [36m/>[39m
+            [36m</div>[39m
+            [36m<div>[39m
+              [36m<button[39m
+                [33mclass[39m=[32m"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 dark:focus-visible:ring-zinc-300 border border-zinc-200 bg-white shadow-sm hover:bg-zinc-100 hover:text-zinc-900 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-800 dark:hover:text-zinc-50 h-9 px-4 py-2"[39m
+              [36m>[39m
+                [0mキャンセル[0m
+              [36m</button>[39m
+              [36m<button[39m
+                [33mclass[39m=[32m"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 dark:focus-visible:ring-zinc-300 bg-zinc-900 text-zinc-50 shadow hover:bg-zinc-900/90 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-50/90 h-9 px-4 py-2"[39m
+                [33mdisabled[39m=[32m""[39m
+              [36m>[39m
+                [0m作成[0m
+              [36m</button>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m...
+   ✓ SkitList > should create new skit successfully 58ms
+   ✓ SkitList > should handle creation errors from API 47ms
+   ✓ SkitList > should handle creation exceptions 43ms
+   ✓ SkitList > should close dialog on cancel 15ms
+   ✓ SkitList > should disable buttons during creation 37ms
+   ✓ SkitList > should trim whitespace from skit title 30ms
+   ✓ SkitList > should handle non-Error objects in catch 33ms
+   × SkitList > should not reload skits if projectPath is null 1037ms
+     → expected "spy" to be called with arguments: [ 'テスト', null ][90m
+
+Received: 
+
+[1m  1st spy call:
+
+[22m[2m  [[22m
+[2m    "テスト",[22m
+[32m-   null,[90m
+[31m+   "/test/path",[90m
+[2m  ][22m
+[39m[90m
+
+Number of calls: [1m1[22m
+[39m
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"h-full flex flex-col"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"p-2"[39m
+        [36m>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 dark:focus-visible:ring-zinc-300 border border-zinc-200 bg-white shadow-sm hover:bg-zinc-100 hover:text-zinc-900 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-800 dark:hover:text-zinc-50 h-9 px-4 py-2 w-full flex items-center gap-2"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33mclass[39m=[32m"lucide lucide-circle-plus h-4 w-4"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"24"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"24"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<circle[39m
+                [33mcx[39m=[32m"12"[39m
+                [33mcy[39m=[32m"12"[39m
+                [33mr[39m=[32m"10"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M8 12h8"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M12 8v8"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [0m新しいスキット[0m
+          [36m</button>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex-1"[39m
+          [33mdata-testid[39m=[32m"scroll-area"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"space-y-1 p-2"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"inline-flex items-center gap-2 whitespace-nowrap rounded-md text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 dark:focus-visible:ring-zinc-300 bg-zinc-900 text-zinc-50 shadow hover:bg-zinc-900/90 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-50/90 h-9 px-4 py-2 w-full justify-start text-left font-normal"[39m
+            [36m>[39m
+              [0mテストスキット1[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"inline-flex items-center gap-2 whitespace-nowrap rounded-md text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 dark:focus-visible:ring-zinc-300 hover:bg-zinc-100 hover:text-zinc-900 dark:hover:bg-zinc-800 dark:hover:text-zinc-50 h-9 px-4 py-2 w-full justify-start text-left font-normal"[39m
+            [36m>[39m
+              [0mテストスキット2[0m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m...
+
+ Test Files  1 failed | 13 passed (14)
+      Tests  2 failed | 210 passed | 1 skipped (213)
+   Start at  10:53:15
+   Duration  5.40s (transform 792ms, setup 3.42s, collect 3.55s, tests 4.27s, environment 11.65s, prepare 2.16s)
+

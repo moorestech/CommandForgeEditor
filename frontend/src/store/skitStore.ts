@@ -14,6 +14,7 @@ interface SkitState {
   commandDefinitions: CommandDefinition[];
   commandsMap: Map<string, CommandDefinition>;
   commandsYaml: string | null; // YAMLの元データを保持しておく必要があります
+  masterData: Record<string, string[]>; // マスターデータを保持
   projectPath: string | null;  // Add project path state
   validationErrors: string[];
   history: {
@@ -103,6 +104,7 @@ export const useSkitStore = create<SkitState>()(
     commandDefinitions: [],
     commandsMap: new Map<string, CommandDefinition>(),
     commandsYaml: null,
+    masterData: {}, // マスターデータを初期化
     projectPath: null,  // Initialize project path
     validationErrors: [],
     history: {
@@ -534,8 +536,41 @@ export const useSkitStore = create<SkitState>()(
           // YAMLからロードしたコマンド定義
           const parsedDefinitions = parsed?.commands || [];
           
+          // マスターデータを読み込む
+          const masterData = parsed?.master || {};
+          state.masterData = masterData;
+          
+          // マスターデータ参照を解決する関数
+          const resolveOptions = (propertyDef: any): any => {
+            if (propertyDef.options && typeof propertyDef.options === 'object' && 'master' in propertyDef.options) {
+              const masterKey = propertyDef.options.master;
+              if (masterData[masterKey]) {
+                return {
+                  ...propertyDef,
+                  options: masterData[masterKey],
+                  masterKey: masterKey // マスターデータキーを保持
+                };
+              }
+              console.warn(`Master data '${masterKey}' not found`);
+              return propertyDef;
+            }
+            return propertyDef;
+          };
+          
+          // コマンド定義のマスターデータ参照を解決
+          const resolvedDefinitions = parsedDefinitions.map((cmd: any) => {
+            const resolvedProperties: Record<string, any> = {};
+            for (const [key, value] of Object.entries(cmd.properties || {})) {
+              resolvedProperties[key] = resolveOptions(value);
+            }
+            return {
+              ...cmd,
+              properties: resolvedProperties
+            };
+          });
+          
           // reservedCommandsを追加
-          const allDefinitions = [...parsedDefinitions, ...reservedCommands];
+          const allDefinitions = [...resolvedDefinitions, ...reservedCommands];
           
           // コマンド定義をIDでマッピング
           const commandsMap = new Map<string, CommandDefinition>();
@@ -554,6 +589,7 @@ export const useSkitStore = create<SkitState>()(
             commandsMap.set(def.id, def);
           });
           state.commandsMap = commandsMap;
+          state.masterData = {};
         }
       });
     },

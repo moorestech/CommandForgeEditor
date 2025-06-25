@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm:*)",
+      "Bash(npx:*)",
+      "Bash(npm run test:*)",
+      "Bash(grep:*)"
+    ],
+    "deny": []
+  }
+}

@@ -1,0 +1,75 @@
+
+> frontend@0.0.0 test
+> vitest run --coverage --run
+
+
+ RUN  v3.2.4 /Users/katsumi.sato/WebstormProjects/CommandForgeEditor/frontend
+      Coverage enabled with v8
+
+ ❯ src/i18n/translationLoader.test.ts (22 tests | 1 failed) 28ms
+   ✓ translationLoader > loadTranslations > should load development translations when not in Tauri environment 3ms
+   ✓ translationLoader > loadTranslations > should handle fetch errors in development mode 1ms
+   ✓ translationLoader > loadTranslations > should load translations from Tauri filesystem 0ms
+   ✓ translationLoader > loadTranslations > should fallback to development mode when commands path not found 0ms
+   ✓ translationLoader > loadTranslations > should handle missing i18n directory 0ms
+   ✓ translationLoader > loadTranslations > should handle JSON parse errors 0ms
+   ✓ translationLoader > loadTranslations > should skip non-existent language files 0ms
+   ✓ translationLoader > loadTranslations > should handle development mode even with __TAURI__ present 1ms
+   ✓ translationLoader > generateCommandTranslationKeys > should generate basic command translation keys 0ms
+   ✓ translationLoader > generateCommandTranslationKeys > should generate property translation keys 1ms
+   ✓ translationLoader > generateCommandTranslationKeys > should generate enum translation keys 0ms
+   ✓ translationLoader > generateCommandTranslationKeys > should handle commands without properties 2ms
+   ✓ translationLoader > getAvailableLanguages > should return available languages from i18n resource store 0ms
+   ✓ translationLoader > getAvailableLanguages > should use language code as fallback name 0ms
+   ✓ translationLoader > getTranslationWithFallback > should return translation when available 0ms
+   ✓ translationLoader > getTranslationWithFallback > should return fallback when translation equals key 0ms
+   ✓ translationLoader > getTranslationWithFallback > should return key when no translation and no fallback 0ms
+   ✓ translationLoader > getTranslationWithFallback > should handle non-string translations 0ms
+   ✓ translationLoader > getTranslationWithFallback > should pass options to i18n.t 0ms
+   ✓ translationLoader > getTranslationWithFallback > should return key when translation is non-string and no fallback 0ms
+   × translationLoader > loadDevelopmentTranslations error handling > should handle errors when loading development translations 16ms
+     → expected "error" to be called with arguments: [ …(2) ][90m
+
+Number of calls: [1m0[22m
+[39m
+   ✓ translationLoader > loadTranslations production error handling > should handle general error and fallback to development translations 1ms
+ ✓ src/components/dnd/SortableItem.test.tsx (13 tests) 239ms
+ ✓ src/components/layout/LanguageSwitcher.test.tsx (12 tests) 412ms
+ ✓ src/components/layout/MainLayout.test.tsx (19 tests) 263ms
+ ✓ src/App.test.tsx (11 tests | 2 skipped) 449ms
+ ✓ src/components/skit/CommandList.test.tsx (21 tests | 1 skipped) 551ms
+ ✓ src/components/skit/SkitList.test.tsx (16 tests) 1404ms
+ ✓ src/components/skit/Toolbar.test.tsx (20 tests) 1617ms
+   ✓ Toolbar > should disable buttons when no skit is selected  373ms
+ ✓ src/components/skit/CommandEditor.test.tsx (25 tests) 1563ms
+   ✓ CommandEditor > should handle boolean property changes  373ms
+ ✓ src/store/skitStore.test.ts (46 tests) 98ms
+ ✓ src/main.test.tsx (8 tests | 2 skipped) 191ms
+ ✓ src/components/dnd/DraggableCommand.test.tsx (10 tests) 399ms
+ ✓ src/components/dnd/DropZone.test.tsx (10 tests) 107ms
+ ✓ src/components/skit/ValidationLog.test.tsx (10 tests) 131ms
+ ✓ src/components/dnd/DndProvider.test.tsx (13 tests) 46ms
+ ✓ src/components/dnd/SortableList.test.tsx (13 tests) 112ms
+stdout | src/utils/fileSystem.test.ts > fileSystem > loadSkits > should create skits directory if not exists
+Created skits directory at /project/skits
+
+ ✓ src/hooks/use-mobile.test.tsx (12 tests) 40ms
+ ✓ src/utils/fileSystem.test.ts (29 tests) 38ms
+ ✓ src/hooks/useKeyboardShortcuts.test.ts (19 tests | 1 skipped) 81ms
+ ✓ src/hooks/useToast.test.ts (13 tests) 26ms
+ ✓ src/hooks/use-toast.test.ts (20 tests) 36ms
+ ✓ src/hooks/useCommandTranslation.test.ts (14 tests) 28ms
+ ✓ src/hooks/useDndSortable.test.ts (13 tests) 25ms
+ ✓ src/utils/validation.test.ts (22 tests) 49ms
+ ✓ src/lib/utils.test.ts (22 tests) 12ms
+ ✓ src/i18n/config.test.ts (14 tests) 12ms
+ ✓ src/utils/reservedCommands.test.ts (9 tests) 4ms
+ ✓ src/utils/devFileSystem.test.ts (10 tests) 7ms
+ ✓ src/utils/commandDefaults.test.ts (17 tests) 4ms
+ ✓ src/utils/commandFormatting.test.ts (19 tests) 3ms
+
+ Test Files  1 failed | 29 passed (30)
+      Tests  1 failed | 495 passed | 6 skipped (502)
+   Start at  16:27:25
+   Duration  9.72s (transform 2.41s, setup 8.97s, collect 10.80s, tests 7.98s, environment 33.14s, prepare 5.33s)
+
