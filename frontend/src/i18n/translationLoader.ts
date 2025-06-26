@@ -45,15 +45,25 @@ const loadDevelopmentTranslations = async (): Promise<void> => {
 
 // Load translations from i18n folder
 export async function loadTranslations(): Promise<void> {
+  console.log('loadTranslations called');
+  console.log('window.__TAURI__:', window.__TAURI__);
+  console.log('import.meta.env.MODE:', import.meta.env.MODE);
+
   // Check if we're in Tauri environment
-  if (!window.__TAURI__ || import.meta.env.MODE === 'development') {
+  if (!window.__TAURI__) {
+    console.log('Loading development translations (Tauri not available)');
     await loadDevelopmentTranslations();
     return;
   }
 
   try {
     // Get the commands.yaml path from store or use default
-    const commandsPath = await invoke<string>('get_commands_path').catch(() => null);
+    const commandsPath = await invoke<string>('get_commands_path').catch((e) => {
+      console.error('Error invoking get_commands_path:', e);
+      return null;
+    });
+    console.log('commandsPath from get_commands_path:', commandsPath);
+
     if (!commandsPath) {
       console.warn('Commands path not found, using development translations');
       await loadDevelopmentTranslations();
@@ -61,9 +71,13 @@ export async function loadTranslations(): Promise<void> {
     }
 
     const i18nPath = await join(await dirname(commandsPath), 'i18n');
+    console.log('Calculated i18nPath:', i18nPath);
     
     // Check if i18n directory exists
-    if (!(await exists(i18nPath))) {
+    const i18nDirExists = await exists(i18nPath);
+    console.log('i18n directory exists:', i18nDirExists);
+
+    if (!i18nDirExists) {
       console.warn('i18n directory not found, using development translations');
       await loadDevelopmentTranslations();
       return;
@@ -94,7 +108,7 @@ export async function loadTranslations(): Promise<void> {
       }
     }
   } catch (error) {
-    console.error('Failed to load translations:', error);
+    console.error('Failed to load translations in Tauri mode:', error);
     await loadDevelopmentTranslations();
   }
 }
