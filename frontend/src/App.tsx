@@ -26,12 +26,17 @@ import { I18nextProvider } from 'react-i18next';
 import i18n from './i18n/config';
 
 function App() {
-  const { loadCommandsYaml, loadSkits, projectPath } = useSkitStore();
+  const { loadCommandsYaml, loadSkits, projectPath, setProjectPath } = useSkitStore();
   useKeyboardShortcuts();
 
   useEffect(() => {
     const loadInitialData = async () => {
       try {
+        // Sync project path with Tauri on startup if it exists
+        if (projectPath && window.__TAURI__) {
+          await setProjectPath(projectPath);
+        }
+
         const commandsYamlContent = await loadCommandsYamlFile(projectPath);
         loadCommandsYaml(commandsYamlContent);
 
@@ -60,7 +65,7 @@ function App() {
     };
 
     loadInitialData();
-  }, [loadCommandsYaml, loadSkits, projectPath]);
+  }, [loadCommandsYaml, loadSkits, projectPath, setProjectPath]);
 
   return (
     <I18nextProvider i18n={i18n}>

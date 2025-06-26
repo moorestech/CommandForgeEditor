@@ -21,7 +21,8 @@
       "Bash(npx vitest run:*)",
       "Bash(npx c8 report:*)",
       "Bash(rg:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(git add:*)"
     ]
   },
   "enableAllProjectMcpServers": false
