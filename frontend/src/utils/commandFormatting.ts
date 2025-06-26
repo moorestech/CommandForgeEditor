@@ -1,4 +1,5 @@
 import { SkitCommand, CommandDefinition } from '../types';
+import { getTranslationWithFallback } from '../i18n/translationLoader';
 
 /**
  * Format a command preview using its commandListLabelFormat
@@ -20,7 +21,22 @@ export function formatCommandPreview(command: SkitCommand, commandsMap: Map<stri
   Object.entries(props).forEach(([key, value]) => {
     const placeholder = `{${key}}`;
     if (formatted.includes(placeholder)) {
-      formatted = formatted.replace(placeholder, String(value));
+      // Check if this property has a masterKey (references master data)
+      const propertyDef = commandDef.properties[key];
+      let displayValue = String(value);
+      
+      if (propertyDef && propertyDef.masterKey && propertyDef.type === 'enum') {
+        // Try to get translation for master data
+        const masterTranslationKey = `master.${propertyDef.masterKey}.${value}`;
+        const translatedValue = getTranslationWithFallback(masterTranslationKey, undefined);
+        
+        // Use translation if it exists and is different from the key
+        if (translatedValue && translatedValue !== masterTranslationKey) {
+          displayValue = translatedValue;
+        }
+      }
+      
+      formatted = formatted.replace(placeholder, displayValue);
     }
   });
 
