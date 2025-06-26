@@ -44,13 +44,8 @@ const loadDevelopmentTranslations = async (): Promise<void> => {
 
 // Load translations from i18n folder
 export async function loadTranslations(): Promise<void> {
-  console.log('loadTranslations called');
-  console.log('window.__TAURI__:', window.__TAURI__);
-  console.log('import.meta.env.MODE:', import.meta.env.MODE);
-
   // Check if we're in Tauri environment
   if (!window.__TAURI__) {
-    console.log('Loading development translations (Tauri not available)');
     await loadDevelopmentTranslations();
     return;
   }
@@ -67,11 +62,9 @@ export async function loadTranslations(): Promise<void> {
     }
 
     const i18nPath = await join(projectPath, 'i18n');
-    console.log('Calculated i18nPath:', i18nPath);
     
     // Check if i18n directory exists
     const i18nDirExists = await exists(i18nPath);
-    console.log('i18n directory exists:', i18nDirExists);
 
     if (!i18nDirExists) {
       console.warn('i18n directory not found, using development translations');

@@ -2,7 +2,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { loadTranslations, generateCommandTranslationKeys, getAvailableLanguages, getTranslationWithFallback } from './translationLoader';
 import i18n from 'i18next';
-import * as tauriApi from '@tauri-apps/api';
 import * as tauriFs from '@tauri-apps/api/fs';
 import * as tauriPath from '@tauri-apps/api/path';
 
