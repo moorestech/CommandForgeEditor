@@ -39,7 +39,7 @@ interface SkitState {
   redo: () => void;
   setValidationErrors: (errors: string[]) => void;
   loadCommandsYaml: (yaml: string) => void;
-  setProjectPath: (path: string | null) => void;  // Add project path setter
+  setProjectPath: (path: string | null) => Promise<void>;  // Add project path setter
   createGroup: () => void;
   ungroupCommands: (groupStartId: number) => void;
   toggleGroupCollapse: (groupStartId: number) => void;
@@ -594,10 +594,20 @@ export const useSkitStore = create<SkitState>()(
       });
     },
     
-    setProjectPath: (path) => {
+    setProjectPath: async (path) => {
       set((state) => {
         state.projectPath = path;
       });
+      
+      // Sync with Tauri backend if available
+      if (window.__TAURI__ && path) {
+        try {
+          const { invoke } = await import('@tauri-apps/api');
+          await invoke('set_project_path', { path });
+        } catch (error) {
+          console.error('Failed to sync project path with Tauri:', error);
+        }
+      }
     },
 
     createGroup: () => {
@@ -829,10 +839,8 @@ export const useSkitStore = create<SkitState>()(
         const selectedPath = await selectProjectFolder();
         
         if (selectedPath) {
-          // Update project path
-          set((state) => {
-            state.projectPath = selectedPath;
-          });
+          // Update project path and sync with Tauri
+          await get().setProjectPath(selectedPath);
           
           // Load commands.yaml from the new path
           try {

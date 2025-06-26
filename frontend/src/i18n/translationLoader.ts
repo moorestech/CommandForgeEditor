@@ -1,7 +1,6 @@
 import i18n from 'i18next';
-import { invoke } from '@tauri-apps/api';
 import { exists, readTextFile } from '@tauri-apps/api/fs';
-import { join, dirname } from '@tauri-apps/api/path';
+import { join } from '@tauri-apps/api/path';
 
 interface TranslationFile {
   locale: string;
@@ -46,24 +45,28 @@ const loadDevelopmentTranslations = async (): Promise<void> => {
 // Load translations from i18n folder
 export async function loadTranslations(): Promise<void> {
   // Check if we're in Tauri environment
-  if (!window.__TAURI__ || import.meta.env.MODE === 'development') {
+  if (!window.__TAURI__) {
     await loadDevelopmentTranslations();
     return;
   }
 
   try {
-    // Get the commands.yaml path from store or use default
-    const commandsPath = await invoke<string>('get_commands_path').catch(() => null);
-    if (!commandsPath) {
-      console.warn('Commands path not found, using development translations');
+    // Get the project path from the store
+    const { useSkitStore } = await import('../store/skitStore');
+    const projectPath = useSkitStore.getState().projectPath;
+    
+    if (!projectPath) {
+      console.warn('No project path set, using development translations');
       await loadDevelopmentTranslations();
       return;
     }
 
-    const i18nPath = await join(await dirname(commandsPath), 'i18n');
+    const i18nPath = await join(projectPath, 'i18n');
     
     // Check if i18n directory exists
-    if (!(await exists(i18nPath))) {
+    const i18nDirExists = await exists(i18nPath);
+
+    if (!i18nDirExists) {
       console.warn('i18n directory not found, using development translations');
       await loadDevelopmentTranslations();
       return;
@@ -94,7 +97,7 @@ export async function loadTranslations(): Promise<void> {
       }
     }
   } catch (error) {
-    console.error('Failed to load translations:', error);
+    console.error('Failed to load translations in Tauri mode:', error);
     await loadDevelopmentTranslations();
   }
 }

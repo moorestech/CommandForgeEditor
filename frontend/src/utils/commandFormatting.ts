@@ -22,7 +22,7 @@ export function formatCommandPreview(command: SkitCommand, commandsMap: Map<stri
     const placeholder = `{${key}}`;
     if (formatted.includes(placeholder)) {
       // Check if this property has a masterKey (references master data)
-      const propertyDef = commandDef.properties[key];
+      const propertyDef = commandDef.properties ? commandDef.properties[key] : undefined;
       let displayValue = String(value);
       
       if (propertyDef && propertyDef.masterKey && propertyDef.type === 'enum') {

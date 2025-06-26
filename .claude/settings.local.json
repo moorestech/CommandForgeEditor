@@ -22,6 +22,7 @@
       "Bash(npx c8 report:*)",
       "Bash(rg:*)",
       "Bash(npx tsc:*)",
+      "Bash(git add:*)"
       "mcp__playwright__browser_take_screenshot"
     ]
   },

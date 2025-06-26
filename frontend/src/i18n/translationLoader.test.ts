@@ -2,7 +2,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { loadTranslations, generateCommandTranslationKeys, getAvailableLanguages, getTranslationWithFallback } from './translationLoader';
 import i18n from 'i18next';
-import * as tauriApi from '@tauri-apps/api';
 import * as tauriFs from '@tauri-apps/api/fs';
 import * as tauriPath from '@tauri-apps/api/path';
 
@@ -34,6 +33,15 @@ vi.mock('@tauri-apps/api/fs', () => ({
 vi.mock('@tauri-apps/api/path', () => ({
   join: vi.fn(),
   dirname: vi.fn(),
+}));
+
+// Mock the store
+vi.mock('../store/skitStore', () => ({
+  useSkitStore: {
+    getState: vi.fn(() => ({
+      projectPath: null,
+    })),
+  },
 }));
 
 // Mock fetch for development mode
@@ -97,8 +105,12 @@ describe('translationLoader', () => {
       (window as any).__TAURI__ = true;
       (import.meta as any).env = { MODE: 'production' };
 
-      vi.mocked(tauriApi.invoke).mockResolvedValue('/path/to/commands.yaml');
-      vi.mocked(tauriPath.dirname).mockResolvedValue('/path/to');
+      // Mock store to return a project path
+      const { useSkitStore } = await import('../store/skitStore');
+      vi.mocked(useSkitStore.getState).mockReturnValue({
+        projectPath: '/path/to/project',
+      } as any);
+
       vi.mocked(tauriPath.join).mockImplementation(async (...args) => args.join('/'));
       vi.mocked(tauriFs.exists).mockResolvedValue(true);
       vi.mocked(tauriFs.readTextFile).mockResolvedValue(JSON.stringify({
@@ -109,15 +121,19 @@ describe('translationLoader', () => {
 
       await loadTranslations();
 
-      expect(tauriApi.invoke).toHaveBeenCalledWith('get_commands_path');
-      expect(tauriFs.exists).toHaveBeenCalledWith('/path/to/i18n');
+      expect(tauriFs.exists).toHaveBeenCalledWith('/path/to/project/i18n');
       expect(tauriFs.readTextFile).toHaveBeenCalled();
       expect(i18n.addResourceBundle).toHaveBeenCalled();
     });
 
-    it('should fallback to development mode when commands path not found', async () => {
+    it('should fallback to development mode when project path not found', async () => {
       (window as any).__TAURI__ = true;
-      vi.mocked(tauriApi.invoke).mockRejectedValue(new Error('Not found'));
+      
+      // Mock store to return no project path
+      const { useSkitStore } = await import('../store/skitStore');
+      vi.mocked(useSkitStore.getState).mockReturnValue({
+        projectPath: null,
+      } as any);
 
       const mockFetch = vi.mocked(global.fetch);
       mockFetch.mockResolvedValue({
@@ -128,7 +144,7 @@ describe('translationLoader', () => {
 
       await loadTranslations();
 
-      expect(consoleWarnSpy).toHaveBeenCalledWith('Commands path not found, using development translations');
+      expect(consoleWarnSpy).toHaveBeenCalledWith('No project path set, using development translations');
       
       consoleWarnSpy.mockRestore();
     });
@@ -137,8 +153,12 @@ describe('translationLoader', () => {
       (window as any).__TAURI__ = true;
       (import.meta as any).env = { MODE: 'production' };
 
-      vi.mocked(tauriApi.invoke).mockResolvedValue('/path/to/commands.yaml');
-      vi.mocked(tauriPath.dirname).mockResolvedValue('/path/to');
+      // Mock store to return a project path
+      const { useSkitStore } = await import('../store/skitStore');
+      vi.mocked(useSkitStore.getState).mockReturnValue({
+        projectPath: '/path/to/project',
+      } as any);
+
       vi.mocked(tauriPath.join).mockImplementation(async (...args) => args.join('/'));
       vi.mocked(tauriFs.exists).mockResolvedValue(false);
 
@@ -155,8 +175,12 @@ describe('translationLoader', () => {
       (window as any).__TAURI__ = true;
       (import.meta as any).env = { MODE: 'production' };
 
-      vi.mocked(tauriApi.invoke).mockResolvedValue('/path/to/commands.yaml');
-      vi.mocked(tauriPath.dirname).mockResolvedValue('/path/to');
+      // Mock store to return a project path
+      const { useSkitStore } = await import('../store/skitStore');
+      vi.mocked(useSkitStore.getState).mockReturnValue({
+        projectPath: '/path/to/project',
+      } as any);
+
       vi.mocked(tauriPath.join).mockImplementation(async (...args) => args.join('/'));
       vi.mocked(tauriFs.exists).mockResolvedValue(true);
       vi.mocked(tauriFs.readTextFile).mockResolvedValue('invalid json');
@@ -174,8 +198,12 @@ describe('translationLoader', () => {
       (window as any).__TAURI__ = true;
       (import.meta as any).env = { MODE: 'production' };
 
-      vi.mocked(tauriApi.invoke).mockResolvedValue('/path/to/commands.yaml');
-      vi.mocked(tauriPath.dirname).mockResolvedValue('/path/to');
+      // Mock store to return a project path
+      const { useSkitStore } = await import('../store/skitStore');
+      vi.mocked(useSkitStore.getState).mockReturnValue({
+        projectPath: '/path/to/project',
+      } as any);
+
       vi.mocked(tauriPath.join).mockImplementation(async (...args) => args.join('/'));
       
       // Only i18n directory exists, but no language files
@@ -384,9 +412,9 @@ describe('translationLoader', () => {
       
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       
-      // Make invoke throw an error
-      vi.mocked(tauriApi.invoke).mockImplementation(() => {
-        throw new Error('Tauri error');
+      // Make the store import throw an error
+      vi.doMock('../store/skitStore', () => {
+        throw new Error('Store import error');
       });
       
       const mockFetch = vi.mocked(global.fetch);
@@ -397,7 +425,7 @@ describe('translationLoader', () => {
 
       await loadTranslations();
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to load translations:', expect.any(Error));
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to load translations in Tauri mode:', expect.any(Error));
       // Should fallback to development translations
       expect(mockFetch).toHaveBeenCalled();
       
