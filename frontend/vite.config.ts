@@ -6,8 +6,12 @@ export default defineConfig({
   plugins: [
     react()
   ],
-  
-  base: process.env.GITHUB_ACTIONS ? '/CommandForgeEditor/' : '/',
+
+  base: process.env.GITHUB_ACTIONS
+      ? './'
+      : process.env.GITHUB_ACTIONS
+          ? '/CommandForgeEditor/'
+          : '/',
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
