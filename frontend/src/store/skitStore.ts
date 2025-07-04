@@ -758,7 +758,21 @@ export const useSkitStore = create<SkitState>()(
     },
 
     pasteCommandsFromClipboard: async () => {
-      const text = await navigator.clipboard.readText();
+      let text: string;
+      try {
+        // Try to use Tauri's clipboard API if available
+        if (typeof window !== 'undefined' && '__TAURI__' in window) {
+          const { invoke } = await import('@tauri-apps/api');
+          text = await invoke<string>('read_clipboard_text');
+        } else {
+          // Fallback to browser API for development
+          text = await navigator.clipboard.readText();
+        }
+      } catch (error) {
+        console.error('Failed to read clipboard:', error);
+        return;
+      }
+
       let commands: SkitCommand[];
       try {
         commands = JSON.parse(text) as SkitCommand[];

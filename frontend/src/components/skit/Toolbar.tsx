@@ -9,7 +9,8 @@ import {
   Save,
   ChevronDown,
   ClipboardPaste,
-  Scissors
+  Scissors,
+  FolderOpen
 } from 'lucide-react';
 import { SidebarTrigger } from '../ui/sidebar';
 import { 
@@ -25,6 +26,7 @@ import { DraggableCommand } from '../dnd/DraggableCommand';
 import { DropZone } from '../dnd/DropZone';
 import { useTranslation } from 'react-i18next';
 import { useCommandTranslation } from '../../hooks/useCommandTranslation';
+import { openProjectDirectory } from '../../utils/fileSystem';
 
 // Helper component to display translated command label
 function CommandMenuLabel({ commandId, label }: { commandId: string; label?: string }) {
@@ -47,6 +49,7 @@ export function Toolbar() {
     redo,
     saveSkit,
     commandDefinitions,
+    projectPath,
   } = useSkitStore();
 
   const handleAddCommand = (commandType: string) => {
@@ -80,6 +83,16 @@ export function Toolbar() {
       toast.success(t('editor.toolbar.skitSaved'));
     } catch (error) {
       toast.error(t('editor.toolbar.saveFailed', { error: error instanceof Error ? error.message : String(error) }));
+    }
+  };
+
+  const handleOpenProjectDirectory = async () => {
+    if (!projectPath) return;
+    
+    try {
+      await openProjectDirectory(projectPath);
+    } catch (error) {
+      toast.error(t('editor.toolbar.openProjectFolderFailed', { error: error instanceof Error ? error.message : String(error) }));
     }
   };
 
@@ -189,9 +202,20 @@ export function Toolbar() {
             size="sm"
             disabled={isDisabled}
             onClick={handleSave}
+            className="mr-2"
           >
             <Save className="h-4 w-4 mr-1" />
             {t('editor.menu.file.save')}
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={!projectPath}
+            onClick={handleOpenProjectDirectory}
+          >
+            <FolderOpen className="h-4 w-4 mr-1" />
+            {t('editor.toolbar.openProjectFolder')}
           </Button>
         </div>
       </div>

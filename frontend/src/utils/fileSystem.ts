@@ -1,6 +1,7 @@
 import { readTextFile, writeTextFile, createDir, readDir, exists } from '@tauri-apps/api/fs';
 import { join, resolveResource } from '@tauri-apps/api/path';
 import { open } from '@tauri-apps/api/dialog';
+import { invoke } from '@tauri-apps/api/tauri';
 import { Skit, CommandDefinition, SkitCommand } from '../types';
 import { validateSkitData, validateCommandsYaml } from './validation';
 import { loadConfigFile } from './configLoader';
@@ -26,6 +27,21 @@ export async function selectProjectFolder(): Promise<string | null> {
   } catch (error) {
     console.error('Failed to select project folder:', error);
     return null;
+  }
+}
+
+/**
+ * Opens the project directory in the system's file explorer
+ * @param projectPath The path to the project directory
+ * @returns Promise that resolves when the directory is opened
+ */
+export async function openProjectDirectory(projectPath: string): Promise<void> {
+  try {
+    // Use custom Tauri command instead of shell.open
+    await invoke('open_project_directory', { path: projectPath });
+  } catch (error) {
+    console.error('Failed to open project directory:', error);
+    throw new Error(`Failed to open project directory: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 
@@ -144,10 +160,20 @@ async function loadSkitsFromPath(skitsPath: string, projectPath: string | null):
         
         if (commandsConfig && commandsConfig.commands) {
           skit.commands = skit.commands.map((command: SkitCommand) => {
-            if (!command.backgroundColor) {
-              const commandDef = commandsConfig.commands.find((def: CommandDefinition) => def.id === command.type);
-              if (commandDef && commandDef.defaultBackgroundColor) {
-                return { ...command, backgroundColor: commandDef.defaultBackgroundColor };
+            const commandDef = commandsConfig.commands.find((def: CommandDefinition) => def.id === command.type);
+            if (commandDef) {
+              const updates: Partial<SkitCommand> = {};
+              
+              if (!command.backgroundColor && commandDef.defaultBackgroundColor) {
+                updates.backgroundColor = commandDef.defaultBackgroundColor;
+              }
+              
+              if (!command.commandLabelColor && commandDef.defaultCommandLabelColor) {
+                updates.commandLabelColor = commandDef.defaultCommandLabelColor;
+              }
+              
+              if (Object.keys(updates).length > 0) {
+                return { ...command, ...updates };
               }
             }
             return command;
