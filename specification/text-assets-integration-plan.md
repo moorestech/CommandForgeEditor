@@ -1,7 +1,7 @@
 # Text Assets Integration Plan - CommandForgeEditor & mooreseditor
 
 ## 概要
-mooreseditorで管理するテキストアセット（テキストID、テキスト内容、ボイスID）をCommandForgeEditorで利用できるようにする連携機能の実装計画。
+mooreseditor（/Users/katsumi.sato/WebstormProjects/mooreseditor）で管理するテキストアセット（テキストID、テキスト内容、ボイスID）をCommandForgeEditorで利用できるようにする連携機能の実装計画。
 
 ## 実装目標
 - mooreseditorでテキストアセットを一元管理
@@ -14,9 +14,9 @@ mooreseditorで管理するテキストアセット（テキストID、テキス
 ### システム構成図
 ```
 mooreseditor（マスターデータ管理）
-    ├── テキストアセット編集UI
+    ├── テキストアセット編集UI 指摘：これは不要です。そもそもmooreseditorにはこのような機能はありません。純粋にマスターデータのjsonの出力しかできません。
     ├── カテゴリ/タグ管理
-    └── エクスポート機能
+    └── エクスポート機
             ↓
         text_assets.json
             ↓
@@ -28,12 +28,21 @@ CommandForgeEditor（読み込み専用）
 
 ### データフロー
 1. mooreseditorでテキストアセットを作成・編集
+　指摘：テキストアセットといっても、本質的には単なるマスターのjsonデータでしかありません。そのため、jsonをマスタデーターとして扱いたいです。
 2. text_assets.jsonとしてエクスポート
-3. CommandForgeEditorが自動検知して読み込み
-4. show_messageコマンドでテキストIDを選択
+3. CommandForgeEditorが自動検知して読み込み 
+指摘：自動検知せず、CommandForgeEditor.config.yamlでマスターデータのプロジェクトパスを指定するようにしてください。
+
+4. show_messageコマンドでテキストIDを選択 
+指摘：プロパティでマスターのIDとjsonのパスを指定するようにしてください。jsonのパスの指定方法はmooreseditorに準拠してください。mooreseditorのforigenKyeと同じ仕様にしたいです。
+
 5. スキットファイルにはテキストIDのみ保存
+指摘：同じく外部キーで指定してください。
 
 ## データ仕様
+
+これはmooreseditorのマスターデータの形に準拠します。
+これ以下の仕様はすべて書き直してください。
 
 ### text_assets.json
 ```json
