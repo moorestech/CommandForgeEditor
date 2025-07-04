@@ -48,6 +48,48 @@ fn read_clipboard_text() -> Result<String, String> {
     clipboard.get_text().map_err(|e| e.to_string())
 }
 
+#[tauri::command]
+fn open_project_directory(path: String) -> Result<(), String> {
+    #[cfg(target_os = "windows")]
+    {
+        std::process::Command::new("explorer")
+            .arg(&path)
+            .spawn()
+            .map_err(|e| format!("Failed to open directory: {}", e))?;
+    }
+    
+    #[cfg(target_os = "macos")]
+    {
+        std::process::Command::new("open")
+            .arg(&path)
+            .spawn()
+            .map_err(|e| format!("Failed to open directory: {}", e))?;
+    }
+    
+    #[cfg(target_os = "linux")]
+    {
+        // Try common file managers
+        let file_managers = ["xdg-open", "nautilus", "dolphin", "thunar", "pcmanfm"];
+        let mut opened = false;
+        
+        for fm in &file_managers {
+            if let Ok(_) = std::process::Command::new(fm)
+                .arg(&path)
+                .spawn()
+            {
+                opened = true;
+                break;
+            }
+        }
+        
+        if !opened {
+            return Err("Failed to open directory: No suitable file manager found".to_string());
+        }
+    }
+    
+    Ok(())
+}
+
 fn main() {
   tauri::Builder::default()
     .setup(|app| {
@@ -64,7 +106,8 @@ fn main() {
         get_commands_path,
         set_project_path,
         get_project_path,
-        read_clipboard_text
+        read_clipboard_text,
+        open_project_directory
     ]) // Register all commands
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
