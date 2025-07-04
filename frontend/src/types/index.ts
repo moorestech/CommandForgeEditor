@@ -34,6 +34,7 @@ export interface CommandDefinition {
   description: string;
   commandListLabelFormat: string;
   defaultBackgroundColor?: string;
+  defaultCommandLabelColor?: string;
   properties: Record<string, PropertyDefinition>;
 }
 
@@ -54,6 +55,7 @@ export interface SkitCommand {
   id: number;
   type: string;
   backgroundColor?: string; // Background color for the command
+  commandLabelColor?: string; // Text color for the command
   isCollapsed?: boolean; // For group_start commands
   groupName?: string; // For group_start commands
   // 必須プロパティの型も含めたインデックスシグネチャ

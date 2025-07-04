@@ -98,6 +98,10 @@ export function CommandEditor() {
   const isBgMixed = !backgroundColors.every(c => c === backgroundColors[0]);
   const bgColorValue = isBgMixed ? "#ffffff" : backgroundColors[0];
 
+  const labelColors = selectedCommands.map(cmd => cmd.commandLabelColor || (commandsMap.get(cmd.type)?.defaultCommandLabelColor ?? "#000000"));
+  const isLabelColorMixed = !labelColors.every(c => c === labelColors[0]);
+  const labelColorValue = isLabelColorMixed ? "#000000" : labelColors[0];
+
   const selectedLabels = selectedCommands.map(cmd => commandsMap.get(cmd.type)?.label || cmd.type);
   const uniqueLabels = Array.from(new Set(selectedLabels));
 
@@ -119,6 +123,17 @@ export function CommandEditor() {
             onChange={(value) => handlePropertyChange("backgroundColor", value)}
             placeholder={isBgMixed ? '-' : undefined}
             isMixed={isBgMixed}
+          />
+        </div>
+
+        {/* Command Label Color Picker */}
+        <div className="space-y-2">
+          <Label htmlFor="commandLabelColor">{t('editor.commandLabelColor')}</Label>
+          <ColorPicker
+            value={labelColorValue}
+            onChange={(value) => handlePropertyChange("commandLabelColor", value)}
+            placeholder={isLabelColorMixed ? '-' : undefined}
+            isMixed={isLabelColorMixed}
           />
         </div>
 

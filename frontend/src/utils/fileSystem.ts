@@ -160,10 +160,20 @@ async function loadSkitsFromPath(skitsPath: string, projectPath: string | null):
         
         if (commandsConfig && commandsConfig.commands) {
           skit.commands = skit.commands.map((command: SkitCommand) => {
-            if (!command.backgroundColor) {
-              const commandDef = commandsConfig.commands.find((def: CommandDefinition) => def.id === command.type);
-              if (commandDef && commandDef.defaultBackgroundColor) {
-                return { ...command, backgroundColor: commandDef.defaultBackgroundColor };
+            const commandDef = commandsConfig.commands.find((def: CommandDefinition) => def.id === command.type);
+            if (commandDef) {
+              const updates: Partial<SkitCommand> = {};
+              
+              if (!command.backgroundColor && commandDef.defaultBackgroundColor) {
+                updates.backgroundColor = commandDef.defaultBackgroundColor;
+              }
+              
+              if (!command.commandLabelColor && commandDef.defaultCommandLabelColor) {
+                updates.commandLabelColor = commandDef.defaultCommandLabelColor;
+              }
+              
+              if (Object.keys(updates).length > 0) {
+                return { ...command, ...updates };
               }
             }
             return command;

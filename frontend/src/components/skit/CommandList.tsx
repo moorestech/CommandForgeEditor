@@ -351,9 +351,10 @@ const CommandItem = memo(({
     return lines;
   }, [nestLevel, command.type]);
 
-  // Get command definition to check for defaultBackgroundColor
+  // Get command definition to check for defaultBackgroundColor and defaultCommandLabelColor
   const commandDef = commandsMap?.get(command.type);
   const defaultBgColor = commandDef?.defaultBackgroundColor || "#ffffff";
+  const defaultLabelColor = commandDef?.defaultCommandLabelColor || "";
   
   const bgColor = command.backgroundColor || defaultBgColor;
   
@@ -362,7 +363,12 @@ const CommandItem = memo(({
     ...(isSelected ? {} : { backgroundColor: bgColor })
   };
     
-  const getTextColor = (bgColor: string) => {
+  const getTextColorClass = (bgColor: string, labelColor?: string) => {
+    if (labelColor) {
+      // If label color is set, use it directly as inline style
+      return '';
+    }
+    
     if (!bgColor || bgColor === '') return '';
     
     const hex = bgColor.replace('#', '');
@@ -375,7 +381,11 @@ const CommandItem = memo(({
     return brightness < 128 ? 'text-white' : 'text-black';
   };
   
-  const textColorClass = getTextColor(bgColor);
+  const labelColor = command.commandLabelColor || defaultLabelColor;
+  const textColorClass = getTextColorClass(bgColor, labelColor);
+  
+  // Add inline style for custom label color
+  const textColorStyle = labelColor && !isSelected ? { color: labelColor } : {};
 
   return (
     <div
@@ -386,7 +396,7 @@ const CommandItem = memo(({
         } ${isActive ? 'opacity-50' : ''}`}
       onClick={(e) => handleCommandClick(command.id, e)}
       data-testid={`command-item-${command.id}`}
-      style={backgroundColorStyle}
+      style={{...backgroundColorStyle, ...textColorStyle}}
     >
       {/* ネストレベルを示す垂直ライン */}
       {nestLines}
