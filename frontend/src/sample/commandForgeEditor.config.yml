@@ -1,0 +1,3 @@
+version: 1
+projectName: "Sample Project"
+commandsSchema: "commands2.yaml"

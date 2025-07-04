@@ -1,4 +1,5 @@
-import { Skit } from '../types';
+import { Skit, CommandForgeConfig } from '../types';
+import { parse } from 'yaml';
 
 /**
  * 開発環境用: サンプルcommands.yamlファイルを読み込む
@@ -41,6 +42,29 @@ export async function loadSampleSkit(): Promise<Record<string, Skit>> {
     return { 'sample': sampleSkit };
   } catch (error) {
     console.error('Failed to load sample-skit.json:', error);
+    throw error;
+  }
+}
+
+/**
+ * 開発環境用: サンプルcommandForgeEditor.config.ymlファイルを読み込む
+ * @returns Promise with the configuration
+ */
+export async function loadSampleConfig(): Promise<CommandForgeConfig> {
+  try {
+    console.log('Loading commandForgeEditor.config.yml for web environment');
+    
+    // Web環境でfetchを使用してファイルをロード
+    const response = await fetch('/src/sample/commandForgeEditor.config.yml');
+    if (!response.ok) {
+      throw new Error(`Failed to fetch commandForgeEditor.config.yml: ${response.status}`);
+    }
+    const content = await response.text();
+    const config = parse(content) as CommandForgeConfig;
+    console.log('Successfully loaded commandForgeEditor.config.yml');
+    return config;
+  } catch (error) {
+    console.error('Failed to load commandForgeEditor.config.yml:', error);
     throw error;
   }
 }

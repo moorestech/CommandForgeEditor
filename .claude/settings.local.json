@@ -6,7 +6,6 @@
       "Bash(npm run dev:*)",
       "Bash(npm run tauri:build:*)",
       "Bash(npm run build:*)",
-      "Bash(npm:*)",
       "mcp__playwright__browser_navigate",
       "mcp__playwright__browser_click",
       "mcp__playwright__browser_snapshot",
@@ -22,9 +21,9 @@
       "Bash(npx c8 report:*)",
       "Bash(rg:*)",
       "Bash(npx tsc:*)",
-      "Bash(git add:*)"
-      "mcp__playwright__browser_take_screenshot"
-    ]
-  },
-  "enableAllProjectMcpServers": false
+      "Bash(git add:*)",
+      "mcp__playwright__browser_take_screenshot",
+    ],
+    "deny": []
+  }
 }

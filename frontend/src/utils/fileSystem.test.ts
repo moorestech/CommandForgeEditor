@@ -11,12 +11,14 @@ import {
   createNewSkit
 } from './fileSystem';
 import * as validation from './validation';
+import * as configLoader from './configLoader';
 import { Skit } from '../types';
 
 vi.mock('@tauri-apps/api/fs');
 vi.mock('@tauri-apps/api/path');
 vi.mock('@tauri-apps/api/dialog');
 vi.mock('./validation');
+vi.mock('./configLoader');
 
 describe('fileSystem', () => {
   beforeEach(() => {
@@ -77,38 +79,37 @@ describe('fileSystem', () => {
 
   describe('loadCommandsYaml', () => {
     it('should load from project path when available', async () => {
+      vi.mocked(configLoader.loadConfigFile).mockResolvedValue({
+        version: 1,
+        commandsSchema: 'commands.yaml'
+      });
       vi.mocked(path.join).mockResolvedValue('/project/commands.yaml');
       vi.mocked(fs.exists).mockResolvedValue(true);
       vi.mocked(fs.readTextFile).mockResolvedValue('version: 1\ncommands: []');
 
       const result = await loadCommandsYaml('/project');
       expect(result).toBe('version: 1\ncommands: []');
+      expect(configLoader.loadConfigFile).toHaveBeenCalledWith('/project');
       expect(path.join).toHaveBeenCalledWith('/project', 'commands.yaml');
     });
 
-    it('should fall back to resource path when project path not found', async () => {
-      vi.mocked(path.join).mockResolvedValue('/project/commands.yaml');
-      vi.mocked(fs.exists).mockResolvedValue(false);
-      vi.mocked(path.resolveResource).mockResolvedValue('/resources/commands.yaml');
-      vi.mocked(fs.readTextFile).mockResolvedValue('default commands');
+    it('should fail when config file not found', async () => {
+      vi.mocked(configLoader.loadConfigFile).mockRejectedValue(
+        new Error('Configuration file not found')
+      );
 
-      const result = await loadCommandsYaml('/project');
-      expect(result).toBe('default commands');
-      expect(path.resolveResource).toHaveBeenCalledWith('commands.yaml');
+      await expect(loadCommandsYaml('/project')).rejects.toThrow('Configuration file not found');
+      expect(configLoader.loadConfigFile).toHaveBeenCalledWith('/project');
     });
 
-    it('should load from resource path when no project path', async () => {
-      vi.mocked(path.resolveResource).mockResolvedValue('/resources/commands.yaml');
-      vi.mocked(fs.readTextFile).mockResolvedValue('default commands');
-
-      const result = await loadCommandsYaml();
-      expect(result).toBe('default commands');
+    it('should throw error when no project path', async () => {
+      await expect(loadCommandsYaml()).rejects.toThrow('Project path is required to load commands.yaml');
     });
 
     it('should throw error on failure', async () => {
-      vi.mocked(path.resolveResource).mockRejectedValue(new Error('File not found'));
+      vi.mocked(configLoader.loadConfigFile).mockRejectedValue(new Error('File not found'));
 
-      await expect(loadCommandsYaml()).rejects.toThrow('File not found');
+      await expect(loadCommandsYaml('/project')).rejects.toThrow('File not found');
     });
 
     it('should throw error in web environment', async () => {
@@ -201,6 +202,11 @@ describe('fileSystem', () => {
 
     it('should apply default background colors from commands.yaml', async () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      
+      vi.mocked(configLoader.loadConfigFile).mockResolvedValue({
+        version: 1,
+        commandsSchema: 'commands.yaml'
+      });
       
       vi.mocked(validation.validateCommandsYaml).mockReturnValue({
         config: {

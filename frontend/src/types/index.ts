@@ -64,3 +64,9 @@ export interface Skit {
   meta: SkitMeta;
   commands: SkitCommand[];
 }
+
+export interface CommandForgeConfig {
+  version: number;
+  projectName?: string;
+  commandsSchema: string;
+}

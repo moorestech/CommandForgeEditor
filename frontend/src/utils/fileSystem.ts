@@ -3,6 +3,7 @@ import { join, resolveResource } from '@tauri-apps/api/path';
 import { open } from '@tauri-apps/api/dialog';
 import { Skit, CommandDefinition, SkitCommand } from '../types';
 import { validateSkitData, validateCommandsYaml } from './validation';
+import { loadConfigFile } from './configLoader';
 // 未使用のimportを削除
 
 /**
@@ -29,7 +30,7 @@ export async function selectProjectFolder(): Promise<string | null> {
 }
 
 /**
- * Loads commands.yaml file from either project path or resources
+ * Loads commands.yaml file based on configuration
  * @param projectPath Optional project path
  * @returns Promise with the commands.yaml content
  */
@@ -40,16 +41,20 @@ export async function loadCommandsYaml(projectPath: string | null = null): Promi
       throw new Error('Running in web environment, Tauri API not available');
     }
     
-    let commandsYamlPath;
-    
-    if (projectPath) {
-      commandsYamlPath = await join(projectPath, 'commands.yaml');
-      if (await exists(commandsYamlPath)) {
-        return await readTextFile(commandsYamlPath);
-      }
+    if (!projectPath) {
+      throw new Error('Project path is required to load commands.yaml');
     }
     
-    commandsYamlPath = await resolveResource('commands.yaml');
+    // Load configuration file first
+    const config = await loadConfigFile(projectPath);
+    
+    // Get commands.yaml path from config
+    const commandsYamlPath = await join(projectPath, config.commandsSchema);
+    
+    if (!(await exists(commandsYamlPath))) {
+      throw new Error(`Commands schema file not found at ${commandsYamlPath}`);
+    }
+    
     return await readTextFile(commandsYamlPath);
   } catch (error) {
     console.error('Failed to load commands.yaml:', error);
@@ -81,12 +86,12 @@ export async function loadSkits(projectPath: string | null = null): Promise<Reco
         return {}; // Return empty object since directory was just created
       }
       
-      return await loadSkitsFromPath(skitsPath);
+      return await loadSkitsFromPath(skitsPath, projectPath);
     }
     
     skitsPath = await resolveResource('skits');
     // as it should be part of the bundled resources
-    return await loadSkitsFromPath(skitsPath);
+    return await loadSkitsFromPath(skitsPath, null);
   } catch (error) {
     console.error('Failed to load skits:', error);
     return {}; // Return empty object on error instead of throwing
@@ -96,9 +101,10 @@ export async function loadSkits(projectPath: string | null = null): Promise<Reco
 /**
  * Helper function to load skits from a specific path
  * @param skitsPath Path to the skits directory
+ * @param projectPath Optional project path for loading config
  * @returns Promise with a record of skits
  */
-async function loadSkitsFromPath(skitsPath: string): Promise<Record<string, Skit>> {
+async function loadSkitsFromPath(skitsPath: string, projectPath: string | null): Promise<Record<string, Skit>> {
   try {
     const skitFiles = await readDir(skitsPath);
     const skits: Record<string, Skit> = {};
@@ -106,12 +112,25 @@ async function loadSkitsFromPath(skitsPath: string): Promise<Record<string, Skit
     // Load commands.yaml to get defaultBackgroundColor for each command type
     let commandsConfig;
     try {
-      const commandsYamlPath = await join(skitsPath, '../commands.yaml');
-      if (await exists(commandsYamlPath)) {
-        const commandsYaml = await readTextFile(commandsYamlPath);
-        const { validateCommandsYaml } = await import('./validation');
-        const { config } = validateCommandsYaml(commandsYaml);
-        commandsConfig = config;
+      if (projectPath) {
+        // Load config to get commands.yaml path
+        const config = await loadConfigFile(projectPath);
+        const commandsYamlPath = await join(projectPath, config.commandsSchema);
+        if (await exists(commandsYamlPath)) {
+          const commandsYaml = await readTextFile(commandsYamlPath);
+          const { validateCommandsYaml } = await import('./validation');
+          const { config: yamlConfig } = validateCommandsYaml(commandsYaml);
+          commandsConfig = yamlConfig;
+        }
+      } else {
+        // Fallback for bundled resources
+        const commandsYamlPath = await join(skitsPath, '../commands.yaml');
+        if (await exists(commandsYamlPath)) {
+          const commandsYaml = await readTextFile(commandsYamlPath);
+          const { validateCommandsYaml } = await import('./validation');
+          const { config: yamlConfig } = validateCommandsYaml(commandsYaml);
+          commandsConfig = yamlConfig;
+        }
       }
     } catch (error) {
       console.error('Failed to load commands.yaml for background colors:', error);

@@ -12,7 +12,8 @@ import {
 } from './utils/fileSystem';
 import {
   loadSampleCommandsYaml,
-  loadSampleSkit
+  loadSampleSkit,
+  loadSampleConfig
 } from './utils/devFileSystem';
 import { Toaster } from 'sonner';
 import { DndProvider } from './components/dnd/DndProvider';
@@ -53,6 +54,9 @@ function App() {
           }
           
           try {
+            // 設定ファイルを読み込み、そこからcommands.yamlのパスを取得
+            await loadSampleConfig();
+            // 開発環境では設定に関係なく直接commands.yamlを読み込む
             const commandsYaml = await loadSampleCommandsYaml();
             loadCommandsYaml(commandsYaml);
           } catch (e) {
