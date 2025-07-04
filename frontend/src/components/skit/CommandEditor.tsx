@@ -8,6 +8,8 @@ import { CommandDefinition, PropertyDefinition } from '../../types';
 import { SkitCommand } from '../../types';
 import { formatCommandPreview } from '../../utils/commandFormatting';
 import { ColorPicker } from '../ui/color-picker';
+import { HexColorPicker } from 'react-colorful';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { VectorInput } from '../ui/vector-input';
 import { useTranslation } from 'react-i18next';
 import { useCommandTranslation } from '../../hooks/useCommandTranslation';
@@ -115,26 +117,55 @@ export function CommandEditor() {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Background Color Picker */}
+        {/* Color Pickers - Inline Side by Side */}
         <div className="space-y-2">
-          <Label htmlFor="backgroundColor">{t('editor.backgroundColor')}</Label>
-          <ColorPicker
-            value={bgColorValue}
-            onChange={(value) => handlePropertyChange("backgroundColor", value)}
-            placeholder={isBgMixed ? '-' : undefined}
-            isMixed={isBgMixed}
-          />
-        </div>
+          <div className="flex items-center gap-6">
+            {/* Background Color Picker */}
+            <div className="flex items-center gap-2">
+              <Label htmlFor="backgroundColor" className="min-w-[60px]">{t('editor.backgroundColor')}</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    className="w-8 h-8 rounded border border-zinc-200 dark:border-zinc-800 cursor-pointer"
+                    style={{ backgroundColor: bgColorValue }}
+                    aria-label="Pick background color"
+                  />
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-3">
+                  <HexColorPicker color={bgColorValue} onChange={(value) => handlePropertyChange("backgroundColor", value)} />
+                </PopoverContent>
+              </Popover>
+              <Input
+                value={isBgMixed ? '' : bgColorValue}
+                onChange={(e) => handlePropertyChange("backgroundColor", e.target.value)}
+                placeholder={isBgMixed ? '-' : undefined}
+                className="w-28"
+              />
+            </div>
 
-        {/* Command Label Color Picker */}
-        <div className="space-y-2">
-          <Label htmlFor="commandLabelColor">{t('editor.commandLabelColor')}</Label>
-          <ColorPicker
-            value={labelColorValue}
-            onChange={(value) => handlePropertyChange("commandLabelColor", value)}
-            placeholder={isLabelColorMixed ? '-' : undefined}
-            isMixed={isLabelColorMixed}
-          />
+            {/* Command Label Color Picker */}
+            <div className="flex items-center gap-2">
+              <Label htmlFor="commandLabelColor" className="min-w-[60px]">{t('editor.commandLabelColor')}</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    className="w-8 h-8 rounded border border-zinc-200 dark:border-zinc-800 cursor-pointer"
+                    style={{ backgroundColor: labelColorValue }}
+                    aria-label="Pick text color"
+                  />
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-3">
+                  <HexColorPicker color={labelColorValue} onChange={(value) => handlePropertyChange("commandLabelColor", value)} />
+                </PopoverContent>
+              </Popover>
+              <Input
+                value={isLabelColorMixed ? '' : labelColorValue}
+                onChange={(e) => handlePropertyChange("commandLabelColor", e.target.value)}
+                placeholder={isLabelColorMixed ? '-' : undefined}
+                className="w-28"
+              />
+            </div>
+          </div>
         </div>
 
         {/* Command Properties */}
