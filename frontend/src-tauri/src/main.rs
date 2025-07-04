@@ -4,6 +4,7 @@
 use tauri::{Manager, State};
 use std::sync::Mutex;
 use std::path::PathBuf;
+use arboard::Clipboard;
 
 // State to hold the current project path
 struct ProjectState {
@@ -41,6 +42,12 @@ fn get_project_path(state: State<ProjectState>) -> Result<Option<String>, String
     Ok(project_path.clone())
 }
 
+#[tauri::command]
+fn read_clipboard_text() -> Result<String, String> {
+    let mut clipboard = Clipboard::new().map_err(|e| e.to_string())?;
+    clipboard.get_text().map_err(|e| e.to_string())
+}
+
 fn main() {
   tauri::Builder::default()
     .setup(|app| {
@@ -56,7 +63,8 @@ fn main() {
     .invoke_handler(tauri::generate_handler![
         get_commands_path,
         set_project_path,
-        get_project_path
+        get_project_path,
+        read_clipboard_text
     ]) // Register all commands
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
