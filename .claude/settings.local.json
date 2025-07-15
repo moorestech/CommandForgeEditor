@@ -22,8 +22,25 @@
       "Bash(rg:*)",
       "Bash(npx tsc:*)",
       "Bash(git add:*)",
-      "mcp__playwright__browser_take_screenshot",
+      "mcp__playwright__browser_take_screenshot"
     ],
     "deny": []
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd frontend && npm run build"
+          },
+          {
+            "type": "command",
+            "command": "cd frontend && npm run test"
+          }
+        ]
+      }
+    ]
   }
 }
