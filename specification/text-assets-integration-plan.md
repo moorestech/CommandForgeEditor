@@ -1,106 +1,89 @@
 # Text Assets Integration Plan - CommandForgeEditor & mooreseditor
 
 ## 概要
-mooreseditor（/Users/katsumi.sato/WebstormProjects/mooreseditor）で管理するテキストアセット（テキストID、テキスト内容、ボイスID）をCommandForgeEditorで利用できるようにする連携機能の実装計画。
+mooreseditor（/Users/katsumi.sato/WebstormProjects/mooreseditor）で管理するマスターデータをCommandForgeEditorで外部キー参照として利用できるようにする連携機能の実装計画。
 
 ## 実装目標
-- mooreseditorでテキストアセットを一元管理
-- CommandForgeEditorでテキストIDを選択してメッセージ表示
-- ファイルベースの自動同期機能
-- 開発効率を向上させるプレビュー機能
+- mooreseditorでマスターデータ（テキスト、ボイスID等）を管理
+- CommandForgeEditorでForeignKey機能を使用してマスターデータのIDを参照
+- config.yamlによるプロジェクトパス設定
+- mooreseditorのForeignKey仕様に準拠した実装
 
 ## アーキテクチャ
 
 ### システム構成図
 ```
 mooreseditor（マスターデータ管理）
-    ├── テキストアセット編集UI 指摘：これは不要です。そもそもmooreseditorにはこのような機能はありません。純粋にマスターデータのjsonの出力しかできません。
-    ├── カテゴリ/タグ管理
-    └── エクスポート機
+    ├── JSONマスターデータの編集
+    └── 各種マスターファイル（texts.json, voices.json等）
             ↓
-        text_assets.json
+    CommandForgeEditor.config.yamlで
+    プロジェクトパスを指定
             ↓
-CommandForgeEditor（読み込み専用）
-    ├── テキストアセット読み込み
-    ├── TextIdSelectorコンポーネント
+CommandForgeEditor（外部キー参照）
+    ├── マスターデータ読み込み
+    ├── ForeignKeySelectorコンポーネント
     └── リアルタイムプレビュー
 ```
 
 ### データフロー
-1. mooreseditorでテキストアセットを作成・編集
-　指摘：テキストアセットといっても、本質的には単なるマスターのjsonデータでしかありません。そのため、jsonをマスタデーターとして扱いたいです。
-2. text_assets.jsonとしてエクスポート
-3. CommandForgeEditorが自動検知して読み込み 
-指摘：自動検知せず、CommandForgeEditor.config.yamlでマスターデータのプロジェクトパスを指定するようにしてください。
-
-4. show_messageコマンドでテキストIDを選択 
-指摘：プロパティでマスターのIDとjsonのパスを指定するようにしてください。jsonのパスの指定方法はmooreseditorに準拠してください。mooreseditorのforigenKyeと同じ仕様にしたいです。
-
-5. スキットファイルにはテキストIDのみ保存
-指摘：同じく外部キーで指定してください。
+1. mooreseditorでマスターデータ（texts.json等）を作成・編集
+2. CommandForgeEditor.config.yamlでmooreseditorプロジェクトパスを設定
+3. CommandForgeEditorがconfig.yamlを読み込み、指定されたパスからマスターデータを取得
+4. コマンドプロパティでForeignKey設定を使用してマスターIDを選択
+5. スキットファイルには選択されたID（外部キー）のみ保存
 
 ## データ仕様
 
-これはmooreseditorのマスターデータの形に準拠します。
-これ以下の仕様はすべて書き直してください。
+### mooreseditorのマスターデータ形式
+mooreseditorは配列形式のJSONマスターデータを使用します。
 
-### text_assets.json
+#### texts.json（例）
 ```json
-{
-  "$version": "1.0.0",
-  "$schema": "text-assets-schema-v1",
-  "$exportedAt": "2025-07-04T10:00:00Z",
-  "$exportedBy": "mooreseditor v0.5.1",
-  "assets": {
-    "T_HELLO_001": {
-      "text": "こんにちは、冒険者よ。",
-      "voiceId": "voice_001",
-      "category": "greeting",
-      "tags": ["npc", "village"],
-      "description": "村人の挨拶",
-      "variables": [],
-      "lastModified": "2025-07-04T09:00:00Z"
-    },
-    "T_QUEST_START_001": {
-      "text": "新しいクエストが始まりました。",
-      "voiceId": "voice_sys_010",
-      "category": "system",
-      "tags": ["quest", "notification"],
-      "description": "クエスト開始通知",
-      "variables": [],
-      "lastModified": "2025-07-04T09:30:00Z"
-    },
-    "T_ITEM_GET_001": {
-      "text": "{itemName}を{count}個手に入れた！",
-      "voiceId": "voice_sys_021",
-      "category": "system",
-      "tags": ["item", "notification"],
-      "description": "アイテム取得メッセージ",
-      "variables": ["itemName", "count"],
-      "lastModified": "2025-07-04T09:45:00Z"
-    }
+[
+  {
+    "id": "T_HELLO_001",
+    "text": "こんにちは、冒険者よ。",
+    "voiceId": "voice_001",
+    "category": "greeting"
+  },
+  {
+    "id": "T_QUEST_START_001", 
+    "text": "新しいクエストが始まりました。",
+    "voiceId": "voice_sys_010",
+    "category": "system"
   }
-}
+]
 ```
 
-### スキットファイルの変更
-```json
-// Before
-{
-  "id": "cmd_1",
-  "command": "show_message",
-  "properties": {
-    "text": "こんにちは、冒険者よ。"
-  }
-}
+### CommandForgeEditor.config.yaml
+```yaml
+# プロジェクト設定
+masterDataProject: /Users/katsumi.sato/WebstormProjects/mooreseditor/project_name
+```
 
-// After
+### commands.yamlのForeignKey定義
+mooreseditorのForeignKey仕様に準拠：
+```yaml
+- id: show_message
+  name: メッセージ表示
+  properties:
+    - key: textId
+      type: uuid  # mooreseditorではuuid型でForeignKeyを定義
+      name: テキストID
+      foreignKey:
+        schemaId: texts  # マスターファイル名（.json除く）
+        foreignKeyIdPath: /[*]/id  # 配列内のidフィールド
+        displayElementPath: /[*]/text  # 表示用のtextフィールド
+```
+
+### スキットファイルの保存形式
+```json
 {
   "id": "cmd_1",
   "command": "show_message",
   "properties": {
-    "textId": "T_HELLO_001",
-    "variables": {}
+    "textId": "T_HELLO_001"
   }
 }
 ```
@@ -109,206 +92,152 @@ CommandForgeEditor（読み込み専用）
 
 ### Phase 1: 基本機能（MVP）
 
-#### 1-1. CommandForgeEditor - データ読み込み機能
-- [ ] text_assets.jsonの型定義作成
-- [ ] ファイル読み込み機能の実装
-- [ ] Zustandストアへのテキストアセット状態追加
-- [ ] エラーハンドリング（ファイル不在、形式エラー）
+#### 1-1. CommandForgeEditor - 設定ファイル機能
+- [ ] CommandForgeEditor.config.yamlの型定義
+- [ ] config.yaml読み込み機能の実装
+- [ ] マスターデータプロジェクトパスの解決
 
-#### 1-2. CommandForgeEditor - UI実装
-- [ ] TextIdSelectorコンポーネントの作成
+#### 1-2. CommandForgeEditor - ForeignKey機能実装
+- [ ] mooreseditorのForeignKeyResolver相当の実装
+- [ ] ForeignKeySelectorコンポーネントの作成
   - [ ] ドロップダウンUI
   - [ ] 検索機能
-  - [ ] プレビュー表示
-- [ ] commands.yamlの修正（show_messageコマンド）
-- [ ] CommandEditorコンポーネントの拡張
+  - [ ] ID/表示値のペア表示
+- [ ] commands.yamlへのforeignKey定義追加
+- [ ] CommandEditorでのForeignKey対応
 
-#### 1-3. mooreseditor - エクスポート機能
-- [ ] テキストアセット管理画面の設計
-- [ ] エクスポート機能の実装
-- [ ] ファイル保存ダイアログ
-- [ ] バージョン情報の付与
+#### 1-3. CommandForgeEditor - マスターデータ読み込み
+- [ ] 指定パスからのJSONファイル読み込み
+- [ ] パス解決機能（/[*]/形式の対応）
+- [ ] エラーハンドリング（ファイル不在、形式エラー）
 
-### Phase 2: 自動同期機能
+### Phase 2: 高度な機能
 
 #### 2-1. ファイル監視システム
-- [ ] Tauri file watcherプラグインの導入
-- [ ] ファイル変更検知の実装
+- [ ] Tauri file watcherによるマスターファイル変更検知
 - [ ] 自動リロード機能
 - [ ] 変更通知UI
 
 #### 2-2. 検証機能
-- [ ] 存在しないテキストIDの検出
+- [ ] 存在しない外部キーの検出
 - [ ] 検証エラーの表示
-- [ ] フォールバック処理
+- [ ] 未解決IDのハイライト
 
-### Phase 3: 高度な機能
+#### 2-3. 複数マスターファイル対応
+- [ ] 複数のschemaId（texts, voices, items等）の管理
+- [ ] スキーマ間の依存関係解決
 
-#### 3-1. 変数システム
-- [ ] 変数定義のサポート
-- [ ] 変数入力UI
-- [ ] プレビューでの変数展開
+### Phase 3: 開発体験向上
 
-#### 3-2. カテゴリ/タグ機能
-- [ ] フィルタリングUI
-- [ ] カテゴリ別表示
-- [ ] タグ検索
-
-#### 3-3. パフォーマンス最適化
-- [ ] 大量データ対応（仮想スクロール）
+#### 3-1. パフォーマンス最適化
+- [ ] 大量データ対応（遅延読み込み）
 - [ ] キャッシュ機構
 - [ ] インクリメンタル検索
 
-### Phase 4: 開発体験向上
-
-#### 4-1. 開発ツール
-- [ ] マイグレーションツール（既存テキストからの変換）
-- [ ] 一括置換機能
-- [ ] 使用状況分析
-
-#### 4-2. ドキュメント
-- [ ] ユーザーガイド作成
-- [ ] API仕様書
-- [ ] トラブルシューティングガイド
+#### 3-2. 開発ツール
+- [ ] 使用状況分析（どのIDが使われているか）
+- [ ] 未使用ID検出
+- [ ] リファクタリング支援
 
 ## 技術的実装詳細
 
 ### CommandForgeEditor側の実装
 
-#### 1. 型定義（types/textAssets.ts）
+#### 1. 型定義（types/index.ts）
 ```typescript
-export interface TextAsset {
-  text: string;
-  voiceId: string;
-  category: string;
-  tags: string[];
-  description: string;
-  variables: string[];
-  lastModified: string;
+// mooreseditorのForeignKeyConfigと同じ
+export interface ForeignKeyConfig {
+  schemaId: string;
+  foreignKeyIdPath: string;
+  displayElementPath: string;
 }
 
-export interface TextAssetsFile {
-  $version: string;
-  $schema: string;
-  $exportedAt: string;
-  $exportedBy: string;
-  assets: Record<string, TextAsset>;
+export interface MasterDataConfig {
+  masterDataProject: string;
 }
 ```
 
-#### 2. ストア拡張（store/skitStore.ts）
+#### 2. ForeignKeyResolver実装
+mooreseditorの`foreignKeyResolver.ts`をベースに実装：
+- パス展開機能（/[*]/形式）
+- ID/表示値のペアリング
+- 配列インデックスの管理
+
+#### 3. ストア拡張（store/skitStore.ts）
 ```typescript
 interface SkitStore {
   // 新規追加
-  textAssets: Record<string, TextAsset> | null;
-  textAssetsLoadError: string | null;
-  textAssetsVersion: string | null;
+  masterDataConfig: MasterDataConfig | null;
+  masterDataCache: Map<string, any[]>;  // schemaId -> データ配列
   
   // 新規アクション
-  loadTextAssets: () => Promise<void>;
-  reloadTextAssets: () => Promise<void>;
-  getTextAsset: (id: string) => TextAsset | undefined;
+  loadMasterDataConfig: () => Promise<void>;
+  loadMasterData: (schemaId: string) => Promise<void>;
+  resolveForeignKey: (config: ForeignKeyConfig, value: any) => string | null;
 }
 ```
 
-#### 3. TextIdSelectorコンポーネント
+#### 4. ForeignKeySelectorコンポーネント
 ```typescript
-interface TextIdSelectorProps {
+interface ForeignKeySelectorProps {
   value: string;
   onChange: (value: string) => void;
-  variables?: Record<string, string>;
-  onVariablesChange?: (variables: Record<string, string>) => void;
+  foreignKeyConfig: ForeignKeyConfig;
 }
-```
-
-### mooreseditor側の実装
-
-#### 1. テキストアセット管理スキーマ
-```yaml
-# schema/textAssets.yml
-type: object
-properties:
-  id:
-    type: string
-    pattern: "^T_[A-Z0-9_]+$"
-    description: "テキストID（T_で始まる大文字英数字）"
-  text:
-    type: string
-    description: "表示テキスト"
-  voiceId:
-    type: string
-    description: "ボイスファイルID"
-  category:
-    type: string
-    enum: ["greeting", "system", "dialogue", "narration", "ui"]
-  tags:
-    type: array
-    items:
-      type: string
-  description:
-    type: string
-  variables:
-    type: array
-    items:
-      type: string
 ```
 
 ## リスク管理
 
 ### 技術的リスク
-1. **大量データでのパフォーマンス低下**
-   - 対策: 遅延読み込み、仮想化、インデックス作成
+1. **パス解決の複雑性**
+   - 対策: mooreseditorのパス解決ロジックを再利用
 
-2. **ファイル同期の競合**
-   - 対策: ファイルロック、トランザクション処理
+2. **大量データでのパフォーマンス**
+   - 対策: 必要時のみ読み込み、キャッシュ活用
 
-3. **後方互換性の破壊**
-   - 対策: セマンティックバージョニング、マイグレーションツール
+3. **ファイルアクセスエラー**
+   - 対策: 適切なエラーハンドリングとフォールバック
 
 ### 運用リスク
-1. **両アプリ間の依存関係**
-   - 対策: 明確なインターフェース定義、疎結合設計
+1. **プロジェクト間の依存**
+   - 対策: config.yamlによる疎結合化
 
-2. **開発フローの複雑化**
-   - 対策: 自動化ツール、明確なドキュメント
+2. **スキーマ変更の影響**
+   - 対策: 検証機能による早期発見
 
 ## スケジュール目安
 
-- Phase 1: 2週間（基本機能の実装）
-- Phase 2: 1週間（自動同期機能）
-- Phase 3: 2週間（高度な機能）
-- Phase 4: 1週間（開発体験向上）
+- Phase 1: 1週間（基本機能の実装）
+- Phase 2: 1週間（高度な機能）
+- Phase 3: 3日（開発体験向上）
 
-合計: 約6週間
+合計: 約2.5週間
 
 ## 成功指標
 
 1. **機能面**
-   - テキストアセットの作成から使用までの一連の流れが動作
-   - 1000件以上のテキストアセットでも快適に動作
-   - ファイル変更の自動検知と反映
+   - mooreseditorのマスターデータをCommandForgeEditorで参照可能
+   - ForeignKey機能が正常に動作
+   - パス解決が正確
 
 2. **開発効率**
-   - テキスト変更にかかる時間を50%削減
-   - テキストの重複を排除
-   - ローカライズ対応の準備完了
+   - マスターデータの一元管理
+   - ID入力ミスの削減
+   - 変更の自動反映
 
 3. **品質**
-   - テキストIDの参照エラーゼロ
-   - 自動テストカバレッジ80%以上
-   - ユーザードキュメント完備
+   - 外部キー参照エラーの早期発見
+   - テストカバレッジ80%以上
 
 ## 次のステップ
 
-1. この実装計画のレビューと承認
-2. Phase 1の詳細設計
-3. プロトタイプ実装
-4. ユーザーフィードバックの収集
-5. 本実装の開始
+1. config.yamlの詳細仕様策定
+2. ForeignKeyResolver実装
+3. プロトタイプによる検証
+4. 本実装の開始
 
 ## 参考資料
 
+- mooreseditorのForeignKey実装（foreignKeyResolver.ts）
 - [Tauri File System API](https://tauri.app/v1/api/js/fs/)
-- [Tauri File Watcher Plugin](https://github.com/tauri-apps/plugins-workspace/tree/v1/plugins/fs-watch)
-- [JSON Schema Specification](https://json-schema.org/)
-- [Semantic Versioning](https://semver.org/)
+- [JSON Path仕様](https://goessner.net/articles/JsonPath/)
