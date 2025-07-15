@@ -7,7 +7,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { CommandDefinition, PropertyDefinition } from '../../types';
 import { SkitCommand } from '../../types';
 import { formatCommandPreview } from '../../utils/commandFormatting';
-import { ColorPicker } from '../ui/color-picker';
 import { HexColorPicker } from 'react-colorful';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { VectorInput } from '../ui/vector-input';
