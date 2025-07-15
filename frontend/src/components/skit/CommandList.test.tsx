@@ -66,6 +66,33 @@ vi.mock('../../hooks/useCommandTranslation', () => ({
   }),
 }));
 
+// Mock context menu components
+vi.mock('../ui/context-menu', () => ({
+  ContextMenu: ({ children }: any) => <>{children}</>,
+  ContextMenuContent: ({ children }: any) => <div>{children}</div>,
+  ContextMenuItem: ({ children, onClick }: any) => (
+    <div onClick={onClick}>{children}</div>
+  ),
+  ContextMenuSeparator: () => <hr />,
+  ContextMenuSub: ({ children }: any) => <>{children}</>,
+  ContextMenuSubContent: ({ children }: any) => <div>{children}</div>,
+  ContextMenuSubTrigger: ({ children }: any) => <div>{children}</div>,
+  ContextMenuTrigger: ({ children }: any) => <>{children}</>
+}));
+
+// Mock CategoryMenuRenderer
+vi.mock('../common/CategoryMenuRenderer', () => ({
+  CategoryMenuRenderer: ({ categoryNode, onSelectCommand }: any) => (
+    <div data-testid="category-menu-renderer">
+      {categoryNode.commands?.map((cmd: any) => (
+        <div key={cmd.id} onClick={() => onSelectCommand(cmd.id)}>
+          {cmd.label}
+        </div>
+      ))}
+    </div>
+  )
+}));
+
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string) => {

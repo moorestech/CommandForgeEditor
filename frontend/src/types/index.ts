@@ -32,6 +32,7 @@ export interface CommandDefinition {
   id: string;
   label: string;
   description: string;
+  category?: string[];
   commandListLabelFormat: string;
   defaultBackgroundColor?: string;
   defaultCommandLabelColor?: string;

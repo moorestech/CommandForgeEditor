@@ -285,6 +285,24 @@
     "master.textStyles.Emphasis": "強調",
     "master.textStyles.Small": "小さく",
     "master.textStyles.Italic": "斜体",
-    "master.textStyles.Blinking": "点滅"
+    "master.textStyles.Blinking": "点滅",
+    
+    "category.Character": "キャラクター",
+    "category.Dialogue": "セリフ",
+    "category.Emotion": "感情",
+    "category.Motion": "モーション",
+    "category.Camera": "カメラ",
+    "category.Movement": "移動",
+    "category.Position": "位置",
+    "category.Sound": "サウンド",
+    "category.BGM": "BGM",
+    "category.Effect": "効果音",
+    "category.Scene": "シーン",
+    "category.Background": "背景",
+    "category.Wait": "待機",
+    "category.Narration": "ナレーション",
+    "category.System": "システム",
+    "category.Choice": "選択肢",
+    "category.Branch": "分岐"
   }
 }

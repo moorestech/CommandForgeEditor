@@ -276,6 +276,24 @@
     "master.textStyles.Emphasis": "Emphasis",
     "master.textStyles.Small": "Small",
     "master.textStyles.Italic": "Italic",
-    "master.textStyles.Blinking": "Blinking"
+    "master.textStyles.Blinking": "Blinking",
+    
+    "category.Character": "Character",
+    "category.Dialogue": "Dialogue",
+    "category.Emotion": "Emotion",
+    "category.Motion": "Motion",
+    "category.Camera": "Camera",
+    "category.Movement": "Movement",
+    "category.Position": "Position",
+    "category.Sound": "Sound",
+    "category.BGM": "BGM",
+    "category.Effect": "Effect",
+    "category.Scene": "Scene",
+    "category.Background": "Background",
+    "category.Wait": "Wait",
+    "category.Narration": "Narration",
+    "category.System": "System",
+    "category.Choice": "Choice",
+    "category.Branch": "Branch"
   }
 }

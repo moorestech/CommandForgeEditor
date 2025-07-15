@@ -17,7 +17,11 @@ import {
   DropdownMenu, 
   DropdownMenuContent, 
   DropdownMenuItem, 
-  DropdownMenuTrigger 
+  DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuSeparator
 } from '../ui/dropdown-menu';
 import { CommandDefinition } from '../../types';
 import { toast } from 'sonner';
@@ -27,12 +31,15 @@ import { DropZone } from '../dnd/DropZone';
 import { useTranslation } from 'react-i18next';
 import { useCommandTranslation } from '../../hooks/useCommandTranslation';
 import { openProjectDirectory } from '../../utils/fileSystem';
+import { groupCommandsByCategory } from '../../utils/commandCategories';
+import { CategoryMenuRenderer } from '../common/CategoryMenuRenderer';
 
 // Helper component to display translated command label
 function CommandMenuLabel({ commandId, label }: { commandId: string; label?: string }) {
   const { tCommand } = useCommandTranslation(commandId);
   return <>{tCommand('name', label || commandId)}</>;
 }
+
 
 export function Toolbar() {
   const { t } = useTranslation();
@@ -98,6 +105,9 @@ export function Toolbar() {
 
   const isDisabled = !currentSkitId;
   const isCommandSelected = selectedCommandIds.length > 0;
+  
+  // Group commands by category
+  const commandCategories = groupCommandsByCategory(commandDefinitions);
 
   return (
     <div className="flex items-center p-2 border-b w-full">
@@ -118,18 +128,24 @@ export function Toolbar() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start">
-            {commandDefinitions.map((command: CommandDefinition) => (
-              <DropdownMenuItem 
-                key={command.id}
-                onClick={() => handleAddCommand(command.id)}
-              >
+            <CategoryMenuRenderer 
+              categoryNode={commandCategories} 
+              onSelectCommand={handleAddCommand}
+              components={{
+                MenuItem: DropdownMenuItem,
+                MenuSub: DropdownMenuSub,
+                MenuSubTrigger: DropdownMenuSubTrigger,
+                MenuSubContent: DropdownMenuSubContent,
+                MenuSeparator: DropdownMenuSeparator
+              }}
+              renderCommand={(command) => (
                 <DraggableCommand id={command.id}>
                   <div className="flex items-center w-full">
                     <CommandMenuLabel commandId={command.id} label={command.label} />
                   </div>
                 </DraggableCommand>
-              </DropdownMenuItem>
-            ))}
+              )}
+            />
           </DropdownMenuContent>
         </DropdownMenu>
 

@@ -50,9 +50,26 @@ vi.mock('../ui/dropdown-menu', () => {
       <div role="menuitem" onClick={onClick}>
         {children}
       </div>
-    )
+    ),
+    DropdownMenuSub: ({ children }: any) => <>{children}</>,
+    DropdownMenuSubTrigger: ({ children }: any) => <div>{children}</div>,
+    DropdownMenuSubContent: ({ children }: any) => <div>{children}</div>,
+    DropdownMenuSeparator: () => <hr />
   };
 });
+
+// Mock CategoryMenuRenderer
+vi.mock('../common/CategoryMenuRenderer', () => ({
+  CategoryMenuRenderer: ({ categoryNode, onSelectCommand }: any) => (
+    <div data-testid="category-menu-renderer">
+      {categoryNode.commands?.map((cmd: any) => (
+        <div key={cmd.id} onClick={() => onSelectCommand(cmd.id)}>
+          {cmd.label}
+        </div>
+      ))}
+    </div>
+  )
+}));
 
 describe('Toolbar', () => {
   const mockAddCommand = vi.fn();

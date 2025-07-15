@@ -21,6 +21,8 @@ import { useMemo, useCallback, memo } from 'react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { useCommandTranslation } from '../../hooks/useCommandTranslation';
 import { useTranslation } from 'react-i18next';
+import { groupCommandsByCategory } from '../../utils/commandCategories';
+import { CategoryMenuRenderer } from '../common/CategoryMenuRenderer';
 
 /**
  * CommandList コンポーネント - パフォーマンス最適化済み
@@ -447,6 +449,7 @@ const CommandItem = memo(({
  */
 
 // コンテキストメニューをメモ化コンポーネントとして分離
+
 const CommandContextMenu = memo(({ 
   command,
   index,
@@ -469,6 +472,9 @@ const CommandContextMenu = memo(({
   handleAddCommand: (commandType: string, targetIndex: number, position: 'above' | 'below') => void;
 }) => {
   const isGroupStart = command.type === 'group_start';
+  
+  // Group commands by category
+  const commandCategories = groupCommandsByCategory(commandDefinitions);
   
   return (
     <ContextMenuContent>
@@ -501,28 +507,34 @@ const CommandContextMenu = memo(({
       <ContextMenuSub>
         <ContextMenuSubTrigger>上にコマンドを追加</ContextMenuSubTrigger>
         <ContextMenuSubContent>
-          {commandDefinitions.map((cmdDef: CommandDefinition) => (
-            <ContextMenuItem
-              key={cmdDef.id}
-              onClick={() => handleAddCommand(cmdDef.id, index, 'above')}
-            >
-              {cmdDef.label}
-            </ContextMenuItem>
-          ))}
+          <CategoryMenuRenderer 
+            categoryNode={commandCategories} 
+            onSelectCommand={(commandType) => handleAddCommand(commandType, index, 'above')}
+            components={{
+              MenuItem: ContextMenuItem,
+              MenuSub: ContextMenuSub,
+              MenuSubTrigger: ContextMenuSubTrigger,
+              MenuSubContent: ContextMenuSubContent,
+              MenuSeparator: ContextMenuSeparator
+            }}
+          />
         </ContextMenuSubContent>
       </ContextMenuSub>
       
       <ContextMenuSub>
         <ContextMenuSubTrigger>下にコマンドを追加</ContextMenuSubTrigger>
         <ContextMenuSubContent>
-          {commandDefinitions.map((cmdDef: CommandDefinition) => (
-            <ContextMenuItem
-              key={cmdDef.id}
-              onClick={() => handleAddCommand(cmdDef.id, index, 'below')}
-            >
-              {cmdDef.label}
-            </ContextMenuItem>
-          ))}
+          <CategoryMenuRenderer 
+            categoryNode={commandCategories} 
+            onSelectCommand={(commandType) => handleAddCommand(commandType, index, 'below')}
+            components={{
+              MenuItem: ContextMenuItem,
+              MenuSub: ContextMenuSub,
+              MenuSubTrigger: ContextMenuSubTrigger,
+              MenuSubContent: ContextMenuSubContent,
+              MenuSeparator: ContextMenuSeparator
+            }}
+          />
         </ContextMenuSubContent>
       </ContextMenuSub>
     </ContextMenuContent>
