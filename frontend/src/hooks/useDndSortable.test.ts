@@ -3,11 +3,23 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useDndSortable } from './useDndSortable';
 
+// Type definitions
+interface TestItem {
+  id: number;
+  name: string;
+}
+
+type UseDndSortableProps<T> = {
+  items: T[];
+  onReorder: (fromIndex: number, toIndex: number) => void;
+  getItemId: (item: T) => string | number;
+};
+
 describe('useDndSortable', () => {
-  const mockOnReorder = vi.fn();
-  const mockGetItemId = vi.fn((item: any) => item.id);
+  const mockOnReorder = vi.fn() as (fromIndex: number, toIndex: number) => void;
+  const mockGetItemId = vi.fn((item: TestItem) => item.id);
   
-  const defaultProps = {
+  const defaultProps: UseDndSortableProps<TestItem> = {
     items: [
       { id: 1, name: 'Item 1' },
       { id: 2, name: 'Item 2' },
@@ -106,9 +118,10 @@ describe('useDndSortable', () => {
   });
 
   it('should work with different item types', () => {
-    const stringProps = {
+    const mockStringOnReorder = vi.fn() as (fromIndex: number, toIndex: number) => void;
+    const stringProps: UseDndSortableProps<string> = {
       items: ['Item 1', 'Item 2', 'Item 3'],
-      onReorder: mockOnReorder,
+      onReorder: mockStringOnReorder,
       getItemId: (item: string) => item,
     };
     
@@ -131,7 +144,7 @@ describe('useDndSortable', () => {
 
   it('should maintain state when props change', () => {
     const { result, rerender } = renderHook(
-      (props) => useDndSortable(props),
+      (props: UseDndSortableProps<TestItem>) => useDndSortable(props),
       { initialProps: defaultProps }
     );
     

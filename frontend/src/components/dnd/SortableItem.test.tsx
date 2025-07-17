@@ -4,6 +4,7 @@ import { render, screen } from '@testing-library/react';
 import { SortableItem } from './SortableItem';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import type { Transform } from '@dnd-kit/utilities';
 
 // Mock @dnd-kit dependencies
 vi.mock('@dnd-kit/sortable', () => ({
@@ -20,10 +21,17 @@ vi.mock('@dnd-kit/utilities', () => ({
 
 describe('SortableItem', () => {
   const mockSetNodeRef = vi.fn();
+  const mockSetActivatorNodeRef = vi.fn();
+  const mockSetDroppableNodeRef = vi.fn();
+  const mockSetDraggableNodeRef = vi.fn();
+  const mockRectRef = { current: null };
+  const mockNodeRef = { current: null };
   const mockAttributes = {
-    role: 'button',
+    role: 'button' as const,
     'aria-roledescription': 'sortable',
-    'aria-disabled': false
+    'aria-disabled': false,
+    'aria-pressed': undefined,
+    'aria-describedby': 'DndDescribedBy-0',
   };
   const mockListeners = {
     onPointerDown: vi.fn(),
@@ -36,14 +44,25 @@ describe('SortableItem', () => {
       attributes: mockAttributes,
       listeners: mockListeners,
       setNodeRef: mockSetNodeRef,
+      setActivatorNodeRef: mockSetActivatorNodeRef,
+      setDroppableNodeRef: mockSetDroppableNodeRef,
+      setDraggableNodeRef: mockSetDraggableNodeRef,
       transform: null,
       transition: undefined,
       isDragging: false,
-      node: null,
+      isOver: false,
+      node: mockNodeRef,
       active: null,
+      activeIndex: -1,
       over: null,
-      rect: null
-    } as any);
+      overIndex: -1,
+      index: 0,
+      newIndex: 0,
+      items: [],
+      isSorting: false,
+      data: {},
+      rect: mockRectRef
+    } as unknown as ReturnType<typeof useSortable>);
   });
 
   it('should render children', () => {
@@ -95,14 +114,25 @@ describe('SortableItem', () => {
       attributes: mockAttributes,
       listeners: mockListeners,
       setNodeRef: mockSetNodeRef,
+      setActivatorNodeRef: mockSetActivatorNodeRef,
+      setDroppableNodeRef: mockSetDroppableNodeRef,
+      setDraggableNodeRef: mockSetDraggableNodeRef,
       transform: null,
       transition: undefined,
       isDragging: true,
-      node: null,
+      isOver: false,
+      node: mockNodeRef,
       active: null,
+      activeIndex: -1,
       over: null,
-      rect: null
-    } as any);
+      overIndex: -1,
+      index: 0,
+      newIndex: 0,
+      items: [],
+      isSorting: false,
+      data: {},
+      rect: mockRectRef
+    } as unknown as ReturnType<typeof useSortable>);
 
     render(
       <SortableItem id="test">
@@ -115,7 +145,7 @@ describe('SortableItem', () => {
   });
 
   it('should apply transform when being sorted', () => {
-    const mockTransform = {
+    const mockTransform: Transform = {
       x: 0,
       y: 50,
       scaleX: 1,
@@ -127,14 +157,25 @@ describe('SortableItem', () => {
       attributes: mockAttributes,
       listeners: mockListeners,
       setNodeRef: mockSetNodeRef,
+      setActivatorNodeRef: mockSetActivatorNodeRef,
+      setDroppableNodeRef: mockSetDroppableNodeRef,
+      setDraggableNodeRef: mockSetDraggableNodeRef,
       transform: mockTransform,
       transition: 'transform 200ms ease',
       isDragging: false,
-      node: null,
+      isOver: false,
+      node: mockNodeRef,
       active: null,
+      activeIndex: -1,
       over: null,
-      rect: null
-    } as any);
+      overIndex: -1,
+      index: 0,
+      newIndex: 0,
+      items: [],
+      isSorting: false,
+      data: {},
+      rect: mockRectRef
+    } as unknown as ReturnType<typeof useSortable>);
 
     render(
       <SortableItem id="test">

@@ -1,9 +1,10 @@
 // AI Generated Test Code
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, MockedFunction } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { MainLayout } from './MainLayout';
 import { useSkitStore } from '@/store/skitStore';
 import { useTranslation } from 'react-i18next';
+import type { ReactNode } from 'react';
 
 // Mock dependencies
 vi.mock('@/store/skitStore');
@@ -14,42 +15,57 @@ vi.mock('../skit/SkitList', () => ({
 vi.mock('./LanguageSwitcher', () => ({
   LanguageSwitcher: () => <div data-testid="language-switcher">Language Switcher</div>
 }));
+// Type definitions for mocked components
+interface SidebarComponentProps {
+  children?: ReactNode;
+  className?: string;
+}
+
+interface SidebarProviderProps extends SidebarComponentProps {
+  defaultOpen?: boolean;
+}
+
+interface SeparatorProps {
+  className?: string;
+}
+
 vi.mock('../ui/sidebar', () => ({
-  Sidebar: ({ children }: any) => <div data-testid="sidebar">{children}</div>,
-  SidebarProvider: ({ children, defaultOpen }: any) => (
+  Sidebar: ({ children }: SidebarComponentProps) => <div data-testid="sidebar">{children}</div>,
+  SidebarProvider: ({ children, defaultOpen }: SidebarProviderProps) => (
     <div data-testid="sidebar-provider" data-default-open={defaultOpen}>
       {children}
     </div>
   ),
-  SidebarHeader: ({ children, className }: any) => (
+  SidebarHeader: ({ children, className }: SidebarComponentProps) => (
     <div data-testid="sidebar-header" className={className}>
       {children}
     </div>
   ),
-  SidebarContent: ({ children }: any) => <div data-testid="sidebar-content">{children}</div>,
-  SidebarFooter: ({ children, className }: any) => (
+  SidebarContent: ({ children }: SidebarComponentProps) => <div data-testid="sidebar-content">{children}</div>,
+  SidebarFooter: ({ children, className }: SidebarComponentProps) => (
     <div data-testid="sidebar-footer" className={className}>
       {children}
     </div>
   ),
 }));
 vi.mock('../ui/separator', () => ({
-  Separator: ({ className }: any) => <hr data-testid="separator" className={className} />
+  Separator: ({ className }: SeparatorProps) => <hr data-testid="separator" className={className} />
 }));
 
 describe('MainLayout', () => {
-  const mockOpenFolder = vi.fn();
+  const mockOpenFolder = vi.fn(() => Promise.resolve());
   const mockT = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
     
-    vi.mocked(useSkitStore).mockReturnValue({
+    const mockedUseSkitStore = vi.mocked(useSkitStore) as MockedFunction<typeof useSkitStore>;
+    mockedUseSkitStore.mockReturnValue({
       projectPath: '/path/to/project',
       openFolder: mockOpenFolder,
-    } as any);
+    } as ReturnType<typeof useSkitStore>);
     
-    mockT.mockImplementation((key) => {
+    mockT.mockImplementation((key: string) => {
       const translations: Record<string, string> = {
         'editor.toolbar.currentDirectory': '現在のディレクトリ',
         'editor.toolbar.noFolderOpen': 'フォルダが開かれていません',
@@ -60,12 +76,12 @@ describe('MainLayout', () => {
       return translations[key] || key;
     });
     
-    const mockReturn = [mockT as any, {} as any, true] as any;
-    mockReturn.t = mockT;
-    mockReturn.i18n = {} as any;
-    mockReturn.ready = true;
-    
-    vi.mocked(useTranslation).mockReturnValue(mockReturn);
+    // Cast through unknown to avoid complex type issues with branded types
+    vi.mocked(useTranslation).mockReturnValue({
+      t: mockT,
+      i18n: {},
+      ready: true
+    } as unknown as ReturnType<typeof useTranslation>);
   });
 
   it('should render children', () => {
@@ -114,10 +130,11 @@ describe('MainLayout', () => {
   });
 
   it('should display no folder open message when projectPath is null', () => {
-    vi.mocked(useSkitStore).mockReturnValue({
+    const mockedUseSkitStore = vi.mocked(useSkitStore) as MockedFunction<typeof useSkitStore>;
+    mockedUseSkitStore.mockReturnValue({
       projectPath: null,
       openFolder: mockOpenFolder,
-    } as any);
+    } as ReturnType<typeof useSkitStore>);
     
     render(
       <MainLayout>
@@ -242,10 +259,11 @@ describe('MainLayout', () => {
 
   it('should apply title attribute to project path for truncation', () => {
     const longPath = '/very/long/path/to/project/folder/that/might/be/truncated';
-    vi.mocked(useSkitStore).mockReturnValue({
+    const mockedUseSkitStore = vi.mocked(useSkitStore) as MockedFunction<typeof useSkitStore>;
+    mockedUseSkitStore.mockReturnValue({
       projectPath: longPath,
       openFolder: mockOpenFolder,
-    } as any);
+    } as ReturnType<typeof useSkitStore>);
     
     render(
       <MainLayout>
@@ -259,10 +277,11 @@ describe('MainLayout', () => {
   });
 
   it('should not set title attribute when projectPath is null', () => {
-    vi.mocked(useSkitStore).mockReturnValue({
+    const mockedUseSkitStore = vi.mocked(useSkitStore) as MockedFunction<typeof useSkitStore>;
+    mockedUseSkitStore.mockReturnValue({
       projectPath: null,
       openFolder: mockOpenFolder,
-    } as any);
+    } as ReturnType<typeof useSkitStore>);
     
     render(
       <MainLayout>

@@ -8,7 +8,11 @@ import * as tauriPath from '@tauri-apps/api/path';
 // Mock modules
 vi.mock('i18next', () => ({
   default: {
-    t: vi.fn((key, _options) => key),
+    t: vi.fn((key, options) => {
+      // Using options parameter to avoid unused variable warning
+      console.debug('Mock i18n.t called with key:', key, 'and options:', options);
+      return key;
+    }),
     addResourceBundle: vi.fn(),
     services: {
       resourceStore: {
@@ -51,8 +55,8 @@ describe('translationLoader', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Reset window.__TAURI__
-    (window as any).__TAURI__ = undefined;
-    (import.meta as any).env = { MODE: 'test' };
+    (window as unknown as { __TAURI__?: boolean }).__TAURI__ = undefined;
+    (import.meta as unknown as { env: { MODE: string } }).env = { MODE: 'test' };
   });
 
   afterEach(() => {
@@ -102,16 +106,16 @@ describe('translationLoader', () => {
     });
 
     it('should load translations from Tauri filesystem', async () => {
-      (window as any).__TAURI__ = true;
-      (import.meta as any).env = { MODE: 'production' };
+      (window as unknown as { __TAURI__?: boolean }).__TAURI__ = true;
+      (import.meta as unknown as { env: { MODE: string } }).env = { MODE: 'production' };
 
       // Mock store to return a project path
       const { useSkitStore } = await import('../store/skitStore');
       vi.mocked(useSkitStore.getState).mockReturnValue({
         projectPath: '/path/to/project',
-      } as any);
+      } as Partial<ReturnType<typeof useSkitStore.getState>> as ReturnType<typeof useSkitStore.getState>);
 
-      vi.mocked(tauriPath.join).mockImplementation(async (...args) => args.join('/'));
+      vi.mocked(tauriPath.join).mockImplementation(async (...args: string[]) => args.join('/'));
       vi.mocked(tauriFs.exists).mockResolvedValue(true);
       vi.mocked(tauriFs.readTextFile).mockResolvedValue(JSON.stringify({
         locale: 'en',
@@ -127,13 +131,13 @@ describe('translationLoader', () => {
     });
 
     it('should fallback to development mode when project path not found', async () => {
-      (window as any).__TAURI__ = true;
+      (window as unknown as { __TAURI__?: boolean }).__TAURI__ = true;
       
       // Mock store to return no project path
       const { useSkitStore } = await import('../store/skitStore');
       vi.mocked(useSkitStore.getState).mockReturnValue({
         projectPath: null,
-      } as any);
+      } as ReturnType<typeof useSkitStore.getState>);
 
       const mockFetch = vi.mocked(global.fetch);
       mockFetch.mockResolvedValue({
@@ -150,16 +154,16 @@ describe('translationLoader', () => {
     });
 
     it('should handle missing i18n directory', async () => {
-      (window as any).__TAURI__ = true;
-      (import.meta as any).env = { MODE: 'production' };
+      (window as unknown as { __TAURI__?: boolean }).__TAURI__ = true;
+      (import.meta as unknown as { env: { MODE: string } }).env = { MODE: 'production' };
 
       // Mock store to return a project path
       const { useSkitStore } = await import('../store/skitStore');
       vi.mocked(useSkitStore.getState).mockReturnValue({
         projectPath: '/path/to/project',
-      } as any);
+      } as Partial<ReturnType<typeof useSkitStore.getState>> as ReturnType<typeof useSkitStore.getState>);
 
-      vi.mocked(tauriPath.join).mockImplementation(async (...args) => args.join('/'));
+      vi.mocked(tauriPath.join).mockImplementation(async (...args: string[]) => args.join('/'));
       vi.mocked(tauriFs.exists).mockResolvedValue(false);
 
       const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
@@ -172,16 +176,16 @@ describe('translationLoader', () => {
     });
 
     it('should handle JSON parse errors', async () => {
-      (window as any).__TAURI__ = true;
-      (import.meta as any).env = { MODE: 'production' };
+      (window as unknown as { __TAURI__?: boolean }).__TAURI__ = true;
+      (import.meta as unknown as { env: { MODE: string } }).env = { MODE: 'production' };
 
       // Mock store to return a project path
       const { useSkitStore } = await import('../store/skitStore');
       vi.mocked(useSkitStore.getState).mockReturnValue({
         projectPath: '/path/to/project',
-      } as any);
+      } as Partial<ReturnType<typeof useSkitStore.getState>> as ReturnType<typeof useSkitStore.getState>);
 
-      vi.mocked(tauriPath.join).mockImplementation(async (...args) => args.join('/'));
+      vi.mocked(tauriPath.join).mockImplementation(async (...args: string[]) => args.join('/'));
       vi.mocked(tauriFs.exists).mockResolvedValue(true);
       vi.mocked(tauriFs.readTextFile).mockResolvedValue('invalid json');
 
@@ -195,16 +199,16 @@ describe('translationLoader', () => {
     });
 
     it('should skip non-existent language files', async () => {
-      (window as any).__TAURI__ = true;
-      (import.meta as any).env = { MODE: 'production' };
+      (window as unknown as { __TAURI__?: boolean }).__TAURI__ = true;
+      (import.meta as unknown as { env: { MODE: string } }).env = { MODE: 'production' };
 
       // Mock store to return a project path
       const { useSkitStore } = await import('../store/skitStore');
       vi.mocked(useSkitStore.getState).mockReturnValue({
         projectPath: '/path/to/project',
-      } as any);
+      } as Partial<ReturnType<typeof useSkitStore.getState>> as ReturnType<typeof useSkitStore.getState>);
 
-      vi.mocked(tauriPath.join).mockImplementation(async (...args) => args.join('/'));
+      vi.mocked(tauriPath.join).mockImplementation(async (...args: string[]) => args.join('/'));
       
       // Only i18n directory exists, but no language files
       vi.mocked(tauriFs.exists)
@@ -217,8 +221,8 @@ describe('translationLoader', () => {
     });
 
     it('should handle development mode even with __TAURI__ present', async () => {
-      (window as any).__TAURI__ = true;
-      (import.meta as any).env = { MODE: 'development' };
+      (window as unknown as { __TAURI__?: boolean }).__TAURI__ = true;
+      (import.meta as unknown as { env: { MODE: string } }).env = { MODE: 'development' };
 
       const mockFetch = vi.mocked(global.fetch);
       mockFetch.mockResolvedValue({
@@ -301,11 +305,12 @@ describe('translationLoader', () => {
   describe('getAvailableLanguages', () => {
     it('should return available languages from i18n resource store', async () => {
       const mockT = vi.mocked(i18n.t);
-      mockT.mockImplementation(((key: string, options?: any) => {
+      // @ts-expect-error - Mock implementation doesn't need to match full signature
+      mockT.mockImplementation((key: string, options?: { lng?: string }) => {
         if (key === 'language.en' && options?.lng === 'en') return 'English';
         if (key === 'language.ja' && options?.lng === 'ja') return '日本語';
         return key;
-      }) as any);
+      });
 
       const languages = await getAvailableLanguages();
 
@@ -317,7 +322,8 @@ describe('translationLoader', () => {
 
     it('should use language code as fallback name', async () => {
       const mockT = vi.mocked(i18n.t);
-      mockT.mockImplementation(((key: string) => key) as any);
+      // @ts-expect-error - Mock implementation doesn't need to match full signature
+      mockT.mockImplementation((key: string) => key);
 
       const languages = await getAvailableLanguages();
 
@@ -358,7 +364,7 @@ describe('translationLoader', () => {
 
     it('should handle non-string translations', () => {
       const mockT = vi.mocked(i18n.t);
-      mockT.mockReturnValue({ some: 'object' } as any);
+      mockT.mockReturnValue({ some: 'object' });
 
       const result = getTranslationWithFallback('test.key', 'Fallback');
 
@@ -369,16 +375,16 @@ describe('translationLoader', () => {
       const mockT = vi.mocked(i18n.t);
       mockT.mockReturnValue('Translated with options');
 
-      const _options = { lng: 'en', count: 5 };
-      const result = getTranslationWithFallback('test.key', 'Fallback', _options);
+      const options = { lng: 'en', count: 5 };
+      const result = getTranslationWithFallback('test.key', 'Fallback', options);
 
-      expect(mockT).toHaveBeenCalledWith('test.key', _options);
+      expect(mockT).toHaveBeenCalledWith('test.key', options);
       expect(result).toBe('Translated with options');
     });
 
     it('should return key when translation is non-string and no fallback', () => {
       const mockT = vi.mocked(i18n.t);
-      mockT.mockReturnValue(null as any);
+      mockT.mockReturnValue(null as unknown as string);
 
       const result = getTranslationWithFallback('test.key');
 
@@ -407,8 +413,8 @@ describe('translationLoader', () => {
 
   describe('loadTranslations production error handling', () => {
     it('should handle general error and fallback to development translations', async () => {
-      (window as any).__TAURI__ = true;
-      (import.meta as any).env = { MODE: 'production' };
+      (window as unknown as { __TAURI__?: boolean }).__TAURI__ = true;
+      (import.meta as unknown as { env: { MODE: string } }).env = { MODE: 'production' };
       
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       

@@ -14,6 +14,16 @@ import * as validation from './validation';
 import * as configLoader from './configLoader';
 import { Skit } from '../types';
 
+interface TauriWindow extends Window {
+  __TAURI__?: Record<string, unknown>;
+}
+
+interface FileEntry {
+  name?: string;
+  path: string;
+  children?: FileEntry[];
+}
+
 vi.mock('@tauri-apps/api/fs');
 vi.mock('@tauri-apps/api/path');
 vi.mock('@tauri-apps/api/dialog');
@@ -24,7 +34,7 @@ describe('fileSystem', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Set up Tauri environment
-    (window as any).__TAURI__ = {};
+    (window as TauriWindow).__TAURI__ = {};
     
     // Set up default mock returns
     vi.mocked(validation.validateSkitData).mockReturnValue([]);
@@ -39,7 +49,7 @@ describe('fileSystem', () => {
 
   afterEach(() => {
     // Clean up Tauri environment
-    delete (window as any).__TAURI__;
+    delete (window as TauriWindow).__TAURI__;
   });
 
   describe('selectProjectFolder', () => {
@@ -114,17 +124,17 @@ describe('fileSystem', () => {
 
     it('should throw error in web environment', async () => {
       // Mock web environment
-      delete (window as any).__TAURI__;
+      delete (window as TauriWindow).__TAURI__;
 
       await expect(loadCommandsYaml()).rejects.toThrow('Running in web environment');
 
       // Restore Tauri environment for subsequent tests
-      (window as any).__TAURI__ = {};
+      (window as TauriWindow).__TAURI__ = {};
     });
   });
 
   describe('loadSkits', () => {
-    const mockSkitFiles = [
+    const mockSkitFiles: FileEntry[] = [
       { name: 'skit1.json', path: '/skits/skit1.json' },
       { name: 'skit2.json', path: '/skits/skit2.json' }
     ];
@@ -183,7 +193,7 @@ describe('fileSystem', () => {
       vi.mocked(fs.readDir).mockResolvedValue([
         { name: 'skit1.json', path: '/skits/skit1.json' },
         { name: 'readme.txt', path: '/skits/readme.txt' }
-      ]);
+      ] as FileEntry[]);
       vi.mocked(fs.readTextFile).mockResolvedValue(JSON.stringify(mockSkit1));
 
       const result = await loadSkits('/project');
@@ -229,7 +239,7 @@ describe('fileSystem', () => {
       vi.mocked(fs.exists)
         .mockResolvedValueOnce(true) // for skits path
         .mockResolvedValueOnce(true); // for commands.yaml path
-      vi.mocked(fs.readDir).mockResolvedValue([{ name: 'skit1.json', path: '/skits/skit1.json' }]);
+      vi.mocked(fs.readDir).mockResolvedValue([{ name: 'skit1.json', path: '/skits/skit1.json' }] as FileEntry[]);
       vi.mocked(fs.readTextFile)
         .mockResolvedValueOnce('version: 1\ncommands: []') // for commands.yaml
         .mockResolvedValueOnce(JSON.stringify(mockSkit1)); // for skit1.json
@@ -244,9 +254,9 @@ describe('fileSystem', () => {
       vi.mocked(path.join).mockImplementation(async (...parts) => parts.join('/'));
       vi.mocked(fs.exists).mockResolvedValue(true);
       vi.mocked(fs.readDir).mockResolvedValue([
-        { name: null as any, path: '/skits/unknown' },
+        { name: undefined, path: '/skits/unknown' },
         { name: 'skit1.json', path: '/skits/skit1.json' }
-      ]);
+      ] as FileEntry[]);
       vi.mocked(fs.readTextFile).mockResolvedValue(JSON.stringify(mockSkit1));
 
       const result = await loadSkits('/project');
@@ -444,7 +454,7 @@ describe('fileSystem', () => {
         .mockResolvedValueOnce(true); // for commands.yaml path (needs to be true to try reading)
       vi.mocked(fs.readDir).mockResolvedValue([
         { name: 'test_skit.json', path: '/project/skits/test_skit.json', children: undefined }
-      ]);
+      ] as FileEntry[]);
       vi.mocked(fs.readTextFile).mockImplementation(async (filePath) => {
         if (filePath === '/project/skits/test_skit.json') {
           return JSON.stringify({

@@ -66,7 +66,7 @@ describe('main.tsx', () => {
   });
 
   it('should set localStorage language to ja in development mode', async () => {
-    (import.meta as any).env = { DEV: true };
+    (import.meta as { env: { DEV: boolean } }).env = { DEV: true };
     const mockGetItem = vi.fn().mockReturnValue('en');
     const mockSetItem = vi.fn();
     
@@ -102,7 +102,7 @@ describe('main.tsx', () => {
   });
 
   it('should not set localStorage if already ja in development mode', async () => {
-    (import.meta as any).env = { DEV: true };
+    (import.meta as { env: { DEV: boolean } }).env = { DEV: true };
     const mockGetItem = vi.fn().mockReturnValue('ja');
     const mockSetItem = vi.fn();
     

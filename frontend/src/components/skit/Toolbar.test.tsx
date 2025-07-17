@@ -1,4 +1,5 @@
 // AI Generated Test Code
+import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Toolbar } from './Toolbar';
@@ -9,66 +10,134 @@ import { CommandDefinition } from '../../types';
 // Mock dependencies
 vi.mock('../../store/skitStore');
 vi.mock('sonner');
+interface SidebarTriggerProps {
+  className?: string;
+}
+
 vi.mock('../ui/sidebar', () => ({
-  SidebarTrigger: ({ className }: any) => (
+  SidebarTrigger: ({ className }: SidebarTriggerProps) => (
     <button data-testid="sidebar-trigger" className={className}>Sidebar</button>
   )
 }));
+interface DraggableCommandProps {
+  children: React.ReactNode;
+}
+
 vi.mock('../dnd/DraggableCommand', () => ({
-  DraggableCommand: ({ children }: any) => <div data-testid="draggable-command">{children}</div>
+  DraggableCommand: ({ children }: DraggableCommandProps) => <div data-testid="draggable-command">{children}</div>
 }));
+interface DropZoneProps {
+  children?: React.ReactNode;
+  id: string;
+  className?: string;
+}
+
 vi.mock('../dnd/DropZone', () => ({
-  DropZone: ({ children, id, className }: any) => (
+  DropZone: ({ children, id, className }: DropZoneProps) => (
     <div data-testid={`drop-zone-${id}`} className={className}>{children}</div>
   )
 }));
 vi.mock('../../hooks/useCommandTranslation', () => ({
-  useCommandTranslation: (_commandType: string) => ({
-    tCommand: (_key: string, fallback: string) => fallback
-  })
+  useCommandTranslation: (commandType: string) => {
+    // Use the commandType parameter to avoid unused variable warning
+    console.debug('Mocking translation for command type:', commandType);
+    return {
+      tCommand: (_key: string, fallback: string) => fallback
+    };
+  }
 }));
+
+// Type definitions for dropdown menu
+interface DropdownMenuProps {
+  children: React.ReactNode;
+}
+
+interface DropdownMenuTriggerProps {
+  children: React.ReactNode;
+  asChild?: boolean;
+}
+
+interface DropdownMenuItemProps {
+  children: React.ReactNode;
+  onClick?: () => void;
+}
 
 // Simple dropdown menu mock
 vi.mock('../ui/dropdown-menu', () => {
-  const React = require('react');
   return {
-    DropdownMenu: ({ children }: any) => <>{children}</>,
-    DropdownMenuTrigger: ({ children, asChild: _asChild }: any) => {
+    DropdownMenu: ({ children }: DropdownMenuProps) => <>{children}</>,
+    DropdownMenuTrigger: ({ children, asChild }: DropdownMenuTriggerProps) => {
       const [open, setOpen] = React.useState(false);
-      const child = React.Children.only(children);
+      // Use asChild to avoid unused variable warning
+      if (asChild) {
+        console.debug('asChild prop is set');
+      }
+      const child = React.Children.only(children) as React.ReactElement;
       return React.cloneElement(child, {
         onClick: () => setOpen(true),
         'data-state': open ? 'open' : 'closed'
       });
     },
-    DropdownMenuContent: ({ children }: any) => (
+    DropdownMenuContent: ({ children }: DropdownMenuProps) => (
       <div data-testid="dropdown-content" role="menu">
         {children}
       </div>
     ),
-    DropdownMenuItem: ({ children, onClick }: any) => (
+    DropdownMenuItem: ({ children, onClick }: DropdownMenuItemProps) => (
       <div role="menuitem" onClick={onClick}>
         {children}
       </div>
     ),
-    DropdownMenuSub: ({ children }: any) => <>{children}</>,
-    DropdownMenuSubTrigger: ({ children }: any) => <div>{children}</div>,
-    DropdownMenuSubContent: ({ children }: any) => <div>{children}</div>,
+    DropdownMenuSub: ({ children }: DropdownMenuProps) => <>{children}</>,
+    DropdownMenuSubTrigger: ({ children }: DropdownMenuProps) => <div>{children}</div>,
+    DropdownMenuSubContent: ({ children }: DropdownMenuProps) => <div>{children}</div>,
     DropdownMenuSeparator: () => <hr />
   };
 });
 
+// Type definitions for CategoryMenuRenderer
+interface CategoryNode {
+  commands?: Array<{ id: string; label: string }>;
+}
+
+interface CategoryMenuRendererProps {
+  categoryNode: CategoryNode;
+  onSelectCommand: (commandId: string) => void;
+}
+
 // Mock CategoryMenuRenderer
 vi.mock('../common/CategoryMenuRenderer', () => ({
-  CategoryMenuRenderer: ({ categoryNode, onSelectCommand }: any) => (
-    <div data-testid="category-menu-renderer">
-      {categoryNode.commands?.map((cmd: any) => (
-        <div key={cmd.id} onClick={() => onSelectCommand(cmd.id)}>
-          {cmd.label}
+  CategoryMenuRenderer: ({ categoryNode, onSelectCommand, renderCommand }: CategoryMenuRendererProps & { renderCommand?: (cmd: { id: string; label: string }) => React.ReactNode }) => {
+    // If categoryNode has commands directly, render them
+    if (categoryNode.commands) {
+      return (
+        <div data-testid="category-menu-renderer">
+          {categoryNode.commands.map((cmd) => (
+            <div key={cmd.id} onClick={() => onSelectCommand(cmd.id)}>
+              {renderCommand ? renderCommand(cmd) : cmd.label}
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
-  )
+      );
+    }
+    // Otherwise, render categories (for grouped commands)
+    return (
+      <div data-testid="category-menu-renderer">
+        {Object.entries(categoryNode).map(([category, commands]) => {
+          // Using category variable to avoid unused variable warning
+          console.debug('Processing category:', category);
+          if (Array.isArray(commands)) {
+            return commands.map((cmd: { id: string; label: string }) => (
+              <div key={cmd.id} onClick={() => onSelectCommand(cmd.id)}>
+                {renderCommand ? renderCommand(cmd) : cmd.label}
+              </div>
+            ));
+          }
+          return null;
+        })}
+      </div>
+    );
+  }
 }));
 
 describe('Toolbar', () => {
@@ -132,8 +201,8 @@ describe('Toolbar', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(useSkitStore).mockReturnValue(defaultMockState as any);
-    vi.mocked(useSkitStore.getState).mockReturnValue(defaultMockState as any);
+    vi.mocked(useSkitStore).mockReturnValue(defaultMockState as ReturnType<typeof useSkitStore>);
+    vi.mocked(useSkitStore.getState).mockReturnValue(defaultMockState as unknown as ReturnType<typeof useSkitStore.getState>);
   });
 
   it('should render all toolbar buttons', () => {
@@ -152,7 +221,7 @@ describe('Toolbar', () => {
     vi.mocked(useSkitStore).mockReturnValue({
       ...defaultMockState,
       currentSkitId: null
-    } as any);
+    } as ReturnType<typeof useSkitStore>);
 
     render(<Toolbar />);
 
@@ -183,7 +252,7 @@ describe('Toolbar', () => {
     vi.mocked(useSkitStore).mockReturnValue({
       ...defaultMockState,
       selectedCommandIds: [1, 2]
-    } as any);
+    } as ReturnType<typeof useSkitStore>);
 
     render(<Toolbar />);
 
@@ -223,7 +292,7 @@ describe('Toolbar', () => {
     vi.mocked(useSkitStore).mockReturnValue({
       ...defaultMockState,
       selectedCommandIds: [1]
-    } as any);
+    } as ReturnType<typeof useSkitStore>);
 
     render(<Toolbar />);
 
@@ -239,7 +308,7 @@ describe('Toolbar', () => {
     vi.mocked(useSkitStore).mockReturnValue({
       ...defaultMockState,
       selectedCommandIds: [1, 2]
-    } as any);
+    } as ReturnType<typeof useSkitStore>);
 
     render(<Toolbar />);
 
@@ -253,7 +322,7 @@ describe('Toolbar', () => {
     vi.mocked(useSkitStore).mockReturnValue({
       ...defaultMockState,
       selectedCommandIds: [1, 2]
-    } as any);
+    } as ReturnType<typeof useSkitStore>);
 
     render(<Toolbar />);
 
@@ -276,7 +345,7 @@ describe('Toolbar', () => {
     vi.mocked(useSkitStore).mockReturnValue({
       ...defaultMockState,
       selectedCommandIds: [1, 2]
-    } as any);
+    } as ReturnType<typeof useSkitStore>);
 
     render(<Toolbar />);
 
@@ -374,7 +443,7 @@ describe('Toolbar', () => {
     vi.mocked(useSkitStore).mockReturnValue({
       ...defaultMockState,
       commandDefinitions: invalidCommandDefinitions
-    } as any);
+    } as ReturnType<typeof useSkitStore>);
 
     render(<Toolbar />);
 
@@ -385,7 +454,7 @@ describe('Toolbar', () => {
     vi.mocked(useSkitStore).mockReturnValue({
       ...defaultMockState,
       commandDefinitions: []
-    } as any);
+    } as ReturnType<typeof useSkitStore>);
 
     expect(mockAddCommand).not.toHaveBeenCalled();
   });

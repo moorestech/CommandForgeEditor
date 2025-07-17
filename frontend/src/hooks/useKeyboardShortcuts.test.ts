@@ -4,6 +4,18 @@ import { renderHook } from '@testing-library/react';
 import { useKeyboardShortcuts } from './useKeyboardShortcuts';
 import { useSkitStore } from '../store/skitStore';
 
+// Type definitions
+interface MockSkitStore {
+  selectedCommandIds: number[];
+  removeCommands: (commandIds: number[]) => void;
+  duplicateCommand: (commandId: number) => void;
+  copySelectedCommands: () => Promise<void>;
+  cutSelectedCommands: () => Promise<void>;
+  pasteCommandsFromClipboard: () => Promise<void>;
+  undo: () => void;
+  redo: () => void;
+}
+
 // Mock dependencies
 vi.mock('../store/skitStore');
 
@@ -17,12 +29,12 @@ describe('useKeyboardShortcuts', () => {
   const mockRedo = vi.fn();
   const mockSelectedCommandIds = [1, 2, 3];
   
-  let keydownHandler: EventListener;
+  let keydownHandler: EventListener | undefined;
 
   beforeEach(() => {
     vi.clearAllMocks();
     
-    vi.mocked(useSkitStore).mockReturnValue({
+    const mockStore: MockSkitStore = {
       selectedCommandIds: mockSelectedCommandIds,
       removeCommands: mockRemoveCommands,
       duplicateCommand: mockDuplicateCommand,
@@ -31,7 +43,9 @@ describe('useKeyboardShortcuts', () => {
       pasteCommandsFromClipboard: mockPasteCommandsFromClipboard,
       undo: mockUndo,
       redo: mockRedo,
-    } as any);
+    };
+    
+    vi.mocked(useSkitStore).mockReturnValue(mockStore as ReturnType<typeof useSkitStore>);
     
     // Capture the keydown handler when addEventListener is called
     const originalAddEventListener = window.addEventListener;
@@ -39,7 +53,7 @@ describe('useKeyboardShortcuts', () => {
       if (event === 'keydown') {
         keydownHandler = handler as EventListener;
       }
-      return originalAddEventListener.call(window, event, handler, options);
+      return originalAddEventListener.call(window, event, handler as EventListenerOrEventListenerObject, options);
     });
   });
 
@@ -122,7 +136,7 @@ describe('useKeyboardShortcuts', () => {
   });
 
   it('should not delete when no commands selected', () => {
-    vi.mocked(useSkitStore).mockReturnValue({
+    const emptyMockStore: MockSkitStore = {
       selectedCommandIds: [],
       removeCommands: mockRemoveCommands,
       duplicateCommand: mockDuplicateCommand,
@@ -131,7 +145,9 @@ describe('useKeyboardShortcuts', () => {
       pasteCommandsFromClipboard: mockPasteCommandsFromClipboard,
       undo: mockUndo,
       redo: mockRedo,
-    } as any);
+    };
+    
+    vi.mocked(useSkitStore).mockReturnValue(emptyMockStore as ReturnType<typeof useSkitStore>);
     
     renderHook(() => useKeyboardShortcuts());
     
@@ -149,7 +165,7 @@ describe('useKeyboardShortcuts', () => {
   });
 
   it('should not duplicate when no commands selected', () => {
-    vi.mocked(useSkitStore).mockReturnValue({
+    const emptyMockStore: MockSkitStore = {
       selectedCommandIds: [],
       removeCommands: mockRemoveCommands,
       duplicateCommand: mockDuplicateCommand,
@@ -158,7 +174,9 @@ describe('useKeyboardShortcuts', () => {
       pasteCommandsFromClipboard: mockPasteCommandsFromClipboard,
       undo: mockUndo,
       redo: mockRedo,
-    } as any);
+    };
+    
+    vi.mocked(useSkitStore).mockReturnValue(emptyMockStore as ReturnType<typeof useSkitStore>);
     
     renderHook(() => useKeyboardShortcuts());
     
@@ -224,10 +242,10 @@ describe('useKeyboardShortcuts', () => {
     renderHook(() => useKeyboardShortcuts());
     
     // Mock getSelection to return a non-collapsed selection
-    const mockSelection = {
+    const mockSelection: Partial<Selection> = {
       isCollapsed: false,
     };
-    vi.spyOn(window, 'getSelection').mockReturnValue(mockSelection as any);
+    vi.spyOn(window, 'getSelection').mockReturnValue(mockSelection as Selection);
     
     const event = new KeyboardEvent('keydown', {
       key: 'c',

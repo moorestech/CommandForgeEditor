@@ -8,11 +8,11 @@ interface CategoryMenuRendererProps {
   onSelectCommand: (commandType: string) => void;
   // UI components to use for rendering
   components: {
-    MenuItem: React.ComponentType<any>;
-    MenuSub: React.ComponentType<any>;
-    MenuSubTrigger: React.ComponentType<any>;
-    MenuSubContent: React.ComponentType<any>;
-    MenuSeparator: React.ComponentType<any>;
+    MenuItem: React.ComponentType<{ children: React.ReactNode; onClick?: React.MouseEventHandler }>;
+    MenuSub: React.ComponentType<{ children: React.ReactNode }>;
+    MenuSubTrigger: React.ComponentType<{ children: React.ReactNode }>;
+    MenuSubContent: React.ComponentType<{ children: React.ReactNode }>;
+    MenuSeparator: React.ComponentType;
   };
   // Optional custom renderer for command items
   renderCommand?: (command: CommandDefinition, onClick: () => void) => React.ReactNode;

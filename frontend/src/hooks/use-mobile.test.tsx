@@ -4,23 +4,31 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useIsMobile } from './use-mobile';
 
+// Type definitions
+type MediaQueryListListener = (event: MediaQueryListEvent) => void;
+type ListenerEntry = { event: string; handler: MediaQueryListListener };
+
 describe('useIsMobile', () => {
-  let mockMatchMedia: any;
-  let listeners: Array<{ event: string; handler: Function }> = [];
+  let mockMatchMedia: ReturnType<typeof vi.fn>;
+  let listeners: ListenerEntry[] = [];
 
   beforeEach(() => {
     listeners = [];
     
-    mockMatchMedia = vi.fn((query: string) => ({
+    mockMatchMedia = vi.fn((query: string): MediaQueryList => ({
       matches: false,
       media: query,
-      addEventListener: vi.fn((_event: string, handler: Function) => {
+      addEventListener: vi.fn((_event: string, handler: MediaQueryListListener) => {
         listeners.push({ event: _event, handler });
       }),
-      removeEventListener: vi.fn((_event: string, handler: Function) => {
+      removeEventListener: vi.fn((_event: string, handler: MediaQueryListListener) => {
         listeners = listeners.filter(l => l.event !== _event || l.handler !== handler);
       }),
-    }));
+      addListener: vi.fn(), // deprecated but still part of MediaQueryList
+      removeListener: vi.fn(), // deprecated but still part of MediaQueryList
+      onchange: null,
+      dispatchEvent: vi.fn(),
+    } as MediaQueryList));
     
     window.matchMedia = mockMatchMedia;
   });
@@ -90,7 +98,11 @@ describe('useIsMobile', () => {
       media: '',
       addEventListener: mockAddEventListener,
       removeEventListener: vi.fn(),
-    });
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      onchange: null,
+      dispatchEvent: vi.fn(),
+    } as MediaQueryList);
     
     renderHook(() => useIsMobile());
     
@@ -105,7 +117,11 @@ describe('useIsMobile', () => {
       media: '',
       addEventListener: mockAddEventListener,
       removeEventListener: mockRemoveEventListener,
-    });
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      onchange: null,
+      dispatchEvent: vi.fn(),
+    } as MediaQueryList);
     
     const { unmount } = renderHook(() => useIsMobile());
     
@@ -136,7 +152,7 @@ describe('useIsMobile', () => {
       // Trigger the change event
       listeners.forEach(l => {
         if (l.event === 'change') {
-          l.handler();
+          l.handler({} as MediaQueryListEvent);
         }
       });
     });
@@ -163,7 +179,7 @@ describe('useIsMobile', () => {
         writable: true,
         configurable: true,
       });
-      listeners.forEach(l => l.event === 'change' && l.handler());
+      listeners.forEach(l => l.event === 'change' && l.handler({} as MediaQueryListEvent));
     });
     
     expect(result.current).toBe(true);
@@ -175,7 +191,7 @@ describe('useIsMobile', () => {
         writable: true,
         configurable: true,
       });
-      listeners.forEach(l => l.event === 'change' && l.handler());
+      listeners.forEach(l => l.event === 'change' && l.handler({} as MediaQueryListEvent));
     });
     
     expect(result.current).toBe(false);
@@ -184,7 +200,7 @@ describe('useIsMobile', () => {
   it('should return false for undefined state initially', () => {
     // Mock useState to test the initial undefined state
     let state: boolean | undefined = undefined;
-    vi.spyOn(React, 'useState').mockImplementation(() => [state, (newState: any) => { state = newState }]);
+    vi.spyOn(React, 'useState').mockImplementation(() => [state, (newState: boolean | undefined) => { state = newState }] as unknown as ReturnType<typeof React.useState>);
     
     const { result } = renderHook(() => useIsMobile());
     
@@ -217,19 +233,23 @@ describe('useIsMobile', () => {
   });
 
   it('should maintain correct listener reference for cleanup', () => {
-    const addedHandlers: Function[] = [];
-    const removedHandlers: Function[] = [];
+    const addedHandlers: MediaQueryListListener[] = [];
+    const removedHandlers: MediaQueryListListener[] = [];
     
     mockMatchMedia.mockReturnValue({
       matches: false,
       media: '',
-      addEventListener: vi.fn((_event: string, handler: Function) => {
+      addEventListener: vi.fn((_event: string, handler: MediaQueryListListener) => {
         addedHandlers.push(handler);
       }),
-      removeEventListener: vi.fn((_event: string, handler: Function) => {
+      removeEventListener: vi.fn((_event: string, handler: MediaQueryListListener) => {
         removedHandlers.push(handler);
       }),
-    });
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      onchange: null,
+      dispatchEvent: vi.fn(),
+    } as MediaQueryList);
     
     const { unmount } = renderHook(() => useIsMobile());
     

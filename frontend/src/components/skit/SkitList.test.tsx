@@ -66,19 +66,34 @@ vi.mock('../../utils/fileSystem', () => ({
   loadSkits: vi.fn()
 }));
 
+// Type definitions for UI components
+interface ScrollAreaProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
 // Mock UI components
 vi.mock('../ui/scroll-area', () => ({
-  ScrollArea: ({ children, className }: any) => (
+  ScrollArea: ({ children, className }: ScrollAreaProps) => (
     <div className={className} data-testid="scroll-area">{children}</div>
   )
 }));
 
+interface DialogProps {
+  children: React.ReactNode;
+  open?: boolean;
+}
+
+interface DialogComponentProps {
+  children: React.ReactNode;
+}
+
 vi.mock('../ui/dialog', () => ({
-  Dialog: ({ children, open }: any) => open ? <div data-testid="dialog">{children}</div> : null,
-  DialogContent: ({ children }: any) => <div data-testid="dialog-content">{children}</div>,
-  DialogHeader: ({ children }: any) => <div>{children}</div>,
-  DialogTitle: ({ children }: any) => <h2>{children}</h2>,
-  DialogFooter: ({ children }: any) => <div>{children}</div>,
+  Dialog: ({ children, open }: DialogProps) => open ? <div data-testid="dialog">{children}</div> : null,
+  DialogContent: ({ children }: DialogComponentProps) => <div data-testid="dialog-content">{children}</div>,
+  DialogHeader: ({ children }: DialogComponentProps) => <div>{children}</div>,
+  DialogTitle: ({ children }: DialogComponentProps) => <h2>{children}</h2>,
+  DialogFooter: ({ children }: DialogComponentProps) => <div>{children}</div>,
 }));
 
 describe('SkitList', () => {
@@ -117,7 +132,7 @@ describe('SkitList', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(useSkitStore).mockReturnValue(defaultMockState as any);
+    vi.mocked(useSkitStore).mockReturnValue(defaultMockState as ReturnType<typeof useSkitStore>);
   });
 
   it('should render skit list', () => {
@@ -156,7 +171,7 @@ describe('SkitList', () => {
     vi.mocked(useSkitStore).mockReturnValue({
       ...defaultMockState,
       currentSkitId: null
-    } as any);
+    } as ReturnType<typeof useSkitStore>);
 
     render(<SkitList />);
 
@@ -168,7 +183,7 @@ describe('SkitList', () => {
       ...defaultMockState,
       skits: {},
       currentSkitId: null
-    } as any);
+    } as ReturnType<typeof useSkitStore>);
 
     render(<SkitList />);
 
@@ -179,7 +194,7 @@ describe('SkitList', () => {
     vi.mocked(useSkitStore).mockReturnValue({
       ...defaultMockState,
       projectPath: null
-    } as any);
+    } as ReturnType<typeof useSkitStore>);
 
     render(<SkitList />);
 

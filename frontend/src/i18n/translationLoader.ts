@@ -144,7 +144,7 @@ export async function getAvailableLanguages(): Promise<Array<{ code: string; nam
 export function getTranslationWithFallback(
   key: string,
   fallback?: string,
-  options?: any
+  options?: Record<string, unknown>
 ): string {
   const translation = i18n.t(key, options);
   

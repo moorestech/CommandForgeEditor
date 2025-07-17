@@ -2,7 +2,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useSkitStore } from './skitStore';
 import { act } from '@testing-library/react';
-import { Skit, CommandDefinition } from '../types';
+import { Skit, CommandDefinition, SkitCommand } from '../types';
 import * as fileSystem from '../utils/fileSystem';
 import { reservedCommands } from '../utils/reservedCommands';
 import i18n from '../i18n/config';
@@ -658,7 +658,7 @@ describe('getGroupCommandIndices', () => {
     ];
     
     const { getGroupCommandIndices } = await import('./skitStore');
-    const result = getGroupCommandIndices(commands as any, 1);
+    const result = getGroupCommandIndices(commands as SkitCommand[], 1);
     expect(result).toEqual([1, 2, 3]);
   });
 
@@ -674,7 +674,7 @@ describe('getGroupCommandIndices', () => {
     ];
     
     const { getGroupCommandIndices } = await import('./skitStore');
-    const result = getGroupCommandIndices(commands as any, 0);
+    const result = getGroupCommandIndices(commands as SkitCommand[], 0);
     expect(result).toEqual([0, 1, 2, 3, 4, 5, 6]);
   });
 
@@ -686,7 +686,7 @@ describe('getGroupCommandIndices', () => {
     ];
     
     const { getGroupCommandIndices } = await import('./skitStore');
-    const result = getGroupCommandIndices(commands as any, 1);
+    const result = getGroupCommandIndices(commands as SkitCommand[], 1);
     expect(result).toEqual([1, 2]); // No group_end found, returns all remaining
   });
 
@@ -697,7 +697,7 @@ describe('getGroupCommandIndices', () => {
     ];
     
     const { getGroupCommandIndices } = await import('./skitStore');
-    const result = getGroupCommandIndices(commands as any, 0);
+    const result = getGroupCommandIndices(commands as SkitCommand[], 0);
     expect(result).toEqual([0, 1]);
   });
 });
@@ -714,7 +714,7 @@ describe('getTopLevelGroups', () => {
     ];
     
     const { getTopLevelGroups } = await import('./skitStore');
-    const result = getTopLevelGroups(commands as any, [0, 3]);
+    const result = getTopLevelGroups(commands as SkitCommand[], [0, 3]);
     expect(result).toEqual([0, 3]);
   });
 
@@ -728,7 +728,7 @@ describe('getTopLevelGroups', () => {
     ];
     
     const { getTopLevelGroups } = await import('./skitStore');
-    const result = getTopLevelGroups(commands as any, [0, 1]);
+    const result = getTopLevelGroups(commands as SkitCommand[], [0, 1]);
     expect(result).toEqual([0]); // Index 1 is nested in index 0
   });
 
@@ -741,7 +741,7 @@ describe('getTopLevelGroups', () => {
     ];
     
     const { getTopLevelGroups } = await import('./skitStore');
-    const result = getTopLevelGroups(commands as any, [0, 1, 2]);
+    const result = getTopLevelGroups(commands as SkitCommand[], [0, 1, 2]);
     expect(result).toEqual([1]); // Only group_start indices are returned
   });
 
@@ -752,7 +752,7 @@ describe('getTopLevelGroups', () => {
     ];
     
     const { getTopLevelGroups } = await import('./skitStore');
-    const result = getTopLevelGroups(commands as any, []);
+    const result = getTopLevelGroups(commands as SkitCommand[], []);
     expect(result).toEqual([]);
   });
 });

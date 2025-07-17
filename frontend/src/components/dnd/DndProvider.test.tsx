@@ -10,12 +10,26 @@ import {
   DragStartEvent,
   useSensor,
   useSensors,
+  Active,
+  Over,
+  SensorDescriptor,
+  SensorOptions,
 } from '@dnd-kit/core';
+
+// Mock types for DndContext
+type DndContextProps = {
+  children?: React.ReactNode;
+  sensors?: SensorDescriptor<SensorOptions>[];
+  onDragStart?: (event: DragStartEvent) => void;
+  onDragOver?: (event: DragOverEvent) => void;
+  onDragEnd?: (event: DragEndEvent) => void;
+  collisionDetection?: (args: unknown) => unknown;
+};
 
 // Mock dependencies
 vi.mock('../../store/skitStore');
 vi.mock('@dnd-kit/core', () => ({
-  DndContext: vi.fn(({ children }) => <div data-testid="dnd-context">{children}</div>),
+  DndContext: vi.fn((props: DndContextProps) => <div data-testid="dnd-context">{props.children}</div>),
   PointerSensor: vi.fn(),
   useSensor: vi.fn(),
   useSensors: vi.fn(),
@@ -25,7 +39,7 @@ describe('DndProvider', () => {
   const mockAddCommand = vi.fn();
   const mockRemoveCommand = vi.fn();
   const mockDuplicateCommand = vi.fn();
-  const mockSensors = { sensors: [] };
+  const mockSensors: SensorDescriptor<SensorOptions>[] = [];
   const originalConsoleLog = console.log;
 
   beforeEach(() => {
@@ -36,10 +50,10 @@ describe('DndProvider', () => {
       addCommand: mockAddCommand,
       removeCommand: mockRemoveCommand,
       duplicateCommand: mockDuplicateCommand,
-    } as any);
+    } as unknown as ReturnType<typeof useSkitStore>);
     
-    vi.mocked(useSensors).mockReturnValue(mockSensors as any);
-    vi.mocked(useSensor).mockReturnValue({} as any);
+    vi.mocked(useSensors).mockReturnValue(mockSensors);
+    vi.mocked(useSensor).mockReturnValue({} as SensorDescriptor<SensorOptions>);
   });
 
   afterEach(() => {
@@ -86,9 +100,10 @@ describe('DndProvider', () => {
   it('should handle drag start event', () => {
     let capturedOnDragStart: ((event: DragStartEvent) => void) | undefined;
     
-    vi.mocked(DndContext).mockImplementation(({ onDragStart, children }: any) => {
-      capturedOnDragStart = onDragStart;
-      return <div data-testid="dnd-context">{children}</div>;
+    vi.mocked(DndContext).mockImplementation((props: unknown) => {
+      const typedProps = props as { children?: React.ReactNode; onDragStart?: (event: DragStartEvent) => void };
+      capturedOnDragStart = typedProps.onDragStart;
+      return <div data-testid="dnd-context">{typedProps.children}</div>;
     });
 
     render(
@@ -97,14 +112,23 @@ describe('DndProvider', () => {
       </DndProvider>
     );
 
-    const mockEvent: DragStartEvent = {
-      active: {
-        id: 'test-id',
-        data: {
-          current: { type: 'command', commandType: 'text' }
+    const mockActive: Active = {
+      id: 'test-id',
+      data: {
+        current: { type: 'command', commandType: 'text' }
+      },
+      rect: {
+        current: {
+          initial: null,
+          translated: null,
         }
       }
-    } as any;
+    };
+
+    const mockEvent: DragStartEvent = {
+      active: mockActive,
+      activatorEvent: new MouseEvent('mousedown')
+    };
 
     capturedOnDragStart!(mockEvent);
     expect(console.log).toHaveBeenCalledWith('Drag start:', 'test-id', { type: 'command', commandType: 'text' });
@@ -113,9 +137,10 @@ describe('DndProvider', () => {
   it('should handle drag over event', () => {
     let capturedOnDragOver: ((event: DragOverEvent) => void) | undefined;
     
-    vi.mocked(DndContext).mockImplementation(({ onDragOver, children }: any) => {
-      capturedOnDragOver = onDragOver;
-      return <div data-testid="dnd-context">{children}</div>;
+    vi.mocked(DndContext).mockImplementation((props: unknown) => {
+      const typedProps = props as { children?: React.ReactNode; onDragOver?: (event: DragOverEvent) => void };
+      capturedOnDragOver = typedProps.onDragOver;
+      return <div data-testid="dnd-context">{typedProps.children}</div>;
     });
 
     render(
@@ -124,10 +149,31 @@ describe('DndProvider', () => {
       </DndProvider>
     );
 
+    const mockActive: Active = {
+      id: 'active-id',
+      data: { current: {} },
+      rect: {
+        current: {
+          initial: null,
+          translated: null,
+        }
+      }
+    };
+
+    const mockOver: Over = {
+      id: 'over-id',
+      disabled: false,
+      data: { current: {} },
+      rect: { width: 0, height: 0, top: 0, left: 0, right: 0, bottom: 0 }
+    };
+
     const mockEvent: DragOverEvent = {
-      active: { id: 'active-id' },
-      over: { id: 'over-id' }
-    } as any;
+      active: mockActive,
+      over: mockOver,
+      activatorEvent: new MouseEvent('mousedown'),
+      collisions: null,
+      delta: { x: 0, y: 0 }
+    };
 
     capturedOnDragOver!(mockEvent);
     expect(console.log).toHaveBeenCalledWith('Drag over:', 'active-id', 'over', 'over-id');
@@ -136,9 +182,10 @@ describe('DndProvider', () => {
   it('should not log when over is null in drag over', () => {
     let capturedOnDragOver: ((event: DragOverEvent) => void) | undefined;
     
-    vi.mocked(DndContext).mockImplementation(({ onDragOver, children }: any) => {
-      capturedOnDragOver = onDragOver;
-      return <div data-testid="dnd-context">{children}</div>;
+    vi.mocked(DndContext).mockImplementation((props: unknown) => {
+      const typedProps = props as { children?: React.ReactNode; onDragOver?: (event: DragOverEvent) => void };
+      capturedOnDragOver = typedProps.onDragOver;
+      return <div data-testid="dnd-context">{typedProps.children}</div>;
     });
 
     render(
@@ -147,10 +194,24 @@ describe('DndProvider', () => {
       </DndProvider>
     );
 
+    const mockActive: Active = {
+      id: 'active-id',
+      data: { current: {} },
+      rect: {
+        current: {
+          initial: null,
+          translated: null,
+        }
+      }
+    };
+
     const mockEvent: DragOverEvent = {
-      active: { id: 'active-id' },
-      over: null
-    } as any;
+      active: mockActive,
+      over: null,
+      activatorEvent: new MouseEvent('mousedown'),
+      collisions: null,
+      delta: { x: 0, y: 0 }
+    };
 
     capturedOnDragOver!(mockEvent);
     expect(console.log).not.toHaveBeenCalled();
@@ -159,9 +220,10 @@ describe('DndProvider', () => {
   it('should add command when dragging command type to command list', () => {
     let capturedOnDragEnd: ((event: DragEndEvent) => void) | undefined;
     
-    vi.mocked(DndContext).mockImplementation(({ onDragEnd, children }: any) => {
-      capturedOnDragEnd = onDragEnd;
-      return <div data-testid="dnd-context">{children}</div>;
+    vi.mocked(DndContext).mockImplementation((props: unknown) => {
+      const typedProps = props as { children?: React.ReactNode; onDragEnd?: (event: DragEndEvent) => void };
+      capturedOnDragEnd = typedProps.onDragEnd;
+      return <div data-testid="dnd-context">{typedProps.children}</div>;
     });
 
     render(
@@ -170,15 +232,33 @@ describe('DndProvider', () => {
       </DndProvider>
     );
 
-    const mockEvent: DragEndEvent = {
-      active: {
-        id: 'command-text',
-        data: {
-          current: { type: 'command', commandType: 'text' }
-        }
+    const mockActive: Active = {
+      id: 'command-text',
+      data: {
+        current: { type: 'command', commandType: 'text' }
       },
-      over: { id: 'command-list' }
-    } as any;
+      rect: {
+        current: {
+          initial: null,
+          translated: null,
+        }
+      }
+    };
+
+    const mockOver: Over = {
+      id: 'command-list',
+      disabled: false,
+      data: { current: {} },
+      rect: { width: 0, height: 0, top: 0, left: 0, right: 0, bottom: 0 }
+    };
+
+    const mockEvent: DragEndEvent = {
+      active: mockActive,
+      over: mockOver,
+      activatorEvent: new MouseEvent('mousedown'),
+      collisions: null,
+      delta: { x: 0, y: 0 }
+    };
 
     capturedOnDragEnd!(mockEvent);
     expect(mockAddCommand).toHaveBeenCalledWith({ type: 'text' });
@@ -187,9 +267,10 @@ describe('DndProvider', () => {
   it('should remove command when dragging to trash zone', () => {
     let capturedOnDragEnd: ((event: DragEndEvent) => void) | undefined;
     
-    vi.mocked(DndContext).mockImplementation(({ onDragEnd, children }: any) => {
-      capturedOnDragEnd = onDragEnd;
-      return <div data-testid="dnd-context">{children}</div>;
+    vi.mocked(DndContext).mockImplementation((props: unknown) => {
+      const typedProps = props as { children?: React.ReactNode; onDragEnd?: (event: DragEndEvent) => void };
+      capturedOnDragEnd = typedProps.onDragEnd;
+      return <div data-testid="dnd-context">{typedProps.children}</div>;
     });
 
     render(
@@ -198,13 +279,31 @@ describe('DndProvider', () => {
       </DndProvider>
     );
 
+    const mockActive: Active = {
+      id: 'command-item-123',
+      data: { current: {} },
+      rect: {
+        current: {
+          initial: null,
+          translated: null,
+        }
+      }
+    };
+
+    const mockOver: Over = {
+      id: 'trash-zone',
+      disabled: false,
+      data: { current: {} },
+      rect: { width: 0, height: 0, top: 0, left: 0, right: 0, bottom: 0 }
+    };
+
     const mockEvent: DragEndEvent = {
-      active: {
-        id: 'command-item-123',
-        data: { current: {} }
-      },
-      over: { id: 'trash-zone' }
-    } as any;
+      active: mockActive,
+      over: mockOver,
+      activatorEvent: new MouseEvent('mousedown'),
+      collisions: null,
+      delta: { x: 0, y: 0 }
+    };
 
     capturedOnDragEnd!(mockEvent);
     expect(mockRemoveCommand).toHaveBeenCalledWith(123);
@@ -213,9 +312,10 @@ describe('DndProvider', () => {
   it('should duplicate command when dragging to copy zone', () => {
     let capturedOnDragEnd: ((event: DragEndEvent) => void) | undefined;
     
-    vi.mocked(DndContext).mockImplementation(({ onDragEnd, children }: any) => {
-      capturedOnDragEnd = onDragEnd;
-      return <div data-testid="dnd-context">{children}</div>;
+    vi.mocked(DndContext).mockImplementation((props: unknown) => {
+      const typedProps = props as { children?: React.ReactNode; onDragEnd?: (event: DragEndEvent) => void };
+      capturedOnDragEnd = typedProps.onDragEnd;
+      return <div data-testid="dnd-context">{typedProps.children}</div>;
     });
 
     render(
@@ -224,13 +324,31 @@ describe('DndProvider', () => {
       </DndProvider>
     );
 
+    const mockActive: Active = {
+      id: 'command-item-456',
+      data: { current: {} },
+      rect: {
+        current: {
+          initial: null,
+          translated: null,
+        }
+      }
+    };
+
+    const mockOver: Over = {
+      id: 'copy-zone',
+      disabled: false,
+      data: { current: {} },
+      rect: { width: 0, height: 0, top: 0, left: 0, right: 0, bottom: 0 }
+    };
+
     const mockEvent: DragEndEvent = {
-      active: {
-        id: 'command-item-456',
-        data: { current: {} }
-      },
-      over: { id: 'copy-zone' }
-    } as any;
+      active: mockActive,
+      over: mockOver,
+      activatorEvent: new MouseEvent('mousedown'),
+      collisions: null,
+      delta: { x: 0, y: 0 }
+    };
 
     capturedOnDragEnd!(mockEvent);
     expect(mockDuplicateCommand).toHaveBeenCalledWith(456);
@@ -239,9 +357,10 @@ describe('DndProvider', () => {
   it('should not do anything when over is null in drag end', () => {
     let capturedOnDragEnd: ((event: DragEndEvent) => void) | undefined;
     
-    vi.mocked(DndContext).mockImplementation(({ onDragEnd, children }: any) => {
-      capturedOnDragEnd = onDragEnd;
-      return <div data-testid="dnd-context">{children}</div>;
+    vi.mocked(DndContext).mockImplementation((props: unknown) => {
+      const typedProps = props as { children?: React.ReactNode; onDragEnd?: (event: DragEndEvent) => void };
+      capturedOnDragEnd = typedProps.onDragEnd;
+      return <div data-testid="dnd-context">{typedProps.children}</div>;
     });
 
     render(
@@ -250,13 +369,24 @@ describe('DndProvider', () => {
       </DndProvider>
     );
 
+    const mockActive: Active = {
+      id: 'command-item-123',
+      data: { current: {} },
+      rect: {
+        current: {
+          initial: null,
+          translated: null,
+        }
+      }
+    };
+
     const mockEvent: DragEndEvent = {
-      active: {
-        id: 'command-item-123',
-        data: { current: {} }
-      },
-      over: null
-    } as any;
+      active: mockActive,
+      over: null,
+      activatorEvent: new MouseEvent('mousedown'),
+      collisions: null,
+      delta: { x: 0, y: 0 }
+    };
 
     capturedOnDragEnd!(mockEvent);
     expect(mockAddCommand).not.toHaveBeenCalled();
@@ -267,9 +397,10 @@ describe('DndProvider', () => {
   it('should handle drag end with unrecognized drop target', () => {
     let capturedOnDragEnd: ((event: DragEndEvent) => void) | undefined;
     
-    vi.mocked(DndContext).mockImplementation(({ onDragEnd, children }: any) => {
-      capturedOnDragEnd = onDragEnd;
-      return <div data-testid="dnd-context">{children}</div>;
+    vi.mocked(DndContext).mockImplementation((props: unknown) => {
+      const typedProps = props as { children?: React.ReactNode; onDragEnd?: (event: DragEndEvent) => void };
+      capturedOnDragEnd = typedProps.onDragEnd;
+      return <div data-testid="dnd-context">{typedProps.children}</div>;
     });
 
     render(
@@ -278,13 +409,31 @@ describe('DndProvider', () => {
       </DndProvider>
     );
 
+    const mockActive: Active = {
+      id: 'command-item-123',
+      data: { current: {} },
+      rect: {
+        current: {
+          initial: null,
+          translated: null,
+        }
+      }
+    };
+
+    const mockOver: Over = {
+      id: 'unknown-zone',
+      disabled: false,
+      data: { current: {} },
+      rect: { width: 0, height: 0, top: 0, left: 0, right: 0, bottom: 0 }
+    };
+
     const mockEvent: DragEndEvent = {
-      active: {
-        id: 'command-item-123',
-        data: { current: {} }
-      },
-      over: { id: 'unknown-zone' }
-    } as any;
+      active: mockActive,
+      over: mockOver,
+      activatorEvent: new MouseEvent('mousedown'),
+      collisions: null,
+      delta: { x: 0, y: 0 }
+    };
 
     capturedOnDragEnd!(mockEvent);
     expect(mockAddCommand).not.toHaveBeenCalled();
@@ -313,9 +462,10 @@ describe('DndProvider', () => {
   it('should handle command-item with complex id format', () => {
     let capturedOnDragEnd: ((event: DragEndEvent) => void) | undefined;
     
-    vi.mocked(DndContext).mockImplementation(({ onDragEnd, children }: any) => {
-      capturedOnDragEnd = onDragEnd;
-      return <div data-testid="dnd-context">{children}</div>;
+    vi.mocked(DndContext).mockImplementation((props: unknown) => {
+      const typedProps = props as { children?: React.ReactNode; onDragEnd?: (event: DragEndEvent) => void };
+      capturedOnDragEnd = typedProps.onDragEnd;
+      return <div data-testid="dnd-context">{typedProps.children}</div>;
     });
 
     render(
@@ -325,13 +475,31 @@ describe('DndProvider', () => {
     );
 
     // Test with multi-digit id
+    const mockActive: Active = {
+      id: 'command-item-999999',
+      data: { current: {} },
+      rect: {
+        current: {
+          initial: null,
+          translated: null,
+        }
+      }
+    };
+
+    const mockOver: Over = {
+      id: 'trash-zone',
+      disabled: false,
+      data: { current: {} },
+      rect: { width: 0, height: 0, top: 0, left: 0, right: 0, bottom: 0 }
+    };
+
     const mockEvent: DragEndEvent = {
-      active: {
-        id: 'command-item-999999',
-        data: { current: {} }
-      },
-      over: { id: 'trash-zone' }
-    } as any;
+      active: mockActive,
+      over: mockOver,
+      activatorEvent: new MouseEvent('mousedown'),
+      collisions: null,
+      delta: { x: 0, y: 0 }
+    };
 
     capturedOnDragEnd!(mockEvent);
     expect(mockRemoveCommand).toHaveBeenCalledWith(999999);

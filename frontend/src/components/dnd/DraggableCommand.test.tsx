@@ -4,6 +4,7 @@ import { render, screen } from '@testing-library/react';
 import { DraggableCommand } from './DraggableCommand';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
+import type { Transform } from '@dnd-kit/utilities';
 
 // Mock @dnd-kit dependencies
 vi.mock('@dnd-kit/core', () => ({
@@ -21,9 +22,11 @@ vi.mock('@dnd-kit/utilities', () => ({
 describe('DraggableCommand', () => {
   const mockSetNodeRef = vi.fn();
   const mockAttributes = {
-    role: 'button',
+    role: 'button' as const,
     'aria-roledescription': 'draggable',
-    'aria-disabled': false
+    'aria-disabled': false,
+    'aria-pressed': undefined,
+    'aria-describedby': 'DndDescribedBy-0',
   };
   const mockListeners = {
     onPointerDown: vi.fn(),
@@ -40,8 +43,11 @@ describe('DraggableCommand', () => {
       isDragging: false,
       node: null,
       active: null,
-      over: null
-    } as any);
+      over: null,
+      activatorEvent: null,
+      activeNodeRect: null,
+      setActivatorNodeRef: vi.fn()
+    } as unknown as ReturnType<typeof useDraggable>);
   });
 
   it('should render children', () => {
@@ -95,7 +101,7 @@ describe('DraggableCommand', () => {
   });
 
   it('should apply transform style when dragging', () => {
-    const mockTransform = {
+    const mockTransform: Transform = {
       x: 10,
       y: 20,
       scaleX: 1,
@@ -111,8 +117,11 @@ describe('DraggableCommand', () => {
       isDragging: true,
       node: null,
       active: null,
-      over: null
-    } as any);
+      over: null,
+      activatorEvent: null,
+      activeNodeRect: null,
+      setActivatorNodeRef: vi.fn()
+    } as unknown as ReturnType<typeof useDraggable>);
 
     render(
       <DraggableCommand id="test">

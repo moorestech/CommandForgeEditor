@@ -83,7 +83,7 @@ describe('commandFormatting', () => {
         body: 'Hello'
       };
 
-      const result = formatCommandPreview(command, null as any);
+      const result = formatCommandPreview(command, null as unknown as Map<string, CommandDefinition>);
       expect(result).toBe('Alice'); // First string prop value
     });
 
@@ -95,7 +95,7 @@ describe('commandFormatting', () => {
         body: 'Hello'
       };
 
-      const result = formatCommandPreview(command, undefined as any);
+      const result = formatCommandPreview(command, undefined as unknown as Map<string, CommandDefinition>);
       expect(result).toBe('Alice'); // First string prop value
     });
 
@@ -151,7 +151,7 @@ describe('commandFormatting', () => {
         id: 1,
         type: 'text',
         character: 'Alice',
-        body: { nested: 'object' } as any
+        body: { nested: 'object' } as unknown as string
       };
 
       const result = formatCommandPreview(command, commandsMap);
@@ -163,7 +163,7 @@ describe('commandFormatting', () => {
         id: 1,
         type: 'text',
         character: 'Alice',
-        body: [1, 2, 3] as any
+        body: [1, 2, 3] as unknown as string
       };
 
       const result = formatCommandPreview(command, commandsMap);
@@ -175,7 +175,7 @@ describe('commandFormatting', () => {
         id: 1,
         type: 'text',
         character: 'Alice',
-        body: true as any
+        body: true as unknown as string
       };
 
       const result = formatCommandPreview(command, commandsMap);
@@ -239,7 +239,7 @@ describe('commandFormatting', () => {
         type: 'text'
       };
 
-      const result = hasCommandFormat(command, null as any);
+      const result = hasCommandFormat(command, null as unknown as Map<string, CommandDefinition>);
       expect(result).toBe(false);
     });
 
@@ -249,18 +249,18 @@ describe('commandFormatting', () => {
         type: 'text'
       };
 
-      const result = hasCommandFormat(command, undefined as any);
+      const result = hasCommandFormat(command, undefined as unknown as Map<string, CommandDefinition>);
       expect(result).toBe(false);
     });
 
     it('should return false when commandListLabelFormat is undefined', () => {
-      const commandDef: CommandDefinition = {
+      const commandDef = {
         id: 'test',
         label: 'Test',
         description: 'Test',
-        properties: {}
+        properties: {},
         // commandListLabelFormat is undefined
-      } as any;
+      } as CommandDefinition;
       
       const testMap = new Map([['test', commandDef]]);
       const command: SkitCommand = {

@@ -57,7 +57,7 @@ export const CommandList = memo(function CommandList() {
 
   const legacySelectedCommandId = (store as { selectedCommandId?: number }).selectedCommandId;
   const selectedIds = selectedCommandIds ?? (legacySelectedCommandId != null ? [legacySelectedCommandId] : []);
-  const commandDefinitions = storeCommandDefinitions ?? [];
+  const commandDefinitions = useMemo(() => storeCommandDefinitions ?? [], [storeCommandDefinitions]);
   const commandsMap = storeCommandsMap ?? new Map<string, CommandDefinition>();
 
   const currentSkit = currentSkitId ? skits[currentSkitId] : null;

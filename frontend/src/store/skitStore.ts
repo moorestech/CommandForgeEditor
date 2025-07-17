@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import { persist } from 'zustand/middleware';
-import { Skit, SkitCommand, CommandDefinition } from '../types';
+import { Skit, SkitCommand, CommandDefinition, PropertyDefinition } from '../types';
 import { parse } from 'yaml';
 import { reservedCommands } from '../utils/reservedCommands';
 import i18n from '../i18n/config';
@@ -541,7 +541,7 @@ export const useSkitStore = create<SkitState>()(
           state.masterData = masterData;
           
           // マスターデータ参照を解決する関数
-          const resolveOptions = (propertyDef: any): any => {
+          const resolveOptions = (propertyDef: PropertyDefinition): PropertyDefinition => {
             if (propertyDef.options && typeof propertyDef.options === 'object' && 'master' in propertyDef.options) {
               const masterKey = propertyDef.options.master;
               if (masterData[masterKey]) {
@@ -558,8 +558,8 @@ export const useSkitStore = create<SkitState>()(
           };
           
           // コマンド定義のマスターデータ参照を解決
-          const resolvedDefinitions = parsedDefinitions.map((cmd: any) => {
-            const resolvedProperties: Record<string, any> = {};
+          const resolvedDefinitions = parsedDefinitions.map((cmd: CommandDefinition) => {
+            const resolvedProperties: Record<string, PropertyDefinition> = {};
             for (const [key, value] of Object.entries(cmd.properties || {})) {
               resolvedProperties[key] = resolveOptions(value);
             }

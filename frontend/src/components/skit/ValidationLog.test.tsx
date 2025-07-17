@@ -9,13 +9,24 @@ import { useToast } from '../../hooks/use-toast';
 vi.mock('../../store/skitStore');
 vi.mock('../../hooks/use-toast');
 
+// Type definitions for Alert components
+interface AlertProps {
+  children: React.ReactNode;
+  variant?: string;
+  [key: string]: unknown;
+}
+
+interface AlertComponentProps {
+  children: React.ReactNode;
+}
+
 // Mock UI components
 vi.mock('../ui/alert', () => ({
-  Alert: ({ children, variant, ...props }: any) => (
+  Alert: ({ children, variant, ...props }: AlertProps) => (
     <div data-testid="alert" data-variant={variant} {...props}>{children}</div>
   ),
-  AlertTitle: ({ children }: any) => <div data-testid="alert-title">{children}</div>,
-  AlertDescription: ({ children }: any) => <div data-testid="alert-description">{children}</div>,
+  AlertTitle: ({ children }: AlertComponentProps) => <div data-testid="alert-title">{children}</div>,
+  AlertDescription: ({ children }: AlertComponentProps) => <div data-testid="alert-description">{children}</div>,
 }));
 
 describe('ValidationLog', () => {
@@ -23,13 +34,17 @@ describe('ValidationLog', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(useToast).mockReturnValue({ toast: mockToast } as any);
+    vi.mocked(useToast).mockReturnValue({ 
+      toast: mockToast,
+      dismiss: vi.fn(),
+      toasts: []
+    } as unknown as ReturnType<typeof useToast>);
   });
 
   it('should not render when no validation errors', () => {
     vi.mocked(useSkitStore).mockReturnValue({
       validationErrors: []
-    } as any);
+    } as ReturnType<typeof useSkitStore>);
 
     const { container } = render(<ValidationLog />);
     
@@ -45,7 +60,7 @@ describe('ValidationLog', () => {
 
     vi.mocked(useSkitStore).mockReturnValue({
       validationErrors: errors
-    } as any);
+    } as ReturnType<typeof useSkitStore>);
 
     render(<ValidationLog />);
 
@@ -63,7 +78,7 @@ describe('ValidationLog', () => {
 
     vi.mocked(useSkitStore).mockReturnValue({
       validationErrors: errors
-    } as any);
+    } as ReturnType<typeof useSkitStore>);
 
     render(<ValidationLog />);
 
@@ -83,7 +98,7 @@ describe('ValidationLog', () => {
   it('should use destructive variant for alerts', () => {
     vi.mocked(useSkitStore).mockReturnValue({
       validationErrors: ['テストエラー']
-    } as any);
+    } as ReturnType<typeof useSkitStore>);
 
     render(<ValidationLog />);
 
@@ -97,7 +112,7 @@ describe('ValidationLog', () => {
     // Initially no errors
     vi.mocked(useSkitStore).mockReturnValue({
       validationErrors: []
-    } as any);
+    } as ReturnType<typeof useSkitStore>);
     rerender(<ValidationLog />);
     
     expect(screen.queryByTestId('alert')).not.toBeInTheDocument();
@@ -105,7 +120,7 @@ describe('ValidationLog', () => {
     // Add errors
     vi.mocked(useSkitStore).mockReturnValue({
       validationErrors: ['新しいエラー']
-    } as any);
+    } as ReturnType<typeof useSkitStore>);
     rerender(<ValidationLog />);
 
     expect(screen.getByTestId('alert')).toBeInTheDocument();
@@ -117,7 +132,7 @@ describe('ValidationLog', () => {
     
     vi.mocked(useSkitStore).mockReturnValue({
       validationErrors: errors
-    } as any);
+    } as ReturnType<typeof useSkitStore>);
 
     const { rerender } = render(<ValidationLog />);
     
@@ -134,7 +149,7 @@ describe('ValidationLog', () => {
   it('should display error icon', () => {
     vi.mocked(useSkitStore).mockReturnValue({
       validationErrors: ['エラー']
-    } as any);
+    } as ReturnType<typeof useSkitStore>);
 
     render(<ValidationLog />);
 
@@ -148,7 +163,7 @@ describe('ValidationLog', () => {
   it('should wrap errors in proper container', () => {
     vi.mocked(useSkitStore).mockReturnValue({
       validationErrors: ['エラー1', 'エラー2']
-    } as any);
+    } as ReturnType<typeof useSkitStore>);
 
     render(<ValidationLog />);
 
@@ -159,7 +174,7 @@ describe('ValidationLog', () => {
   it('should handle empty error strings', () => {
     vi.mocked(useSkitStore).mockReturnValue({
       validationErrors: ['', '有効なエラー', '']
-    } as any);
+    } as ReturnType<typeof useSkitStore>);
 
     render(<ValidationLog />);
 
@@ -171,7 +186,7 @@ describe('ValidationLog', () => {
     // Start with errors
     vi.mocked(useSkitStore).mockReturnValue({
       validationErrors: ['エラー']
-    } as any);
+    } as ReturnType<typeof useSkitStore>);
 
     const { rerender } = render(<ValidationLog />);
     expect(screen.getByTestId('alert')).toBeInTheDocument();
@@ -179,7 +194,7 @@ describe('ValidationLog', () => {
     // Clear errors
     vi.mocked(useSkitStore).mockReturnValue({
       validationErrors: []
-    } as any);
+    } as ReturnType<typeof useSkitStore>);
     
     rerender(<ValidationLog />);
     expect(screen.queryByTestId('alert')).not.toBeInTheDocument();

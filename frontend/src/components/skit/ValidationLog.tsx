@@ -20,7 +20,7 @@ export function ValidationLog() {
         });
       });
     }
-  }, [validationErrors, toast]);
+  }, [validationErrors, toast, t]);
 
   if (validationErrors.length === 0) {
     return null;

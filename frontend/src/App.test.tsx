@@ -42,8 +42,8 @@ vi.mock('./components/dnd/DndProvider', () => ({
 }));
 
 vi.mock('./components/ui/resizable', () => ({
-  ResizablePanelGroup: ({ children }: any) => <div data-testid="resizable-panel-group">{children}</div>,
-  ResizablePanel: ({ children }: any) => <div data-testid="resizable-panel">{children}</div>,
+  ResizablePanelGroup: ({ children }: { children: React.ReactNode }) => <div data-testid="resizable-panel-group">{children}</div>,
+  ResizablePanel: ({ children }: { children: React.ReactNode }) => <div data-testid="resizable-panel">{children}</div>,
   ResizableHandle: () => <div data-testid="resizable-handle" />,
 }));
 
@@ -52,7 +52,7 @@ vi.mock('sonner', () => ({
 }));
 
 vi.mock('react-i18next', () => ({
-  I18nextProvider: ({ children }: any) => <div data-testid="i18next-provider">{children}</div>,
+  I18nextProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="i18next-provider">{children}</div>,
   useTranslation: () => ({
     t: (key: string) => key,
     i18n: {
@@ -82,10 +82,13 @@ describe('App', () => {
       loadCommandsYaml: mockLoadCommandsYaml,
       loadSkits: mockLoadSkits,
       projectPath: '/test/path',
-    } as any);
+    } as ReturnType<typeof useSkitStore>);
     
     // Reset import.meta.env
-    (import.meta as any).env = { DEV: false };
+    Object.defineProperty(import.meta, 'env', {
+      value: { DEV: false },
+      configurable: true
+    });
   });
 
   it('should render all main components', () => {
@@ -130,7 +133,10 @@ describe('App', () => {
 
 
   it('should load sample data in development mode when main data fails', async () => {
-    (import.meta as any).env = { DEV: true };
+    Object.defineProperty(import.meta, 'env', {
+      value: { DEV: true },
+      configurable: true
+    });
     
     const mockSampleSkits = { 
       'sample-skit': { 
@@ -161,7 +167,10 @@ describe('App', () => {
   });
 
   it('should handle errors when loading sample skit data', async () => {
-    (import.meta as any).env = { DEV: true };
+    Object.defineProperty(import.meta, 'env', {
+      value: { DEV: true },
+      configurable: true
+    });
     
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     
@@ -180,7 +189,10 @@ describe('App', () => {
   });
 
   it('should handle errors when loading sample commands yaml', async () => {
-    (import.meta as any).env = { DEV: true };
+    Object.defineProperty(import.meta, 'env', {
+      value: { DEV: true },
+      configurable: true
+    });
     
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     
@@ -221,7 +233,10 @@ describe('App', () => {
   });
 
   it('should handle successful initial data load in production', async () => {
-    (import.meta as any).env = { DEV: false };
+    Object.defineProperty(import.meta, 'env', {
+      value: { DEV: false },
+      configurable: true
+    });
     
     const mockCommandsYaml = 'production yaml';
     const mockSkitsData = { 
@@ -255,7 +270,7 @@ describe('App', () => {
       loadCommandsYaml: mockLoadCommandsYaml,
       loadSkits: mockLoadSkits,
       projectPath: null,
-    } as any);
+    } as ReturnType<typeof useSkitStore>);
     
     render(<App />);
     

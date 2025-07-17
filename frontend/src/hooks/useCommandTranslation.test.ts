@@ -4,6 +4,7 @@ import { renderHook } from '@testing-library/react';
 import { useCommandTranslation } from './useCommandTranslation';
 import { useTranslation } from 'react-i18next';
 import { getTranslationWithFallback } from '../i18n/translationLoader';
+import type { TFunction } from 'i18next';
 
 // Mock dependencies
 vi.mock('react-i18next');
@@ -14,14 +15,17 @@ describe('useCommandTranslation', () => {
     vi.clearAllMocks();
     
     // Mock useTranslation
+    const mockTranslationFunction = vi.fn() as unknown as TFunction;
     vi.mocked(useTranslation).mockReturnValue([
-      vi.fn() as any,
-      {} as any,
+      mockTranslationFunction,
+      { ready: true } as unknown as ReturnType<typeof useTranslation>[1],
       true,
-    ] as any);
+    ] as ReturnType<typeof useTranslation>);
     
     // Mock getTranslationWithFallback
-    vi.mocked(getTranslationWithFallback).mockImplementation((key, _fallback) => {
+    vi.mocked(getTranslationWithFallback).mockImplementation((key, fallback) => {
+      // Using fallback parameter to avoid unused variable warning
+      console.debug('Mock translation for key:', key, 'with fallback:', fallback);
       return `translated:${key}`;
     });
   });

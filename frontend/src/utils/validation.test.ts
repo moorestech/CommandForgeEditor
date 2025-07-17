@@ -1,7 +1,7 @@
 // AI Generated Test Code
 import { describe, it, expect } from 'vitest';
 import { validateSkitData, validateCommandProperties, validateCommandsYaml } from './validation';
-import { Skit, CommandsConfig } from '../types';
+import { Skit, CommandsConfig, SkitCommand } from '../types';
 
 describe('validation', () => {
   describe('validateSkitData', () => {
@@ -29,7 +29,7 @@ describe('validation', () => {
           // missing version, created, modified
         },
         commands: []
-      } as any;
+      } as unknown as Skit;
 
       const errors = validateSkitData(invalidSkit);
       expect(errors.length).toBeGreaterThan(0);
@@ -45,7 +45,7 @@ describe('validation', () => {
           modified: '2023-01-01T00:00:00Z'
         }
         // missing commands
-      } as any;
+      } as unknown as Skit;
 
       const errors = validateSkitData(invalidSkit);
       expect(errors.length).toBeGreaterThan(0);
@@ -57,7 +57,7 @@ describe('validation', () => {
         meta: {
           title: 'Test Skit',
           version: 1,
-          created: 'invalid-date' as any,
+          created: 'invalid-date',
           modified: '2023-01-01T00:00:00Z'
         },
         commands: []
@@ -77,7 +77,7 @@ describe('validation', () => {
           modified: '2023-01-01T00:00:00Z'
         },
         commands: [
-          { type: 'text' } as any // missing id
+          { type: 'text' } as unknown as SkitCommand // missing id
         ]
       };
 

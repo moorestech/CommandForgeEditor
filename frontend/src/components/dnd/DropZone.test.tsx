@@ -11,17 +11,19 @@ vi.mock('@dnd-kit/core', () => ({
 
 describe('DropZone', () => {
   const mockSetNodeRef = vi.fn();
+  const mockNodeRef = { current: null };
+  const mockRectRef = { current: null };
 
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(useDroppable).mockReturnValue({
       isOver: false,
       setNodeRef: mockSetNodeRef,
-      node: null,
+      node: mockNodeRef,
       active: null,
       over: null,
-      rect: null
-    } as any);
+      rect: mockRectRef
+    } as ReturnType<typeof useDroppable>);
   });
 
   it('should render children', () => {
@@ -59,11 +61,11 @@ describe('DropZone', () => {
     vi.mocked(useDroppable).mockReturnValue({
       isOver: true,
       setNodeRef: mockSetNodeRef,
-      node: null,
+      node: mockNodeRef,
       active: null,
       over: null,
-      rect: null
-    } as any);
+      rect: mockRectRef
+    } as ReturnType<typeof useDroppable>);
 
     render(
       <DropZone id="test">
@@ -101,11 +103,11 @@ describe('DropZone', () => {
     vi.mocked(useDroppable).mockReturnValue({
       isOver: true,
       setNodeRef: mockSetNodeRef,
-      node: null,
+      node: mockNodeRef,
       active: null,
       over: null,
-      rect: null
-    } as any);
+      rect: mockRectRef
+    } as ReturnType<typeof useDroppable>);
 
     render(
       <DropZone id="test" className="my-custom-class">

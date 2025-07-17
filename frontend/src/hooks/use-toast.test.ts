@@ -191,7 +191,7 @@ describe('use-toast', () => {
     it('should dismiss toast', () => {
       const { result } = renderHook(() => useToast());
       
-      let toastResult: any;
+      let toastResult: ReturnType<typeof toast>;
       act(() => {
         toastResult = result.current.toast({ title: 'Test' });
       });

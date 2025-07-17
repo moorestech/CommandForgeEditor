@@ -1,34 +1,59 @@
 // AI Generated Test Code
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, MockedFunction } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { useSkitStore } from '../../store/skitStore';
+import type { ReactNode } from 'react';
 
 // Mock dependencies
 vi.mock('../../store/skitStore');
+// Type definitions for mocked components
+interface SelectProps {
+  value?: string;
+  onValueChange?: (value: string) => void;
+  children?: ReactNode;
+}
+
+interface SelectComponentProps {
+  children?: ReactNode;
+  className?: string;
+}
+
+interface SelectItemProps {
+  value: string;
+  children?: ReactNode;
+}
+
 vi.mock('../ui/select', () => ({
-  Select: ({ value, onValueChange, children }: any) => (
+  Select: ({ value, onValueChange, children }: SelectProps) => (
     <div data-testid="select" data-value={value}>
       <button onClick={() => onValueChange && onValueChange('en')} data-testid="select-trigger">
         {children}
       </button>
     </div>
   ),
-  SelectTrigger: ({ children, className }: any) => (
+  SelectTrigger: ({ children, className }: SelectComponentProps) => (
     <button role="combobox" data-value={children} className={className} data-testid="select-trigger-inner">
       {children}
     </button>
   ),
-  SelectContent: ({ children }: any) => <div data-testid="select-content">{children}</div>,
-  SelectItem: ({ value, children }: any) => (
+  SelectContent: ({ children }: SelectComponentProps) => <div data-testid="select-content">{children}</div>,
+  SelectItem: ({ value, children }: SelectItemProps) => (
     <div role="option" data-value={value} onClick={() => {}}>{children}</div>
   ),
   SelectValue: () => <span>日本語</span>,
 }));
 
+// Type for the store state subset used in this component
+interface LanguageSwitcherStoreState {
+  currentLanguage: string;
+  availableLanguages: Array<{ code: string; name: string }>;
+  changeLanguage: (language: string) => Promise<void>;
+}
+
 describe('LanguageSwitcher', () => {
-  const mockChangeLanguage = vi.fn();
-  const mockLanguages = [
+  const mockChangeLanguage = vi.fn(() => Promise.resolve());
+  const mockLanguages: LanguageSwitcherStoreState['availableLanguages'] = [
     { code: 'ja', name: '日本語' },
     { code: 'en', name: 'English' },
     { code: 'zh', name: '中文' },
@@ -37,11 +62,12 @@ describe('LanguageSwitcher', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     
-    vi.mocked(useSkitStore).mockReturnValue({
+    const mockedUseSkitStore = vi.mocked(useSkitStore) as MockedFunction<typeof useSkitStore>;
+    mockedUseSkitStore.mockReturnValue({
       currentLanguage: 'ja',
       availableLanguages: mockLanguages,
       changeLanguage: mockChangeLanguage,
-    } as any);
+    } as ReturnType<typeof useSkitStore>);
   });
 
   it('should render with globe icon', () => {
@@ -94,11 +120,12 @@ describe('LanguageSwitcher', () => {
   });
 
   it('should handle empty language list', () => {
-    vi.mocked(useSkitStore).mockReturnValue({
+    const mockedUseSkitStore = vi.mocked(useSkitStore) as MockedFunction<typeof useSkitStore>;
+    mockedUseSkitStore.mockReturnValue({
       currentLanguage: 'ja',
       availableLanguages: [],
       changeLanguage: mockChangeLanguage,
-    } as any);
+    } as ReturnType<typeof useSkitStore>);
     
     render(<LanguageSwitcher />);
     
@@ -145,11 +172,12 @@ describe('LanguageSwitcher', () => {
     const { rerender } = render(<LanguageSwitcher />);
     
     // Change the current language
-    vi.mocked(useSkitStore).mockReturnValue({
+    const mockedUseSkitStore = vi.mocked(useSkitStore) as MockedFunction<typeof useSkitStore>;
+    mockedUseSkitStore.mockReturnValue({
       currentLanguage: 'en',
       availableLanguages: mockLanguages,
       changeLanguage: mockChangeLanguage,
-    } as any);
+    } as ReturnType<typeof useSkitStore>);
     
     rerender(<LanguageSwitcher />);
     
@@ -158,11 +186,12 @@ describe('LanguageSwitcher', () => {
   });
 
   it('should handle single language', () => {
-    vi.mocked(useSkitStore).mockReturnValue({
+    const mockedUseSkitStore = vi.mocked(useSkitStore) as MockedFunction<typeof useSkitStore>;
+    mockedUseSkitStore.mockReturnValue({
       currentLanguage: 'ja',
       availableLanguages: [{ code: 'ja', name: '日本語' }],
       changeLanguage: mockChangeLanguage,
-    } as any);
+    } as ReturnType<typeof useSkitStore>);
     
     render(<LanguageSwitcher />);
     
