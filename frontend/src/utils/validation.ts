@@ -46,6 +46,23 @@ const commandsConfigSchema = {
         items: { type: 'string' }
       }
     },
+    config: {
+      type: 'object',
+      properties: {
+        categories: {
+          type: 'array',
+          items: {
+            type: 'object',
+            required: ['id', 'name'],
+            properties: {
+              id: { type: 'string' },
+              name: { type: 'string' },
+              order: { type: 'number' }
+            }
+          }
+        }
+      }
+    },
     commands: {
       type: 'array',
       items: {
@@ -56,6 +73,13 @@ const commandsConfigSchema = {
           label: { type: 'string' },
           description: { type: 'string' },
           commandListLabelFormat: { type: 'string' },
+          order: { type: 'number' },
+          defaultBackgroundColor: { type: 'string' },
+          defaultCommandLabelColor: { type: 'string' },
+          category: {
+            type: 'array',
+            items: { type: 'string' }
+          },
           properties: {
             type: 'object',
             additionalProperties: {

@@ -1,0 +1,250 @@
+# New format example with order properties
+version: 1
+
+# Configuration block for category definitions
+config:
+  categories:
+    - id: System
+      name: システム関連
+      order: 1  # System commands come first
+    - id: Character
+      name: キャラクター操作
+      order: 2  # Character commands come second
+    - id: Scene
+      name: シーン制御
+      order: 3  # Scene commands come third
+    - id: Sound
+      name: サウンド
+      order: 4  # Sound commands come fourth
+    - id: Camera
+      name: カメラ
+      order: 5  # Camera commands come fifth
+
+# Master data definitions
+master:
+  characters: ["CharacterA", "CharacterB", "CharacterC", "CharacterD", "Teacher", "Waiter"]
+  emotions: ["Normal", "Smile", "Surprise", "Anger", "Sadness", "Confusion", "Shy", "Fear", "Joy", "Serious"]
+  bgmTracks: ["None", "Daily Life", "Tension", "Sad", "Happy", "Mysterious", "Action", "Romantic", "Ending"]
+  soundEffects: ["Door", "Footsteps", "Impact", "Explosion", "Bell", "Applause", "Alarm", "Rain", "Thunder", "Wind"]
+  locations: ["Classroom", "Hallway", "Gymnasium", "Rooftop", "Park", "Station", "Cafe", "Home", "Library", "Shopping Street"]
+  transitions: ["None", "Fade", "Wipe", "Crossfade", "Flash"]
+  cameraActions: ["Zoom In", "Zoom Out", "Pan Left", "Pan Right", "Shake", "Focus", "Reset"]
+  cameraTargets: ["Whole", "CharacterA", "CharacterB", "CharacterC", "CharacterD", "Teacher", "Waiter", "Background"]
+  characterActions: ["Walk", "Run", "Sit", "Stand", "Jump", "Dance", "Fall", "Wave", "Point", "Hug"]
+  directions: ["Left", "Right", "Up", "Down", "Center"]
+  textStyles: ["Normal", "Emphasis", "Small", "Italic", "Blinking"]
+
+# Command definitions with order properties
+commands:
+  # System commands (order 1-10)
+  - id: choice
+    label: Choice
+    description: Display choices
+    category: ["System", "Choice"]
+    commandListLabelFormat: "CHOICE: {options}"
+    order: 1  # First system command
+    properties:
+      options:
+        type: string
+        multiline: true
+        description: "One option per line"
+        required: true
+      timeout:
+        type: number
+        default: 0
+        description: "Auto-select timeout in seconds (0 for unlimited)"
+
+  - id: branch
+    label: Branch
+    description: Branch referencing other commands
+    category: ["System", "Branch"]
+    commandListLabelFormat: "BRANCH: Target {targetCommand}"
+    defaultBackgroundColor: "#f9f0ff"
+    order: 2  # Second system command
+    properties:
+      targetCommand:
+        type: command
+        required: true
+        commandTypes: ["text", "narration"]
+      condition:
+        type: string
+        required: true
+        multiline: true
+
+  # Character commands (order 11-20)
+  - id: text
+    label: Text
+    description: Display dialogue
+    category: ["Character", "Dialogue"]
+    commandListLabelFormat: "{character}「{body}」"
+    order: 11  # First character command
+    properties:
+      character:
+        type: enum
+        options:
+          master: characters
+        required: true
+      body:
+        type: string
+        multiline: true
+        required: true
+
+  - id: emote
+    label: Emote
+    description: Character expression change
+    category: ["Character", "Emotion"]
+    commandListLabelFormat: "EMOTE: {character}, {emotion}"
+    order: 12  # Second character command
+    properties:
+      character:
+        type: enum
+        options:
+          master: characters
+        required: true
+      emotion:
+        type: enum
+        options:
+          master: emotions
+        required: true
+
+  - id: action
+    label: Action
+    description: Execute character action
+    category: ["Character", "Motion"]
+    commandListLabelFormat: "ACTION: {character}, {action}"
+    order: 13  # Third character command
+    properties:
+      character:
+        type: enum
+        options:
+          master: characters
+        required: true
+      action:
+        type: enum
+        options:
+          master: characterActions
+        required: true
+      direction:
+        type: enum
+        options:
+          master: directions
+        default: "Center"
+
+  # Scene commands (order 21-30)
+  - id: background
+    label: Background
+    description: Change background image
+    category: ["Scene", "Background"]
+    commandListLabelFormat: "BG: {scene}, effect={transition}"
+    order: 21  # First scene command
+    properties:
+      scene:
+        type: enum
+        options:
+          master: locations
+        required: true
+      transition:
+        type: enum
+        options:
+          master: transitions
+        default: "None"
+
+  - id: wait
+    label: Wait
+    description: Wait for specified seconds
+    category: ["Scene", "Wait"]
+    commandListLabelFormat: "WAIT: {seconds}"
+    defaultBackgroundColor: '#57e317'
+    order: 22  # Second scene command
+    properties:
+      seconds:
+        type: number
+        default: 0.5
+        constraints:
+          min: 0
+
+  - id: narration
+    label: Narration
+    description: Display narration text
+    category: ["Scene", "Narration"]
+    commandListLabelFormat: "NARRATION: {text}"
+    order: 23  # Third scene command
+    properties:
+      text:
+        type: string
+        multiline: true
+        required: true
+      style:
+        type: enum
+        options:
+          master: textStyles
+        default: "Normal"
+
+  # Sound commands (order 31-40)
+  - id: bgm
+    label: BGM
+    description: Change background music
+    category: ["Sound", "BGM"]
+    commandListLabelFormat: "BGM: {track}, volume={volume}"
+    order: 31  # First sound command
+    properties:
+      track:
+        type: enum
+        options:
+          master: bgmTracks
+        required: true
+      volume:
+        type: number
+        default: 1.0
+        constraints:
+          min: 0
+          max: 1.0
+
+  - id: sound
+    label: Sound Effect
+    description: Play sound effect
+    category: ["Sound", "Effect"]
+    commandListLabelFormat: "SOUND: {effect}, volume={volume}"
+    order: 32  # Second sound command
+    properties:
+      effect:
+        type: enum
+        options:
+          master: soundEffects
+        required: true
+      volume:
+        type: number
+        default: 1.0
+        constraints:
+          min: 0
+          max: 1.0
+
+  # Camera commands (order 41-50)
+  - id: camera
+    label: Camera
+    description: Control camera work
+    category: ["Camera", "Movement"]
+    commandListLabelFormat: "CAMERA: {action}, target={target}"
+    order: 41  # First camera command
+    properties:
+      action:
+        type: enum
+        options:
+          master: cameraActions
+        required: true
+      target:
+        type: enum
+        options:
+          master: cameraTargets
+        default: "Whole"
+
+  - id: characterPosition
+    label: Camera Position
+    description: Camera position
+    category: ["Camera", "Position"]
+    commandListLabelFormat: "Camera Move {position}"
+    order: 42  # Second camera command
+    properties:
+      position:
+        type: vector3Int
+        required: true

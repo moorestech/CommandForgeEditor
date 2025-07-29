@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import { persist } from 'zustand/middleware';
-import { Skit, SkitCommand, CommandDefinition, PropertyDefinition } from '../types';
+import { Skit, SkitCommand, CommandDefinition, PropertyDefinition, CategoryDefinition } from '../types';
 import { parse } from 'yaml';
 import { reservedCommands } from '../utils/reservedCommands';
 import i18n from '../i18n/config';
@@ -15,6 +15,7 @@ interface SkitState {
   commandsMap: Map<string, CommandDefinition>;
   commandsYaml: string | null; // YAMLの元データを保持しておく必要があります
   masterData: Record<string, string[]>; // マスターデータを保持
+  categoryDefinitions: CategoryDefinition[]; // カテゴリ定義を保持
   projectPath: string | null;  // Add project path state
   validationErrors: string[];
   history: {
@@ -105,6 +106,7 @@ export const useSkitStore = create<SkitState>()(
     commandsMap: new Map<string, CommandDefinition>(),
     commandsYaml: null,
     masterData: {}, // マスターデータを初期化
+    categoryDefinitions: [], // カテゴリ定義を初期化
     projectPath: null,  // Initialize project path
     validationErrors: [],
     history: {
@@ -533,12 +535,28 @@ export const useSkitStore = create<SkitState>()(
         
         try {
           const parsed = parse(yaml);
-          // YAMLからロードしたコマンド定義
-          const parsedDefinitions = parsed?.commands || [];
           
-          // マスターデータを読み込む
-          const masterData = parsed?.master || {};
+          // 新形式（オブジェクト）か旧形式（配列）かを判定
+          let parsedDefinitions: CommandDefinition[] = [];
+          let categoryDefinitions: CategoryDefinition[] = [];
+          let masterData: Record<string, string[]> = {};
+          
+          if (Array.isArray(parsed)) {
+            // 旧形式: トップレベルが配列の場合
+            parsedDefinitions = parsed;
+          } else if (parsed && typeof parsed === 'object') {
+            // 新形式: トップレベルがオブジェクトの場合
+            parsedDefinitions = parsed.commands || [];
+            masterData = parsed.master || {};
+            
+            // カテゴリ定義を読み込む
+            if (parsed.config && parsed.config.categories) {
+              categoryDefinitions = parsed.config.categories;
+            }
+          }
+          
           state.masterData = masterData;
+          state.categoryDefinitions = categoryDefinitions;
           
           // マスターデータ参照を解決する関数
           const resolveOptions = (propertyDef: PropertyDefinition): PropertyDefinition => {
@@ -572,13 +590,24 @@ export const useSkitStore = create<SkitState>()(
           // reservedCommandsを追加
           const allDefinitions = [...resolvedDefinitions, ...reservedCommands];
           
+          // コマンドをorder番号でソート
+          const sortedDefinitions = allDefinitions.sort((a, b) => {
+            const orderA = a.order ?? Infinity;
+            const orderB = b.order ?? Infinity;
+            if (orderA !== orderB) {
+              return orderA - orderB;
+            }
+            // order番号が同じか、両方ともない場合はIDのアルファベット順
+            return a.id.localeCompare(b.id);
+          });
+          
           // コマンド定義をIDでマッピング
           const commandsMap = new Map<string, CommandDefinition>();
-          allDefinitions.forEach((def: CommandDefinition) => {
+          sortedDefinitions.forEach((def: CommandDefinition) => {
             commandsMap.set(def.id, def);
           });
           
-          state.commandDefinitions = allDefinitions;
+          state.commandDefinitions = sortedDefinitions;
           state.commandsMap = commandsMap;
         } catch (error) {
           console.error('Failed to parse commands.yaml:', error);
@@ -590,6 +619,7 @@ export const useSkitStore = create<SkitState>()(
           });
           state.commandsMap = commandsMap;
           state.masterData = {};
+          state.categoryDefinitions = [];
         }
       });
     },

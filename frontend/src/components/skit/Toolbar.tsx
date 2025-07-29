@@ -56,6 +56,7 @@ export function Toolbar() {
     redo,
     saveSkit,
     commandDefinitions,
+    categoryDefinitions,
     projectPath,
   } = useSkitStore();
 
@@ -107,7 +108,7 @@ export function Toolbar() {
   const isCommandSelected = selectedCommandIds.length > 0;
   
   // Group commands by category
-  const commandCategories = groupCommandsByCategory(commandDefinitions);
+  const commandCategories = groupCommandsByCategory(commandDefinitions, categoryDefinitions);
 
   return (
     <div className="flex items-center p-2 border-b w-full">

@@ -5,7 +5,7 @@ import { useDndSortable } from '../../hooks/useDndSortable';
 import { SortableList } from '../dnd/SortableList';
 import { SortableItem } from '../dnd/SortableItem';
 import { DropZone } from '../dnd/DropZone';
-import { SkitCommand, CommandDefinition } from '../../types';
+import { SkitCommand, CommandDefinition, CategoryDefinition } from '../../types';
 import { createCommandWithDefaults } from '../../utils/commandDefaults';
 import {
   ContextMenu,
@@ -50,6 +50,7 @@ export const CommandList = memo(function CommandList() {
     removeCommands,
     commandDefinitions: storeCommandDefinitions,
     commandsMap: storeCommandsMap,
+    categoryDefinitions: storeCategoryDefinitions,
     createGroup,
     ungroupCommands,
     toggleGroupCollapse,
@@ -58,6 +59,7 @@ export const CommandList = memo(function CommandList() {
   const legacySelectedCommandId = (store as { selectedCommandId?: number }).selectedCommandId;
   const selectedIds = selectedCommandIds ?? (legacySelectedCommandId != null ? [legacySelectedCommandId] : []);
   const commandDefinitions = useMemo(() => storeCommandDefinitions ?? [], [storeCommandDefinitions]);
+  const categoryDefinitions = useMemo(() => storeCategoryDefinitions ?? [], [storeCategoryDefinitions]);
   const commandsMap = storeCommandsMap ?? new Map<string, CommandDefinition>();
 
   const currentSkit = currentSkitId ? skits[currentSkitId] : null;
@@ -248,6 +250,7 @@ export const CommandList = memo(function CommandList() {
                   command={command}
                   index={originalIndex}
                   commandDefinitions={commandDefinitions}
+                  categoryDefinitions={categoryDefinitions}
                   selectedCommandIds={selectedIds}
                   removeCommand={removeCommand}
                   removeCommands={removeCommands}
@@ -454,6 +457,7 @@ const CommandContextMenu = memo(({
   command,
   index,
   commandDefinitions,
+  categoryDefinitions,
   selectedCommandIds = [],
   removeCommand,
   removeCommands,
@@ -464,6 +468,7 @@ const CommandContextMenu = memo(({
   command: SkitCommand;
   index: number; // zero-based index in the full command array
   commandDefinitions: CommandDefinition[];
+  categoryDefinitions: CategoryDefinition[];
   selectedCommandIds?: number[];
   removeCommand: (id: number) => void;
   removeCommands: (ids: number[]) => void;
@@ -474,7 +479,7 @@ const CommandContextMenu = memo(({
   const isGroupStart = command.type === 'group_start';
   
   // Group commands by category
-  const commandCategories = groupCommandsByCategory(commandDefinitions);
+  const commandCategories = groupCommandsByCategory(commandDefinitions, categoryDefinitions);
   
   return (
     <ContextMenuContent>

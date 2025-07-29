@@ -37,12 +37,23 @@ export interface CommandDefinition {
   defaultBackgroundColor?: string;
   defaultCommandLabelColor?: string;
   properties: Record<string, PropertyDefinition>;
+  order?: number; // Optional order for sorting
+}
+
+export interface CategoryDefinition {
+  id: string;
+  name: string;
+  order?: number; // Optional order for sorting
 }
 
 export interface CommandsConfig {
   version: number;
   master?: Record<string, string[]>;
   commands: CommandDefinition[];
+  // New format support with config block
+  config?: {
+    categories?: CategoryDefinition[];
+  };
 }
 
 export interface SkitMeta {
