@@ -18,8 +18,10 @@ const configSchema = {
 
 const validateConfig = ajv.compile(configSchema);
 
+const CONFIG_FILE_NAMES = ['commandForgeEditor.config.yml', 'commandForgeEditor.config.yaml'];
+
 /**
- * Loads and validates the commandForgeEditor.config.yml file
+ * Loads and validates the commandForgeEditor.config.yml or .yaml file
  * @param projectPath The project path
  * @returns Promise with the configuration
  */
@@ -30,10 +32,17 @@ export async function loadConfigFile(projectPath: string): Promise<CommandForgeC
       throw new Error('Running in web environment, Tauri API not available');
     }
 
-    const configPath = await join(projectPath, 'commandForgeEditor.config.yml');
-    
-    if (!(await exists(configPath))) {
-      throw new Error(`Configuration file not found at ${configPath}`);
+    let configPath: string | null = null;
+    for (const fileName of CONFIG_FILE_NAMES) {
+      const path = await join(projectPath, fileName);
+      if (await exists(path)) {
+        configPath = path;
+        break;
+      }
+    }
+
+    if (!configPath) {
+      throw new Error(`Configuration file not found. Searched for: ${CONFIG_FILE_NAMES.join(', ')}`);
     }
 
     const configContent = await readTextFile(configPath);

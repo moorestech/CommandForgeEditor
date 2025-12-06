@@ -46,25 +46,39 @@ export async function loadSampleSkit(): Promise<Record<string, Skit>> {
   }
 }
 
+const CONFIG_FILE_NAMES = ['commandForgeEditor.config.yml', 'commandForgeEditor.config.yaml'];
+
 /**
- * 開発環境用: サンプルcommandForgeEditor.config.ymlファイルを読み込む
+ * 開発環境用: サンプルcommandForgeEditor.config.yml または .yaml ファイルを読み込む
  * @returns Promise with the configuration
  */
 export async function loadSampleConfig(): Promise<CommandForgeConfig> {
   try {
-    console.log('Loading commandForgeEditor.config.yml for web environment');
-    
-    // Web環境でfetchを使用してファイルをロード
-    const response = await fetch('/src/sample/commandForgeEditor.config.yml');
-    if (!response.ok) {
-      throw new Error(`Failed to fetch commandForgeEditor.config.yml: ${response.status}`);
+    console.log('Loading commandForgeEditor.config for web environment');
+
+    // Web環境でfetchを使用してファイルをロード (.yml, .yaml の順で試行)
+    let response: Response | null = null;
+    let loadedFileName: string | null = null;
+
+    for (const fileName of CONFIG_FILE_NAMES) {
+      const res = await fetch(`/src/sample/${fileName}`);
+      if (res.ok) {
+        response = res;
+        loadedFileName = fileName;
+        break;
+      }
     }
+
+    if (!response || !response.ok) {
+      throw new Error(`Failed to fetch config file. Searched for: ${CONFIG_FILE_NAMES.join(', ')}`);
+    }
+
     const content = await response.text();
     const config = parse(content) as CommandForgeConfig;
-    console.log('Successfully loaded commandForgeEditor.config.yml');
+    console.log(`Successfully loaded ${loadedFileName}`);
     return config;
   } catch (error) {
-    console.error('Failed to load commandForgeEditor.config.yml:', error);
+    console.error('Failed to load commandForgeEditor.config:', error);
     throw error;
   }
 }
